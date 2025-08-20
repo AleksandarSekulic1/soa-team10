@@ -1,0 +1,85 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API za upravljanje korisnicima (Stakeholders) u turističkoj aplikaciji.",
+        "title": "Stakeholders Service API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8081",
+    "basePath": "/api",
+    "paths": {
+        "/stakeholders/register": {
+            "post": {
+                "description": "Kreira novog korisnika sa ulogom 'turista' ili 'vodič'.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Registracija novog korisnika",
+                "parameters": [
+                    {
+                        "description": "Podaci za registraciju korisnika",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Uspešno kreiran korisnik",
+                        "schema": {
+                            "$ref": "#/definitions/domain.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Greška: Neispravan format zahteva",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Interna greška servera",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "domain.User": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "turista@mail.com"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "sigurna-lozinka-456"
+                },
+                "role": {
+                    "type": "string",
+                    "example": "turista"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "turista123"
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,86 @@
+// Glavni kontejner forme (kartica)
+.registration-container {
+  background-color: #ffffff;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 450px;
+  text-align: center;
+}
+
+// Naslov forme
+h2 {
+  margin-bottom: 25px;
+  color: #2c3e50;
+  font-size: 28px;
+}
+
+// Grupa koja sadrži labelu i input polje
+.form-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+// Labele iznad polja
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #555;
+}
+
+// Sva input polja i select meni
+input[type="text"],
+input[type="email"],
+input[type="password"],
+select {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+
+  // Efekat kada se klikne na polje
+  &:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  }
+}
+
+// Dugme za registraciju
+button {
+  width: 100%;
+  padding: 15px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  // Efekat kada se pređe mišem
+  &:hover {
+    background-color: #0056b3;
+  }
+
+  // Izgled kada je dugme onemogućeno
+  &:disabled {
+    background-color: #a0a0a0;
+    cursor: not-allowed;
+  }
+}
+
+// Poruka o uspehu/grešci
+.message {
+  margin-top: 20px;
+  padding: 10px;
+  border-radius: 8px;
+  background-color: #eaf7e9;
+  color: #4caf50;
+  font-weight: 500;
+}
