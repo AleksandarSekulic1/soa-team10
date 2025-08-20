@@ -1,0 +1,57 @@
+basePath: /api
+definitions:
+  domain.User:
+    properties:
+      email:
+        example: turista@mail.com
+        type: string
+      password:
+        example: sigurna-lozinka-456
+        type: string
+      role:
+        example: turista
+        type: string
+      username:
+        example: turista123
+        type: string
+    type: object
+host: localhost:8081
+info:
+  contact: {}
+  description: API za upravljanje korisnicima (Stakeholders) u turističkoj aplikaciji.
+  title: Stakeholders Service API
+  version: "1.0"
+paths:
+  /stakeholders/register:
+    post:
+      consumes:
+      - application/json
+      description: Kreira novog korisnika sa ulogom 'turista' ili 'vodič'.
+      parameters:
+      - description: Podaci za registraciju korisnika
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/domain.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Uspešno kreiran korisnik
+          schema:
+            $ref: '#/definitions/domain.User'
+        "400":
+          description: 'Greška: Neispravan format zahteva'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Interna greška servera
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Registracija novog korisnika
+swagger: "2.0"
