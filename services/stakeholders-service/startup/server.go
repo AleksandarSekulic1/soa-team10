@@ -8,6 +8,7 @@ import (
 	"stakeholders-service/repository"
 	"stakeholders-service/service"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/neo4j/neo4j-go-driver/v5/neo4j" // Import drajvera
 	swaggerFiles "github.com/swaggo/files"
@@ -21,7 +22,7 @@ type Server struct {
 // NewServer sada prihvata drajver
 func NewServer(driver neo4j.DriverWithContext) *Server {
 	router := gin.Default()
-
+	router.Use(cors.Default())
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Prosleđujemo drajver u repozitorijum
