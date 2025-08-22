@@ -1,3 +1,16 @@
+// :host selektor se odnosi na samu komponentu.
+// Koristimo ga da napravimo pozadinu i centriramo formu na stranici.
+:host {
+  display: flex;
+  justify-content: center; // Horizontalno centriranje
+  align-items: center;     // Vertikalno centriranje
+  width: 100%;
+  min-height: 100vh;       // Osigurava da zauzima celu visinu ekrana
+  padding: 2rem 0;         // Dodaje malo prostora gore i dole za manje ekrane
+  background-color: #f4f7f9; // Pozadina cele stranice
+  box-sizing: border-box;
+}
+
 // Glavni kontejner forme (kartica)
 .registration-container {
   background-color: #ffffff;
@@ -64,7 +77,7 @@ button {
   transition: background-color 0.3s ease;
 
   // Efekat kada se pređe mišem
-  &:hover {
+  &:hover:not(:disabled) {
     background-color: #0056b3;
   }
 

@@ -1,14 +1,13 @@
-// startup/server.go
-
 package startup
 
 import (
+	"fmt"
 	"stakeholders-service/api"
 	_ "stakeholders-service/docs"
 	"stakeholders-service/repository"
 	"stakeholders-service/service"
 
-	"github.com/gin-contrib/cors" // Uverite se da je ovaj import tu
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
 	swaggerFiles "github.com/swaggo/files"
@@ -21,14 +20,13 @@ type Server struct {
 
 func NewServer(driver neo4j.DriverWithContext) *Server {
 	router := gin.Default()
+	router.RedirectTrailingSlash = false
 
-	// Detaljna CORS konfiguracija
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"http://localhost:4200"} // Dozvoli zahteve sa Angular aplikacije
+	config.AllowOrigins = []string{"http://localhost:4200"}
 	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
-	config.AllowHeaders = []string{"Origin", "Content-Type", "Authorization"} // EKSPLICITNO DOZVOLI AUTHORIZATION HEADER
-
-	router.Use(cors.New(config)) // Koristimo novu, detaljnu konfiguraciju
+	config.AllowHeaders = []string{"Origin", "Content-Type", "Authorization"}
+	router.Use(cors.New(config))
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
@@ -36,15 +34,29 @@ func NewServer(driver neo4j.DriverWithContext) *Server {
 	userService := service.NewUserService(userRepo)
 	userHandler := api.NewUserHandler(userService)
 
-	apiGroup := router.Group("/api")
+	// EKSPLICITNA I PREGLEDNA STRUKTURA RUTA
+	apiRoutes := router.Group("/api")
 	{
-		stakeholdersGroup := apiGroup.Group("/stakeholders")
-		{
-			stakeholdersGroup.POST("/register", userHandler.Register)
-			stakeholdersGroup.GET("", userHandler.GetAll)
-			stakeholdersGroup.POST("/login", userHandler.Login)
-		}
+		// Javne rute
+		apiRoutes.POST("/stakeholders/register", userHandler.Register)
+		apiRoutes.POST("/stakeholders/login", userHandler.Login)
+
+		// Rute za ulogovane korisnike
+		apiRoutes.GET("/stakeholders/profile", api.AuthMiddleware(), userHandler.GetProfile)
+		apiRoutes.PUT("/stakeholders/profile", api.AuthMiddleware(), userHandler.UpdateProfile)
+
+		// Rute samo za administratore
+		apiRoutes.GET("/stakeholders/", api.AuthMiddleware(), api.AdminRoleMiddleware(), userHandler.GetAll)
+		apiRoutes.PUT("/stakeholders/:username/block", api.AuthMiddleware(), api.AdminRoleMiddleware(), userHandler.BlockUser)
+		apiRoutes.PUT("/stakeholders/:username/unblock", api.AuthMiddleware(), api.AdminRoleMiddleware(), userHandler.UnblockUser)
 	}
+
+	// Ostavljamo ispis ruta radi provere
+	fmt.Println("--- REGISTROVANE RUTE ---")
+	for _, route := range router.Routes() {
+		fmt.Printf("Method: %s, Path: %s\n", route.Method, route.Path)
+	}
+	fmt.Println("-------------------------")
 
 	return &Server{router: router}
 }
