@@ -1,9 +1,12 @@
-// src/app/pages/registration/registration.component.ts
 import { Component } from '@angular/core';
 import { UserService } from '../../services/user.service';
+import { CommonModule } from '@angular/common'; // <-- DODAJEMO IMPORT
+import { FormsModule } from '@angular/forms';   // <-- DODAJEMO IMPORT
 
 @Component({
   selector: 'app-registration',
+  standalone: true, // <-- ČINIMO GA SAMOSTALNIM
+  imports: [CommonModule, FormsModule], // <-- DODAJEMO IMPORTE
   templateUrl: './registration.component.html',
   styleUrls: ['./registration.component.scss']
 })
@@ -22,11 +25,11 @@ export class RegistrationComponent {
     this.userService.register(this.user).subscribe({
       next: (response) => {
         console.log('Registracija uspešna!', response);
-        this.message = 'Uspešno ste se registrovali!';
+        this.message = 'Uspešno ste se registrovali! Sada se možete prijaviti.';
       },
       error: (error) => {
         console.error('Došlo je do greške!', error);
-        this.message = 'Greška prilikom registracije. Pokušajte ponovo.';
+        this.message = 'Greška prilikom registracije. Korisničko ime ili email možda već postoje.';
       }
     });
   }

@@ -1,15 +1,15 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router'; // <-- DODAJEMO RouterLink
 import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
-import { CommonModule } from '@angular/common';   // <-- DODAJEMO IMPORT
-import { FormsModule } from '@angular/forms';     // <-- DODAJEMO IMPORT
+import { CommonModule } from '@angular/common';   // <-- DODAJEMO CommonModule
+import { FormsModule } from '@angular/forms';     // <-- DODAJEMO FormsModule
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  // Dodajemo module koje komponenta koristi u svom templejtu
-  imports: [CommonModule, FormsModule],
+  // Dodajemo sve module koje templejt ove komponente koristi
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
@@ -35,7 +35,10 @@ export class LoginComponent {
         if (this.authService.isAdmin()) {
           this.router.navigate(['/users']);
         } else {
+          // Za sada ga samo preusmeravamo na login sa porukom
           this.errorMessage = 'Prijava uspešna, ali nemate administratorski pristup.';
+          // U pravoj aplikaciji bismo ga preusmerili na početnu stranicu za korisnike
+          // npr. this.router.navigate(['/']);
         }
       },
       error: (error) => {

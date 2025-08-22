@@ -12,4 +12,9 @@
     <button type="submit" [disabled]="!loginForm.form.valid">Prijavi se</button>
   </form>
   <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+  <div class="register-link">
+    <p>Nemate nalog? <a routerLink="/register">Registrujte se</a></p>
+  </div>
+
 </div>
