@@ -8,9 +8,9 @@ import (
 	"stakeholders-service/repository"
 	"stakeholders-service/service"
 
-	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/cors" // Uverite se da je ovaj import tu
 	"github.com/gin-gonic/gin"
-	"github.com/neo4j/neo4j-go-driver/v5/neo4j" // Import drajvera
+	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -19,13 +19,19 @@ type Server struct {
 	router *gin.Engine
 }
 
-// NewServer sada prihvata drajver
 func NewServer(driver neo4j.DriverWithContext) *Server {
 	router := gin.Default()
-	router.Use(cors.Default())
+
+	// Detaljna CORS konfiguracija
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{"http://localhost:4200"} // Dozvoli zahteve sa Angular aplikacije
+	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
+	config.AllowHeaders = []string{"Origin", "Content-Type", "Authorization"} // EKSPLICITNO DOZVOLI AUTHORIZATION HEADER
+
+	router.Use(cors.New(config)) // Koristimo novu, detaljnu konfiguraciju
+
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	// Prosleđujemo drajver u repozitorijum
 	userRepo := repository.NewUserRepository(driver)
 	userService := service.NewUserService(userRepo)
 	userHandler := api.NewUserHandler(userService)
@@ -35,6 +41,8 @@ func NewServer(driver neo4j.DriverWithContext) *Server {
 		stakeholdersGroup := apiGroup.Group("/stakeholders")
 		{
 			stakeholdersGroup.POST("/register", userHandler.Register)
+			stakeholdersGroup.GET("", userHandler.GetAll)
+			stakeholdersGroup.POST("/login", userHandler.Login)
 		}
 	}
 

@@ -1,16 +1,19 @@
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { importProvidersFrom } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 
 import { AppComponent } from './app/app.component';
-import { routes } from './app/app-routing.module'; // Uvozimo samo rute
+import { routes } from './app/app-routing.module';
+import { authInterceptor } from './app/services/auth.interceptor'; // Uvezite interceptor
 
 bootstrapApplication(AppComponent, {
   providers: [
-    provideRouter(routes), // Obezbeđujemo rute za celu aplikaciju
-    importProvidersFrom(HttpClientModule, FormsModule) // Obezbeđujemo module globalno
+    provideRouter(routes),
+    // Obezbeđujemo HttpClient i registrujemo interceptor
+    provideHttpClient(withInterceptors([authInterceptor])),
+    importProvidersFrom(FormsModule) // FormsModule i dalje treba za ngModel
   ]
 })
   .catch(err => console.error(err));

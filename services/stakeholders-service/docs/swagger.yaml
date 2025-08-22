@@ -1,5 +1,12 @@
 basePath: /api
 definitions:
+  api.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
   domain.User:
     properties:
       email:
@@ -22,6 +29,59 @@ info:
   title: Stakeholders Service API
   version: "1.0"
 paths:
+  /stakeholders:
+    get:
+      description: Vraća listu svih korisničkih naloga bez lozinki.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Lista svih korisnika
+          schema:
+            items:
+              $ref: '#/definitions/domain.User'
+            type: array
+        "500":
+          description: Interna greška servera
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Prikaz svih korisničkih naloga
+  /stakeholders/login:
+    post:
+      consumes:
+      - application/json
+      description: Autentifikuje korisnika i vraća JWT token.
+      parameters:
+      - description: Korisničko ime i lozinka
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/api.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Uspešna prijava, vraća token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: 'Greška: Neispravni kredencijali'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Interna greška servera
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Prijava korisnika
   /stakeholders/register:
     post:
       consumes:

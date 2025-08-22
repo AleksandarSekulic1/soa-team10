@@ -15,6 +15,87 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/stakeholders": {
+            "get": {
+                "description": "Vraća listu svih korisničkih naloga bez lozinki.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Prikaz svih korisničkih naloga",
+                "responses": {
+                    "200": {
+                        "description": "Lista svih korisnika",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.User"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Interna greška servera",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/stakeholders/login": {
+            "post": {
+                "description": "Autentifikuje korisnika i vraća JWT token.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Prijava korisnika",
+                "parameters": [
+                    {
+                        "description": "Korisničko ime i lozinka",
+                        "name": "credentials",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Uspešna prijava, vraća token",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Greška: Neispravni kredencijali",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Interna greška servera",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/stakeholders/register": {
             "post": {
                 "description": "Kreira novog korisnika sa ulogom 'turista' ili 'vodič'.",
@@ -66,6 +147,17 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "api.LoginRequest": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "domain.User": {
             "type": "object",
             "properties": {

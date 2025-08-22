@@ -1,5 +1,3 @@
-// main.go
-
 package main
 
 import (
@@ -8,9 +6,12 @@ import (
 	"stakeholders-service/startup"
 )
 
-// @title Stakeholders Service API ...
+// @title Stakeholders Service API
+// @version 1.0
+// @description API za upravljanje korisnicima (Stakeholders) u turističkoj aplikaciji.
+// @host localhost:8081
+// @BasePath /api
 func main() {
-	// Kredencijali iz docker-compose ili docker run komande
 	uri := "neo4j://localhost:7687"
 	user := "neo4j"
 	pass := "sifra1234"
@@ -19,8 +20,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer driver.Close(context.Background())
+	// Moramo definisati context ovde da bi bio dostupan
+	ctx := context.Background()
+	defer driver.Close(ctx)
 
-	server := startup.NewServer(driver) // Prosleđujemo drajver
+	server := startup.NewServer(driver)
 	server.Start()
 }

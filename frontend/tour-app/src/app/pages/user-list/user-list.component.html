@@ -1,0 +1,22 @@
+<div class="user-list-container">
+  <h2>Registrovani Korisnici</h2>
+  <table *ngIf="users.length > 0; else noUsers">
+    <thead>
+      <tr>
+        <th>Korisničko ime</th>
+        <th>Email</th>
+        <th>Uloga</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let user of users">
+        <td>{{ user.username }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.role }}</td>
+      </tr>
+    </tbody>
+  </table>
+  <ng-template #noUsers>
+    <p>Nema registrovanih korisnika za prikaz.</p>
+  </ng-template>
+</div>
