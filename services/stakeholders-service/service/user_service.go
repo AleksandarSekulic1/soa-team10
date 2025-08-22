@@ -1,29 +1,28 @@
-// service/user_service.go
-
 package service
 
 import (
-	"errors" // Import za greške
-	"time"   // Import za vreme (za trajanje tokena)
+	"errors"
+	"time"
 
 	"stakeholders-service/domain"
 	"stakeholders-service/repository"
 
-	"github.com/golang-jwt/jwt/v5" // Import za JWT
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
-// Definišemo tajni ključ za potpisivanje tokena.
-// U pravoj aplikaciji, ovo bi trebalo da bude u environment varijabli.
-var jwtKey = []byte("super_secret_key")
+// Definišemo tajni ključ. Sada počinje VELIKIM SLOVOM da bi bio vidljiv van paketa.
+var JwtKey = []byte("super_secret_key")
 
 type UserService interface {
 	Register(user *domain.User) error
 	GetAll() ([]*domain.User, error)
-	Login(username, password string) (string, error) // <-- NOVA METODA
+	Login(username, password string) (string, error)
+	GetProfile(username string) (*domain.User, error)
+	UpdateProfile(user *domain.User) (*domain.User, error)
+	SetBlockedStatus(username string, isBlocked bool) error
 }
 
-// Claims struktura za JWT token
 type Claims struct {
 	Username string `json:"username"`
 	Role     string `json:"role"`
@@ -39,7 +38,6 @@ func NewUserService(repo repository.UserRepository) UserService {
 }
 
 func (s *userService) Register(user *domain.User) error {
-	// ... postojeća Register metoda ostaje ista ...
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), 14)
 	if err != nil {
 		return err
@@ -49,26 +47,25 @@ func (s *userService) Register(user *domain.User) error {
 }
 
 func (s *userService) GetAll() ([]*domain.User, error) {
-	// ... postojeća GetAll metoda ostaje ista ...
 	return s.repo.GetAll()
 }
 
-// Implementacija nove metode
 func (s *userService) Login(username, password string) (string, error) {
-	// 1. Pronađi korisnika u bazi
 	user, err := s.repo.GetByUsername(username)
 	if err != nil {
 		return "", errors.New("invalid credentials")
 	}
 
-	// 2. Uporedi heširanu lozinku iz baze sa lozinkom koju je korisnik poslao
+	if user.IsBlocked {
+		return "", errors.New("user is blocked")
+	}
+
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
 		return "", errors.New("invalid credentials")
 	}
 
-	// 3. Kreiraj JWT token
-	expirationTime := time.Now().Add(24 * time.Hour) // Token traje 24 sata
+	expirationTime := time.Now().Add(24 * time.Hour)
 	claims := &Claims{
 		Username: user.Username,
 		Role:     user.Role,
@@ -76,12 +73,32 @@ func (s *userService) Login(username, password string) (string, error) {
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 		},
 	}
-
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(jwtKey)
+    // Koristimo novo, veliko slovo 'J'
+	tokenString, err := token.SignedString(JwtKey)
 	if err != nil {
 		return "", err
 	}
-
 	return tokenString, nil
+}
+
+func (s *userService) GetProfile(username string) (*domain.User, error) {
+	user, err := s.repo.GetByUsername(username)
+	if err != nil {
+		return nil, err
+	}
+	user.Password = ""
+	return user, nil
+}
+
+func (s *userService) UpdateProfile(user *domain.User) (*domain.User, error) {
+	err := s.repo.Update(user)
+	if err != nil {
+		return nil, err
+	}
+	return s.GetProfile(user.Username)
+}
+
+func (s *userService) SetBlockedStatus(username string, isBlocked bool) error {
+	return s.repo.UpdateBlockedStatus(username, isBlocked)
 }

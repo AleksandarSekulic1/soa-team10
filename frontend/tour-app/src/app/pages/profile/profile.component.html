@@ -1,0 +1,51 @@
+<div class="profile-container" *ngIf="user">
+  <div class="profile-card">
+    <h2>User Profile</h2>
+
+    <div *ngIf="!isEditMode">
+      <div class="profile-picture">
+        <img [src]="user.profilePicture || 'assets/images/default-avatar.png'" alt="Profile Picture">
+      </div>
+      <div class="profile-info">
+        <div class="info-row"><strong>Username:</strong><span>{{ user.username }}</span></div>
+        <div class="info-row"><strong>Email:</strong><span>{{ user.email }}</span></div>
+        <div class="info-row"><strong>First Name:</strong><span>{{ user.firstName || 'N/A' }}</span></div>
+        <div class="info-row"><strong>Last Name:</strong><span>{{ user.lastName || 'N/A' }}</span></div>
+        <div class="info-row"><strong>Biography:</strong><span>{{ user.biography || 'N/A' }}</span></div>
+        <div class="info-row"><strong>Motto:</strong><span>{{ user.motto || 'N/A' }}</span></div>
+      </div>
+      <button (click)="toggleEditMode()">Edit Profile</button>
+      <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
+    </div>
+
+    <div *ngIf="isEditMode">
+      <form (ngSubmit)="onSave()" #profileForm="ngForm">
+        <div class="form-group file-input-group">
+            <label>Profile Picture:</label>
+            <input type="file" accept="image/*" (change)="onFileSelected($event)">
+        </div>
+        <div class="form-group">
+          <label for="firstName">First Name:</label>
+          <input type="text" id="firstName" name="firstName" [(ngModel)]="user.firstName">
+        </div>
+        <div class="form-group">
+          <label for="lastName">Last Name:</label>
+          <input type="text" id="lastName" name="lastName" [(ngModel)]="user.lastName">
+        </div>
+        <div class="form-group">
+          <label for="biography">Biography:</label>
+          <textarea id="biography" name="biography" [(ngModel)]="user.biography" rows="4"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="motto">Motto:</label>
+          <input type="text" id="motto" name="motto" [(ngModel)]="user.motto">
+        </div>
+        <div class="button-group">
+          <button type="submit" class="save-btn">Save Changes</button>
+          <button type="button" (click)="onCancel()" class="cancel-btn">Cancel</button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>

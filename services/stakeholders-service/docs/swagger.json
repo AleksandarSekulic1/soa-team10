@@ -11,11 +11,16 @@
     "paths": {
         "/stakeholders": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Vraća listu svih korisničkih naloga bez lozinki.",
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Prikaz svih korisničkih naloga",
+                "summary": "Prikaz svih korisničkih naloga (samo za admine)",
                 "responses": {
                     "200": {
                         "description": "Lista svih korisnika",
@@ -23,6 +28,24 @@
                             "type": "array",
                             "items": {
                                 "$ref": "#/definitions/domain.User"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Neautorizovan pristup",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Pristup zabranjen (potrebna admin uloga)",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
                             }
                         }
                     },
@@ -71,6 +94,116 @@
                     },
                     "401": {
                         "description": "Greška: Neispravni kredencijali",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Korisnik je blokiran",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Interna greška servera",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/stakeholders/profile": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Vraća sve podatke o profilu korisnika koji je trenutno ulogovan.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Dobavljanje profila ulogovanog korisnika",
+                "responses": {
+                    "200": {
+                        "description": "Podaci o profilu",
+                        "schema": {
+                            "$ref": "#/definitions/domain.User"
+                        }
+                    },
+                    "401": {
+                        "description": "Neautorizovan pristup",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Korisnik nije pronađen",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Ažurira podatke o profilu (ime, prezime, bio, moto...) za ulogovanog korisnika.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Ažuriranje profila ulogovanog korisnika",
+                "parameters": [
+                    {
+                        "description": "Podaci za ažuriranje profila",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ažurirani podaci o profilu",
+                        "schema": {
+                            "$ref": "#/definitions/domain.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Neispravan format zahteva",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Neautorizovan pristup",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -138,6 +271,128 @@
                     }
                 }
             }
+        },
+        "/stakeholders/{username}/block": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Postavlja status korisnika na 'blokiran'.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Blokiranje korisnika (samo za admine)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Korisničko ime korisnika koji se blokira",
+                        "name": "username",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Poruka o uspehu",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Neautorizovan pristup",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Pristup zabranjen (potrebna admin uloga)",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Interna greška servera",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/stakeholders/{username}/unblock": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Postavlja status korisnika na 'aktivan'.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Odblokiranje korisnika (samo za admine)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Korisničko ime korisnika koji se odblokira",
+                        "name": "username",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Poruka o uspehu",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Neautorizovan pristup",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Pristup zabranjen (potrebna admin uloga)",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Interna greška servera",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -155,23 +410,58 @@
         "domain.User": {
             "type": "object",
             "properties": {
+                "biography": {
+                    "type": "string",
+                    "example": "Ja sam Pera..."
+                },
                 "email": {
                     "type": "string",
                     "example": "turista@mail.com"
                 },
+                "firstName": {
+                    "description": "Podaci za profil - za funkcionalnosti 4 i 5",
+                    "type": "string",
+                    "example": "Pera"
+                },
+                "isBlocked": {
+                    "description": "Za funkcionalnost 3",
+                    "type": "boolean",
+                    "example": false
+                },
+                "lastName": {
+                    "type": "string",
+                    "example": "Peric"
+                },
+                "motto": {
+                    "type": "string",
+                    "example": "Carpe diem"
+                },
                 "password": {
+                    "description": "Dodato omitempty",
                     "type": "string",
                     "example": "sigurna-lozinka-456"
+                },
+                "profilePicture": {
+                    "type": "string",
+                    "example": "path/to/image.jpg"
                 },
                 "role": {
                     "type": "string",
                     "example": "turista"
                 },
                 "username": {
+                    "description": "Podaci za nalog",
                     "type": "string",
                     "example": "turista123"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }

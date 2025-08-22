@@ -1,22 +1,46 @@
 <div class="user-list-container">
-  <h2>Registrovani Korisnici</h2>
-  <table *ngIf="users.length > 0; else noUsers">
-    <thead>
-      <tr>
-        <th>Korisničko ime</th>
-        <th>Email</th>
-        <th>Uloga</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let user of users">
-        <td>{{ user.username }}</td>
-        <td>{{ user.email }}</td>
-        <td>{{ user.role }}</td>
-      </tr>
-    </tbody>
-  </table>
+  <h2>Registered Users</h2>
+
+  <div class="user-cards-grid" *ngIf="users.length > 0; else noUsers">
+    <div class="user-card" *ngFor="let user of users">
+      <div class="card-header">
+        <img [src]="user.profilePicture || 'assets/images/default-avatar.png'" alt="Profile Picture">
+        <div class="user-identity">
+          <h4>{{ user.username }}</h4>
+          <p>{{ user.email }}</p>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="info-item">
+          <strong>Role:</strong>
+          <span>{{ user.role }}</span>
+        </div>
+        <div class="info-item">
+          <strong>Status:</strong>
+          <span class="status" [class.blocked]="user.isBlocked === true">
+            {{ user.isBlocked === true ? 'Blocked' : 'Active' }}
+          </span>
+        </div>
+        <div class="info-item">
+          <strong>First Name:</strong>
+          <span>{{ user.firstName }}</span>
+        </div>
+          <div class="info-item">
+          <strong>Last Name:</strong>
+          <span>{{ user.lastName }}</span>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button (click)="toggleBlockStatus(user)" [class.unblock-btn]="user.isBlocked === true" class="action-btn">
+          {{ user.isBlocked === true ? 'Unblock' : 'Block' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
   <ng-template #noUsers>
-    <p>Nema registrovanih korisnika za prikaz.</p>
+    <p>There are no registered users to display.</p>
   </ng-template>
 </div>

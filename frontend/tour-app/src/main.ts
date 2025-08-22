@@ -5,7 +5,7 @@ import { HttpClientModule, provideHttpClient, withInterceptors } from '@angular/
 import { FormsModule } from '@angular/forms';
 
 import { AppComponent } from './app/app.component';
-import { routes } from './app/app-routing.module';
+import { routes } from './app/app.routes';
 import { authInterceptor } from './app/services/auth.interceptor'; // Uvezite interceptor
 
 bootstrapApplication(AppComponent, {

@@ -1,0 +1,20 @@
+<nav>
+  <div class="nav-brand">
+    <a routerLink="/home">TourApp</a>
+  </div>
+
+  <ul class="nav-links" *ngIf="authService.isLoggedIn$ | async">
+    <li>
+      <a routerLink="/home">Home</a>
+    </li>
+    <li>
+      <a routerLink="/profile">Profile</a> </li>
+    <li>
+    <li>
+      <a routerLink="/users" *ngIf="authService.isAdmin()">All Users</a>
+    </li>
+    <li>
+      <button (click)="logout()">Logout</button>
+    </li>
+  </ul>
+</nav>
