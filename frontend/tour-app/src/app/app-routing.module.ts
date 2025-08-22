@@ -1,10 +1,11 @@
 import { Routes } from '@angular/router';
 import { RegistrationComponent } from './pages/registration/registration.component';
+import { LoginComponent } from './pages/login/login.component';
+import { UserListComponent } from './pages/user-list/user-list.component';
 
-// Definišemo i eksportujemo samo konstantu sa rutama.
-// Ne treba nam više @NgModule dekorator.
 export const routes: Routes = [
   { path: 'register', component: RegistrationComponent },
-  // Preusmeravanje na registraciju ako je putanja prazna
-  { path: '', redirectTo: '/register', pathMatch: 'full' }
+  { path: 'login', component: LoginComponent },
+  { path: 'users', component: UserListComponent },
+  { path: '', redirectTo: '/login', pathMatch: 'full' } // Podrazumevana ruta je sada login
 ];
