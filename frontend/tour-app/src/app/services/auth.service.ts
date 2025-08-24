@@ -92,4 +92,9 @@ export class AuthService {
   getUserRole(): string | null {
     return this.currentUser.getValue()?.role || null;
   }
+
+    getUsername(): string | null {
+    const user = this.currentUser.getValue();
+    return user ? user.username : null;
+  }
 }

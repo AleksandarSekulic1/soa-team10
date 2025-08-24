@@ -8,18 +8,18 @@ import { User } from '../models/user.model';
 })
 export class UserService {
   // ISPRAVKA: Vraćamo kosu crtu (/) na kraj, da odgovara vašem backendu.
-  private apiUrl = '/api/stakeholders/';
+  private apiUrl = '/api/stakeholders';
 
   constructor(private http: HttpClient) { }
 
   register(user: any): Observable<any> {
     // Putanja postaje /api/stakeholders/register
-    return this.http.post<any>(`${this.apiUrl}register`, user);
+    return this.http.post<any>(`${this.apiUrl}/register`, user);
   }
 
   login(credentials: any): Observable<any> {
     // Putanja postaje /api/stakeholders/login
-    return this.http.post<any>(`${this.apiUrl}login`, credentials);
+    return this.http.post<any>(`${this.apiUrl}/login`, credentials);
   }
 
   getAllUsers(): Observable<User[]> {
@@ -29,20 +29,20 @@ export class UserService {
 
   getProfile(): Observable<User> {
     // Putanja postaje /api/stakeholders/profile
-    return this.http.get<User>(`${this.apiUrl}profile`);
+    return this.http.get<User>(`${this.apiUrl}/profile`);
   }
 
   updateProfile(user: User): Observable<User> {
-    return this.http.put<User>(`${this.apiUrl}profile`, user);
+    return this.http.put<User>(`${this.apiUrl}/profile`, user);
   }
 
   blockUser(username: string): Observable<any> {
     // Putanja postaje npr. /api/stakeholders/pera/block
-    return this.http.put(`${this.apiUrl}${username}/block`, {});
+    return this.http.put(`${this.apiUrl}/${username}/block`, {});
   }
 
   unblockUser(username: string): Observable<any> {
     // Putanja postaje npr. /api/stakeholders/pera/unblock
-    return this.http.put(`${this.apiUrl}${username}/unblock`, {});
+    return this.http.put(`${this.apiUrl}/${username}/unblock`, {});
   }
 }

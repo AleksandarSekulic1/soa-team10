@@ -20,8 +20,11 @@
     </li>
     <!-- DODAT NOVI LINK: Prikazuje se samo ako je korisnik VODIČ -->
     <li *ngIf="authService.isGuide()">
-      <a routerLink="/my-tours">Moje Ture</a>
+      <a routerLink="/my-tours">My tours</a>
     </li>
+    <li>
+      <a routerLink="/blogs">Blog</a>
+    </li>
     <li>
       <button (click)="logout()">Logout</button>
     </li>
