@@ -46,7 +46,7 @@ func NewServer(driver neo4j.DriverWithContext) *Server {
 		apiRoutes.PUT("/stakeholders/profile", api.AuthMiddleware(), userHandler.UpdateProfile)
 
 		// Rute samo za administratore
-		apiRoutes.GET("/stakeholders/", api.AuthMiddleware(), api.AdminRoleMiddleware(), userHandler.GetAll)
+		apiRoutes.GET("/stakeholders", api.AuthMiddleware(), api.AdminRoleMiddleware(), userHandler.GetAll)
 		apiRoutes.PUT("/stakeholders/:username/block", api.AuthMiddleware(), api.AdminRoleMiddleware(), userHandler.BlockUser)
 		apiRoutes.PUT("/stakeholders/:username/unblock", api.AuthMiddleware(), api.AdminRoleMiddleware(), userHandler.UnblockUser)
 	}
