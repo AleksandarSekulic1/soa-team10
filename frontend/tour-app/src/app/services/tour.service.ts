@@ -19,4 +19,13 @@ export class TourService {
     // AuthInterceptor će automatski dodati JWT token
     return this.http.get<any[]>(`${this.apiUrl}/my-tours`);
   }
+
+  getAllTours(): Observable<any[]> {
+    return this.http.get<any[]>(this.apiUrl);
+  }
+
+  // NOVA METODA
+  addReview(tourId: string, reviewData: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/${tourId}/reviews`, reviewData);
+  }
 }

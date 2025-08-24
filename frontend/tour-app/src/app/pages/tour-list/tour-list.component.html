@@ -1,0 +1,47 @@
+<div class="container">
+  <h1>Sve Ture</h1>
+
+  <div class="tours-grid">
+    <div *ngFor="let tour of allTours" class="tour-card">
+      <h3>{{ tour.name }}</h3>
+      <p><strong>Autor:</strong> {{ tour.authorId }}</p>
+      <p>{{ tour.description }}</p>
+      <div class="reviews-section">
+        <h4>Recenzije ({{ tour.reviews?.length || 0 }})</h4>
+        <ul>
+          <li *ngFor="let review of tour.reviews">
+            <strong>Ocena: {{ review.rating }}/5</strong> - "{{ review.comment }}"
+            <small>(od {{ review.touristId }})</small>
+          </li>
+        </ul>
+      </div>
+      <!-- Dugme za ocenjivanje se prikazuje samo ulogovanim turistima -->
+      <button *ngIf="authService.isTourist()" (click)="selectTourForReview(tour)">Oceni Ovu Turu</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal za pisanje recenzije -->
+<div class="modal-overlay" *ngIf="selectedTour">
+  <div class="modal-content">
+    <h3>Oceni Turu: {{ selectedTour.name }}</h3>
+    <form (ngSubmit)="submitReview()">
+      <div class="form-group">
+        <label for="rating">Ocena (1-5):</label>
+        <input type="number" name="rating" [(ngModel)]="review.rating" min="1" max="5" required>
+      </div>
+      <div class="form-group">
+        <label for="comment">Komentar:</label>
+        <textarea name="comment" [(ngModel)]="review.comment" rows="4"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="visitDate">Datum posete:</label>
+        <input type="date" name="visitDate" [(ngModel)]="review.visitDate" required>
+      </div>
+      <div class="modal-actions">
+        <button type="submit">Pošalji Recenziju</button>
+        <button type="button" (click)="selectedTour = null">Odustani</button>
+      </div>
+    </form>
+  </div>
+</div>

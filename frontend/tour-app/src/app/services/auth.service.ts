@@ -88,6 +88,9 @@ export class AuthService {
   isGuide(): boolean {
     return this.getUserRole() === 'vodic';
   }
+  isTourist(): boolean {
+    return this.getUserRole() === 'turista';
+  }
   // Metoda koja vraća ulogu trenutnog korisnika
   getUserRole(): string | null {
     return this.currentUser.getValue()?.role || null;

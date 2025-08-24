@@ -1,0 +1,102 @@
+// Iskoristićemo stilove iz my-tours.component.scss i dodati nove
+@import '../my-tours/my-tours.component.scss';
+
+.tour-card {
+  button {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    &:hover {
+      background-color: #218838;
+    }
+  }
+}
+
+.reviews-section {
+  margin-top: 15px;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+
+  h4 {
+    margin-bottom: 10px;
+  }
+
+  ul {
+    list-style: none;
+    padding-left: 0;
+    font-size: 0.9em;
+    li {
+      margin-bottom: 5px;
+      color: #555;
+      small {
+        color: #999;
+      }
+    }
+  }
+}
+
+// Modal stilovi
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+
+  h3 {
+    margin-top: 0;
+  }
+}
+
+.form-group {
+  margin-bottom: 15px;
+  label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  input, textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+
+  button {
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    &[type="submit"] {
+      background-color: #007bff;
+      color: white;
+    }
+    &[type="button"] {
+      background-color: #ccc;
+    }
+  }
+}

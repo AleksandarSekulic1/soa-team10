@@ -16,6 +16,24 @@ const docTemplate = `{
     "basePath": "{{.BasePath}}",
     "paths": {
         "/tours": {
+            "get": {
+                "description": "Vraća listu svih tura dostupnih u sistemu.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Prikaz svih tura",
+                "responses": {
+                    "200": {
+                        "description": "Lista svih tura",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Tour"
+                            }
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -102,6 +120,52 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/tours/{id}/reviews": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Dodaje novu recenziju na turu sa datim ID-jem. Zahteva autentikaciju.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Dodavanje recenzije na turu",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID Ture",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Podaci o recenziji",
+                        "name": "review",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.TourReview"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Poruka o uspehu",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -131,6 +195,13 @@ const docTemplate = `{
                 "price": {
                     "type": "number"
                 },
+                "reviews": {
+                    "description": "\u003c-- DODATO POLJE",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.TourReview"
+                    }
+                },
                 "status": {
                     "type": "string"
                 },
@@ -139,6 +210,41 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "domain.TourReview": {
+            "type": "object",
+            "required": [
+                "rating",
+                "visitDate"
+            ],
+            "properties": {
+                "comment": {
+                    "type": "string"
+                },
+                "commentDate": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "imageUrls": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "rating": {
+                    "type": "integer",
+                    "maximum": 5,
+                    "minimum": 1
+                },
+                "touristId": {
+                    "type": "string"
+                },
+                "visitDate": {
+                    "type": "string"
                 }
             }
         }
