@@ -49,7 +49,7 @@ export class AuthService {
     if (this.isBrowser) {
       const user = this.currentUser.getValue();
       console.log(`[AuthService] Korisnik '${user?.username}' se odjavio.`); // <-- LOG
-      
+
       localStorage.removeItem('jwt_token');
       localStorage.removeItem('user');
       this.loggedInStatus.next(false);
@@ -85,7 +85,9 @@ export class AuthService {
   isAdmin(): boolean {
     return this.currentUser.getValue()?.role === 'administrator';
   }
-
+  isGuide(): boolean {
+    return this.getUserRole() === 'vodic';
+  }
   // Metoda koja vraća ulogu trenutnog korisnika
   getUserRole(): string | null {
     return this.currentUser.getValue()?.role || null;

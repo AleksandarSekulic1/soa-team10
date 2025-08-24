@@ -7,6 +7,7 @@ import (
 
 type TourService interface {
 	Create(tour *domain.Tour) error
+	GetByAuthorId(authorId string) ([]*domain.Tour, error) // <-- NOVA METODA
 }
 
 type tourService struct {
@@ -18,9 +19,12 @@ func NewTourService(repo repository.TourRepository) TourService {
 }
 
 func (s *tourService) Create(tour *domain.Tour) error {
-	// Pri početnom kreiranju ture, tura treba da ima status draft i da joj je cena postavljena na 0. [cite: 79]
 	tour.Status = "draft"
 	tour.Price = 0.0
-
 	return s.repo.Create(tour)
+}
+
+// Implementacija nove metode
+func (s *tourService) GetByAuthorId(authorId string) ([]*domain.Tour, error) {
+	return s.repo.GetByAuthorId(authorId)
 }

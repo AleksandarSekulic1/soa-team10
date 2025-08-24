@@ -20,7 +20,7 @@ RUN swag init
 RUN go build -o /tours-service
 
 # Izlažemo port na kojem će aplikacija raditi
-EXPOSE 8082
+EXPOSE 8083
 
 # Komanda za pokretanje aplikacije kada se kontejner startuje
 CMD [ "/tours-service" ]

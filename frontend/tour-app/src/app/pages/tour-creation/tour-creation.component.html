@@ -1,0 +1,24 @@
+<div class="form-container">
+  <h2>Kreiraj Novu Turu</h2>
+  <form (ngSubmit)="onSubmit()" #tourForm="ngForm">
+    <div class="form-group">
+      <label for="name">Naziv Ture:</label>
+      <input type="text" id="name" name="name" [(ngModel)]="tour.name" required>
+    </div>
+    <div class="form-group">
+      <label for="description">Opis:</label>
+      <textarea id="description" name="description" [(ngModel)]="tour.description" rows="4" required></textarea>
+    </div>
+    <div class="form-group">
+      <label for="difficulty">Težina (1-5):</label>
+      <input type="number" id="difficulty" name="difficulty" [(ngModel)]="tour.difficulty" min="1" max="5" required>
+    </div>
+    <div class="form-group">
+      <label for="tags">Tagovi (odvojeni zarezom):</label>
+      <input type="text" id="tags" name="tags" [(ngModel)]="tagsInput">
+      <small>Npr: planinarenje, priroda, istorija</small>
+    </div>
+    <button type="submit" [disabled]="!tourForm.form.valid">Kreiraj Turu</button>
+  </form>
+  <div *ngIf="message" class="message">{{ message }}</div>
+</div>

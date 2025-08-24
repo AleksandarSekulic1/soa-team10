@@ -4,11 +4,14 @@ import (
 	"context"
 	"tours-service/domain"
 
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type TourRepository interface {
 	Create(tour *domain.Tour) error
+	GetByAuthorId(authorId string) ([]*domain.Tour, error) // <-- OVA LINIJA JE VEROVATNO NEDOSTAJALA
 }
 
 type tourRepository struct {
@@ -21,6 +24,27 @@ func NewTourRepository(client *mongo.Client) TourRepository {
 }
 
 func (r *tourRepository) Create(tour *domain.Tour) error {
-	_, err := r.tours.InsertOne(context.TODO(), tour)
-	return err
+	result, err := r.tours.InsertOne(context.TODO(), tour)
+	if err != nil {
+		return err
+	}
+	tour.ID = result.InsertedID.(primitive.ObjectID)
+	return nil
+}
+
+func (r *tourRepository) GetByAuthorId(authorId string) ([]*domain.Tour, error) {
+	var tours []*domain.Tour
+	filter := bson.M{"authorId": authorId}
+
+	cursor, err := r.tours.Find(context.TODO(), filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.TODO())
+
+	if err = cursor.All(context.TODO(), &tours); err != nil {
+		return nil, err
+	}
+
+	return tours, nil
 }

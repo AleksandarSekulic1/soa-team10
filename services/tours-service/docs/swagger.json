@@ -6,7 +6,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "localhost:8082",
+    "host": "localhost:8083",
     "basePath": "/api",
     "paths": {
         "/tours": {
@@ -48,6 +48,40 @@
                             "type": "object",
                             "additionalProperties": {
                                 "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Greška: Korisnik nije autorizovan",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tours/my-tours": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Vraća listu svih tura koje je kreirao autor čiji se token koristi.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Prikaz tura kreiranih od strane ulogovanog autora",
+                "responses": {
+                    "200": {
+                        "description": "Lista tura",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Tour"
                             }
                         }
                     },
