@@ -1,0 +1,18 @@
+<div class="blog-list-container">
+  <h1>Blog Feed</h1>
+  <button (click)="createBlog()">Create New Post</button>
+  
+  <div *ngIf="blogs$ | async as blogs; else loading">
+    <div *ngFor="let blog of blogs" class="blog-card">
+      <h2>{{ blog.Title }}</h2>
+      <p>by {{ blog.AuthorID }} on {{ blog.CreatedAt | date: 'medium' }}</p>
+      <p class="content-preview">{{ blog.Content | slice:0:200 }}...</p>
+      <button (click)="viewBlog(blog.ID)">View Details</button>
+    </div>
+    
+    </div>
+
+  <ng-template #loading>
+    <p>Loading posts...</p>
+  </ng-template>
+</div>
