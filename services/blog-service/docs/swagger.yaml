@@ -1,0 +1,341 @@
+basePath: /api
+definitions:
+  domain.Blog:
+    properties:
+      authorID:
+        description: Koristićemo username iz JWT-a
+        type: string
+      comments:
+        items:
+          $ref: '#/definitions/domain.Comment'
+        type: array
+      content:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      images:
+        items:
+          type: string
+        type: array
+      likes:
+        items:
+          $ref: '#/definitions/domain.Like'
+        type: array
+      title:
+        type: string
+    type: object
+  domain.Comment:
+    properties:
+      authorID:
+        type: string
+      createdAt:
+        type: string
+      id:
+        description: <-- DODATO POLJE
+        type: string
+      lastUpdatedAt:
+        type: string
+      text:
+        type: string
+    type: object
+  domain.Like:
+    properties:
+      createdAt:
+        type: string
+      userID:
+        type: string
+    type: object
+host: localhost:8082
+info:
+  contact: {}
+  description: API za upravljanje blogovima u turističkoj aplikaciji.
+  title: Blog Service API
+  version: "1.0"
+paths:
+  /blogs:
+    get:
+      description: Vraća listu svih blog objava.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Lista svih blogova
+          schema:
+            items:
+              $ref: '#/definitions/domain.Blog'
+            type: array
+        "500":
+          description: Interna greška servera
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Prikaz svih objava na blogu
+    post:
+      consumes:
+      - application/json
+      description: Kreira novi blog post sa naslovom i sadržajem. Zahteva autorizaciju.
+      parameters:
+      - description: Podaci za kreiranje bloga (potrebni samo title i content)
+        in: body
+        name: blog
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Blog'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Uspešno kreiran blog
+          schema:
+            $ref: '#/definitions/domain.Blog'
+        "400":
+          description: 'Greška: Neispravan format zahteva'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Neautorizovan pristup
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Interna greška servera
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Kreiranje novog bloga
+  /blogs/{id}:
+    get:
+      description: Vraća sve detalje o jednom blog postu na osnovu njegovog ID-a.
+      parameters:
+      - description: Blog ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Detalji bloga
+          schema:
+            $ref: '#/definitions/domain.Blog'
+        "400":
+          description: 'Greška: Neispravan ID'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Blog nije pronađen
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Prikaz jednog bloga
+    put:
+      consumes:
+      - application/json
+      description: Ažurira naslov ili sadržaj postojećeg bloga. Dozvoljeno samo autoru.
+      parameters:
+      - description: Blog ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Novi podaci za blog (title, content, images)
+        in: body
+        name: blog
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Blog'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Ažurirani blog
+          schema:
+            $ref: '#/definitions/domain.Blog'
+        "400":
+          description: Neispravan format zahteva ili ID-a
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Neautorizovan pristup
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Pristup zabranjen (niste autor)
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Blog nije pronađen
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Ažuriranje bloga
+  /blogs/{id}/comments:
+    post:
+      consumes:
+      - application/json
+      description: Dodaje novi komentar na postojeći blog. Zahteva autorizaciju.
+      parameters:
+      - description: Blog ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Tekst komentara
+        in: body
+        name: comment
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Comment'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Blog sa novim komentarom
+          schema:
+            $ref: '#/definitions/domain.Blog'
+        "400":
+          description: 'Greška: Neispravan format zahteva ili ID-a'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Neautorizovan pristup
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Interna greška servera
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Dodavanje komentara na blog
+  /blogs/{id}/comments/{commentId}:
+    put:
+      consumes:
+      - application/json
+      description: Menja tekst postojećeg komentara. Dozvoljeno samo autoru komentara.
+      parameters:
+      - description: Blog ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Comment ID
+        in: path
+        name: commentId
+        required: true
+        type: string
+      - description: Novi tekst komentara (potrebno samo 'text' polje)
+        in: body
+        name: comment
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Comment'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Poruka o uspehu
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: 'Greška: Neispravan format ID-a ili zahteva'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Neautorizovan pristup
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Pristup zabranjen (niste autor)
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Blog ili komentar nije pronađen
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Izmena komentara
+  /blogs/{id}/likes:
+    post:
+      description: Dodaje ili uklanja lajk ulogovanog korisnika sa objave.
+      parameters:
+      - description: Blog ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Poruka o uspehu
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: 'Greška: Neispravan ID'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Neautorizovan pristup
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Interna greška servera
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Lajkovanje/Uklanjanje lajka sa bloga
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
