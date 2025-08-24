@@ -1,0 +1,42 @@
+services:
+  postgres-db:
+    image: postgres
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: soa_db
+    ports:
+      - "5432:5432"
+
+  neo4j-db:
+    image: neo4j:4.4
+    environment:
+      NEO4J_AUTH: none
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+
+  mongo-db:
+    image: mongo
+    ports:
+      - "27017:27017"
+
+  stakeholders-service:
+    build:
+      context: ./services/stakeholders-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      - neo4j-db
+    restart: on-failure # <-- DODATA LINIJA
+
+
+  # 'blog-service' mora biti na istom nivou uvlačenja kao 'stakeholders-service'
+  blog-service:
+    build:
+      context: ./services/blog-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - mongo-db
+    restart: on-failure # <-- DODATA LINIJA

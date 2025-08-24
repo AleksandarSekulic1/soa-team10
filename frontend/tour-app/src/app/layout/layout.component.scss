@@ -1,0 +1,13 @@
+// :host se odnosi na samu <app-layout> komponentu
+:host {
+  display: flex;
+  flex-direction: column; // Ređa elemente vertikalno (navbar iznad sadržaja)
+  height: 100vh; // Osigurava da layout zauzima celu visinu ekrana
+}
+
+// Stil za omotač sadržaja
+.content-wrapper {
+  flex: 1; // Govori ovom delu da zauzme sav preostali slobodan prostor
+  overflow-y: auto; // Dodaje skrol ako je sadržaj stranice duži od ekrana
+  padding: 2rem; // Malo razmaka oko sadržaja
+}
