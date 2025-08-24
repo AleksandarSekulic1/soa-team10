@@ -1,20 +1,29 @@
 <nav>
-  <div class="nav-brand">
-    <a routerLink="/home">TourApp</a>
-  </div>
+  <div class="nav-brand">
+    <a routerLink="/home">TourApp</a>
+  </div>
 
-  <ul class="nav-links" *ngIf="authService.isLoggedIn$ | async">
-    <li>
-      <a routerLink="/home">Home</a>
-    </li>
-    <li>
-      <a routerLink="/profile">Profile</a> </li>
-    <li>
-    <li>
-      <a routerLink="/users" *ngIf="authService.isAdmin()">All Users</a>
-    </li>
-    <li>
-      <button (click)="logout()">Logout</button>
-    </li>
-  </ul>
+  <ul class="nav-links" *ngIf="authService.isLoggedIn$ | async">
+    <li>
+      <a routerLink="/home">Home</a>
+    </li>
+    <li>
+      <a routerLink="/profile">Profile</a>
+    </li>
+    <!-- Prikazuje se samo ako je korisnik ADMIN -->
+    <li *ngIf="authService.isAdmin()">
+      <a routerLink="/users">All Users</a>
+    </li>
+    <!-- Prikazuje se samo ako je korisnik VODIČ -->
+    <li *ngIf="authService.isGuide()">
+      <a routerLink="/create-tour">Create tour</a>
+    </li>
+    <!-- DODAT NOVI LINK: Prikazuje se samo ako je korisnik VODIČ -->
+    <li *ngIf="authService.isGuide()">
+      <a routerLink="/my-tours">Moje Ture</a>
+    </li>
+    <li>
+      <button (click)="logout()">Logout</button>
+    </li>
+  </ul>
 </nav>

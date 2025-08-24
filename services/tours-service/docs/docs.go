@@ -68,6 +68,40 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/tours/my-tours": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Vraća listu svih tura koje je kreirao autor čiji se token koristi.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Prikaz tura kreiranih od strane ulogovanog autora",
+                "responses": {
+                    "200": {
+                        "description": "Lista tura",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Tour"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Greška: Korisnik nije autorizovan",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -121,7 +155,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8082",
+	Host:             "localhost:8083",
 	BasePath:         "/api",
 	Schemes:          []string{},
 	Title:            "Tours Service API",

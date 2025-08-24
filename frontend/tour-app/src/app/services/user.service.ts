@@ -8,7 +8,7 @@ import { User } from '../models/user.model';
 })
 export class UserService {
   // ISPRAVKA: Vraćamo kosu crtu (/) na kraj, da odgovara vašem backendu.
-  private apiUrl = '/api/stakeholders';
+  private apiUrl = '/api/stakeholders/';
 
   constructor(private http: HttpClient) { }
 

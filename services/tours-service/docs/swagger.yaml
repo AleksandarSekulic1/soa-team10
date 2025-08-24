@@ -25,7 +25,7 @@ definitions:
     - difficulty
     - name
     type: object
-host: localhost:8082
+host: localhost:8083
 info:
   contact: {}
   description: API za upravljanje turama.
@@ -66,6 +66,27 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Kreiranje nove ture
+  /tours/my-tours:
+    get:
+      description: Vraća listu svih tura koje je kreirao autor čiji se token koristi.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Lista tura
+          schema:
+            items:
+              $ref: '#/definitions/domain.Tour'
+            type: array
+        "401":
+          description: 'Greška: Korisnik nije autorizovan'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Prikaz tura kreiranih od strane ulogovanog autora
 securityDefinitions:
   ApiKeyAuth:
     in: header

@@ -48,3 +48,27 @@ func (h *TourHandler) Create(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, tour)
 }
+
+// @Summary Prikaz tura kreiranih od strane ulogovanog autora
+// @Description Vraća listu svih tura koje je kreirao autor čiji se token koristi.
+// @Produce  json
+// @Security ApiKeyAuth
+// @Success 200 {array} domain.Tour "Lista tura"
+// @Failure 401 {object} map[string]string "Greška: Korisnik nije autorizovan"
+// @Router /tours/my-tours [get]
+func (h *TourHandler) GetByAuthor(c *gin.Context) {
+	// Preuzimamo korisničko ime iz tokena koje je postavio middleware
+	authorUsername, exists := c.Get("username")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Korisnik nije autorizovan"})
+		return
+	}
+
+	tours, err := h.service.GetByAuthorId(authorUsername.(string))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Greška prilikom preuzimanja tura"})
+		return
+	}
+
+	c.JSON(http.StatusOK, tours)
+}

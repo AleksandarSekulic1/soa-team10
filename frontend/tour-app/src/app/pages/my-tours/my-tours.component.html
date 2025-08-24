@@ -1,0 +1,18 @@
+<div class="container">
+  <h1>Moje Kreirane Ture</h1>
+
+  <div *ngIf="myTours && myTours.length > 0; else noTours" class="tours-grid">
+    <div *ngFor="let tour of myTours" class="tour-card">
+      <h3>{{ tour.name }}</h3>
+      <p>{{ tour.description }}</p>
+      <div class="tour-details">
+        <span><strong>Status:</strong> {{ tour.status }}</span>
+        <span><strong>Težina:</strong> {{ tour.difficulty }} / 5</span>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #noTours>
+    <p>Niste još kreirali nijednu turu.</p>
+  </ng-template>
+</div>

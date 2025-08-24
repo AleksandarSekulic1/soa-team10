@@ -40,6 +40,7 @@ func NewServer() *Server {
 		toursGroup := apiGroup.Group("/tours")
 		{
 			toursGroup.POST("", api.AuthMiddleware(), tourHandler.Create)
+			toursGroup.GET("/my-tours", api.AuthMiddleware(), tourHandler.GetByAuthor)
 			// Ovde možete dodavati nove rute za ture...
 		}
 	}
