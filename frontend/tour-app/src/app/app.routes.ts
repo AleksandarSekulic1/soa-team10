@@ -8,6 +8,10 @@ import { LayoutComponent } from './layout/layout.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { TourCreationComponent } from './pages/tour-creation/tour-creation.component'; // <-- Uvozimo novu komponentu
 import { TourListComponent } from './pages/tour-list/tour-list.component';
+// Importovaćemo komponente koje ćemo uskoro kreirati
+import { BlogListComponent } from './pages/blog-list/blog-list.component';
+import { BlogDetailComponent } from './pages/blog-detail/blog-detail.component';
+import { BlogFormComponent } from './pages/blog-form/blog-form.component';
 // Uvozimo sve guardove
 import { authGuard } from './guards/auth.guard';
 import { adminGuard } from './guards/admin.guard';
@@ -26,6 +30,11 @@ export const routes: Routes = [
     component: LayoutComponent,
     children: [
       { path: 'home', component: HomeComponent },
+      { path: 'blogs', component: BlogListComponent },
+      { path: 'blogs/create', component: BlogFormComponent }, // Ruta za kreiranje
+      { path: 'blogs/edit/:id', component: BlogFormComponent }, // Ruta za izmenu
+      { path: 'blogs/:id', component: BlogDetailComponent }, // Ova mora biti poslednja od /blogs ruta
+
       {
         path: 'users',
         component: UserListComponent,
