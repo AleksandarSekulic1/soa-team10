@@ -7,16 +7,16 @@ import { HomeComponent } from './pages/home/home.component';
 import { LayoutComponent } from './layout/layout.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { TourCreationComponent } from './pages/tour-creation/tour-creation.component'; // <-- Uvozimo novu komponentu
+import { TourListComponent } from './pages/tour-list/tour-list.component';
 // Importovaćemo komponente koje ćemo uskoro kreirati
 import { BlogListComponent } from './pages/blog-list/blog-list.component';
 import { BlogDetailComponent } from './pages/blog-detail/blog-detail.component';
 import { BlogFormComponent } from './pages/blog-form/blog-form.component';
-
-
 // Uvozimo sve guardove
 import { authGuard } from './guards/auth.guard';
 import { adminGuard } from './guards/admin.guard';
 import { guideGuard } from './guards/guide.guard';
+import { touristGuard } from './guards/tourist.guard';
 import { MyToursComponent } from './pages/my-tours/my-tours.component';
 export const routes: Routes = [
   // --- Rute bez layout-a (bez navigacionog bara) ---
@@ -51,7 +51,11 @@ export const routes: Routes = [
         component: MyToursComponent,
         canActivate: [guideGuard] // Može i vodič da vidi svoje ture
       },
-
+      {
+        path: 'tours',
+        component: TourListComponent,
+        canActivate: [touristGuard] // Može i vodič da vidi svoje ture
+      },
       // Ako korisnik dođe na praznu putanju unutar layout-a (npr. nakon logina),
       // preusmeri ga na 'home' stranicu.
       { path: '', redirectTo: 'home', pathMatch: 'full' }

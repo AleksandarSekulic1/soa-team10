@@ -1,12 +1,14 @@
 <nav>
-  <div class="nav-brand">
-    <a routerLink="/home">TourApp</a>
-  </div>
-
+  <div class="nav-brand">
+    <a routerLink="/home">TourApp</a>
+  </div>
   <ul class="nav-links" *ngIf="authService.isLoggedIn$ | async">
     <li>
       <a routerLink="/home">Home</a>
     </li>
+    <li>
+      <a routerLink="/tours">All tours</a>
+    </li>
     <li>
       <a routerLink="/profile">Profile</a>
     </li>

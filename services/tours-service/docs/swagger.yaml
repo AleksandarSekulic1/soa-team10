@@ -14,6 +14,11 @@ definitions:
         type: string
       price:
         type: number
+      reviews:
+        description: <-- DODATO POLJE
+        items:
+          $ref: '#/definitions/domain.TourReview'
+        type: array
       status:
         type: string
       tags:
@@ -25,6 +30,30 @@ definitions:
     - difficulty
     - name
     type: object
+  domain.TourReview:
+    properties:
+      comment:
+        type: string
+      commentDate:
+        type: string
+      id:
+        type: string
+      imageUrls:
+        items:
+          type: string
+        type: array
+      rating:
+        maximum: 5
+        minimum: 1
+        type: integer
+      touristId:
+        type: string
+      visitDate:
+        type: string
+    required:
+    - rating
+    - visitDate
+    type: object
 host: localhost:8083
 info:
   contact: {}
@@ -33,6 +62,18 @@ info:
   version: "1.0"
 paths:
   /tours:
+    get:
+      description: Vraća listu svih tura dostupnih u sistemu.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Lista svih tura
+          schema:
+            items:
+              $ref: '#/definitions/domain.Tour'
+            type: array
+      summary: Prikaz svih tura
     post:
       consumes:
       - application/json
@@ -66,6 +107,35 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Kreiranje nove ture
+  /tours/{id}/reviews:
+    post:
+      consumes:
+      - application/json
+      description: Dodaje novu recenziju na turu sa datim ID-jem. Zahteva autentikaciju.
+      parameters:
+      - description: ID Ture
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Podaci o recenziji
+        in: body
+        name: review
+        required: true
+        schema:
+          $ref: '#/definitions/domain.TourReview'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Poruka o uspehu
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Dodavanje recenzije na turu
   /tours/my-tours:
     get:
       description: Vraća listu svih tura koje je kreirao autor čiji se token koristi.
