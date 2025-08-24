@@ -17,7 +17,12 @@ const docTemplate = `{
     "paths": {
         "/blogs": {
             "get": {
-                "description": "Vraća listu svih blog objava.",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Vraća listu svih blog objava. Zahteva autorizaciju.",
                 "produces": [
                     "application/json"
                 ],
@@ -29,6 +34,15 @@ const docTemplate = `{
                             "type": "array",
                             "items": {
                                 "$ref": "#/definitions/domain.Blog"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Neautorizovan pristup",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
                             }
                         }
                     },
@@ -107,7 +121,12 @@ const docTemplate = `{
         },
         "/blogs/{id}": {
             "get": {
-                "description": "Vraća sve detalje o jednom blog postu na osnovu njegovog ID-a.",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Vraća sve detalje o jednom blog postu na osnovu njegovog ID-a. Zahteva autorizaciju.",
                 "produces": [
                     "application/json"
                 ],
@@ -130,6 +149,15 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Greška: Neispravan ID",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Neautorizovan pristup",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {

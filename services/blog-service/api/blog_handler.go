@@ -60,9 +60,11 @@ func (h *BlogHandler) CreateBlog(c *gin.Context) {
 }
 
 // @Summary Prikaz svih objava na blogu
-// @Description Vraća listu svih blog objava.
+// @Security ApiKeyAuth
+// @Description Vraća listu svih blog objava. Zahteva autorizaciju.
 // @Produce  json
 // @Success 200 {array} domain.Blog "Lista svih blogova"
+// @Failure 401 {object} map[string]string "Neautorizovan pristup"
 // @Failure 500 {object} map[string]string "Interna greška servera"
 // @Router /blogs [get]
 func (h *BlogHandler) GetAllBlogs(c *gin.Context) {
@@ -154,11 +156,13 @@ func (h *BlogHandler) ToggleLike(c *gin.Context) {
 }
 
 // @Summary Prikaz jednog bloga
-// @Description Vraća sve detalje o jednom blog postu na osnovu njegovog ID-a.
+// @Security ApiKeyAuth
+// @Description Vraća sve detalje o jednom blog postu na osnovu njegovog ID-a. Zahteva autorizaciju.
 // @Produce  json
 // @Param   id   path      string  true  "Blog ID"
 // @Success 200 {object} domain.Blog "Detalji bloga"
 // @Failure 400 {object} map[string]string "Greška: Neispravan ID"
+// @Failure 401 {object} map[string]string "Neautorizovan pristup"
 // @Failure 404 {object} map[string]string "Blog nije pronađen"
 // @Router /blogs/{id} [get]
 func (h *BlogHandler) GetBlogById(c *gin.Context) {

@@ -15,7 +15,6 @@ services:
     image: neo4j:4.4
     container_name: neo4j-db
     environment:
-      # Vraćamo se na verziju bez lozinke koju ste želeli
       NEO4J_AUTH: none
     ports:
       - "7474:7474"
@@ -44,14 +43,27 @@ services:
       - neo4j-db
     restart: on-failure
 
+  # --- DODATA DEFINICIJA ZA BLOG-SERVICE ---
+  blog-service:
+    build:
+      context: ./services/blog-service
+      dockerfile: Dockerfile
+    container_name: blog-service
+    ports:
+      - "8082:8082"
+    environment:
+      MONGO_URI: "mongodb://mongo-db:27017"
+    depends_on:
+      - mongo-db
+    restart: on-failure
+
   tours-service:
     build:
       context: ./services/tours-service
       dockerfile: Dockerfile
     container_name: tours-service
     ports:
-      - "8083:8083" # Port koji ste tražili
-    # OVA SEKCIJA JE KLJUČNA
+      - "8083:8083"
     environment:
       MONGO_URI: "mongodb://mongo-db:27017"
     depends_on:

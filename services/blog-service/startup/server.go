@@ -38,18 +38,19 @@ func NewServer() *Server {
 	// 3. Dodajemo rutu za Swagger UI
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	apiRoutes := router.Group("/api/blogs")
-	{
-		// Primenjujemo middleware na POST rutu
-		apiRoutes.POST("", api.AuthMiddleware(), blogHandler.CreateBlog)
-		// GET ruta ostaje javna
-		apiRoutes.GET("", blogHandler.GetAllBlogs)
-		apiRoutes.POST("/:id/comments", api.AuthMiddleware(), blogHandler.AddComment)
-		apiRoutes.POST("/:id/likes", api.AuthMiddleware(), blogHandler.ToggleLike)
-		apiRoutes.GET("/:id", blogHandler.GetBlogById) // GET jednog bloga je javna ruta
-		apiRoutes.PUT("/:id", api.AuthMiddleware(), blogHandler.UpdateBlog) // Izmena je zaštićena
-		apiRoutes.PUT("/:id/comments/:commentId", api.AuthMiddleware(), blogHandler.UpdateComment)
-	}
+apiRoutes := router.Group("/api/blogs")
+    {
+        // Primenjujemo middleware na POST rutu
+        apiRoutes.POST("", api.AuthMiddleware(), blogHandler.CreateBlog)
+        // GET ruta je sada takođe zaštićena
+        apiRoutes.GET("", api.AuthMiddleware(), blogHandler.GetAllBlogs)
+        apiRoutes.POST("/:id/comments", api.AuthMiddleware(), blogHandler.AddComment)
+        apiRoutes.POST("/:id/likes", api.AuthMiddleware(), blogHandler.ToggleLike)
+        // GET jednog bloga je sada takođe zaštićena ruta
+        apiRoutes.GET("/:id", api.AuthMiddleware(), blogHandler.GetBlogById) 
+        apiRoutes.PUT("/:id", api.AuthMiddleware(), blogHandler.UpdateBlog)
+        apiRoutes.PUT("/:id/comments/:commentId", api.AuthMiddleware(), blogHandler.UpdateComment)
+    }
 
 	return &Server{router: router}
 }
