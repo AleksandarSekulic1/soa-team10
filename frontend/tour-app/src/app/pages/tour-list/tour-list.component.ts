@@ -17,7 +17,8 @@ export class TourListComponent implements OnInit {
   review = {
     rating: 5,
     comment: '',
-    visitDate: new Date().toISOString().split('T')[0] // Današnji datum
+    visitDate: new Date().toISOString().split('T')[0],
+    imageUrlsInput: '' // Polje za unos URL-ova kao string
   };
 
   constructor(public authService: AuthService, private tourService: TourService) {}
@@ -32,12 +33,27 @@ export class TourListComponent implements OnInit {
 
   selectTourForReview(tour: any): void {
     this.selectedTour = tour;
+    // Resetujemo formu svaki put kad se otvori
+    this.review = {
+      rating: 5,
+      comment: '',
+      visitDate: new Date().toISOString().split('T')[0],
+      imageUrlsInput: ''
+    };
   }
 
   submitReview(): void {
     if (!this.selectedTour) return;
 
-    this.tourService.addReview(this.selectedTour.id, this.review).subscribe({
+    const reviewData = {
+      rating: this.review.rating,
+      comment: this.review.comment,
+      visitDate: new Date(this.review.visitDate).toISOString(),
+      // Pretvaramo string sa URL-ovima u niz stringova
+      imageUrls: this.review.imageUrlsInput.split(',').map(url => url.trim()).filter(url => url)
+    };
+
+    this.tourService.addReview(this.selectedTour.id, reviewData).subscribe({
       next: () => {
         alert('Recenzija uspešno poslata!');
         this.selectedTour = null;
