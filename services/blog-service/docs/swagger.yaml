@@ -56,7 +56,7 @@ info:
 paths:
   /blogs:
     get:
-      description: Vraća listu svih blog objava.
+      description: Vraća listu svih blog objava. Zahteva autorizaciju.
       produces:
       - application/json
       responses:
@@ -66,12 +66,20 @@ paths:
             items:
               $ref: '#/definitions/domain.Blog'
             type: array
+        "401":
+          description: Neautorizovan pristup
+          schema:
+            additionalProperties:
+              type: string
+            type: object
         "500":
           description: Interna greška servera
           schema:
             additionalProperties:
               type: string
             type: object
+      security:
+      - ApiKeyAuth: []
       summary: Prikaz svih objava na blogu
     post:
       consumes:
@@ -115,6 +123,7 @@ paths:
   /blogs/{id}:
     get:
       description: Vraća sve detalje o jednom blog postu na osnovu njegovog ID-a.
+        Zahteva autorizaciju.
       parameters:
       - description: Blog ID
         in: path
@@ -134,12 +143,20 @@ paths:
             additionalProperties:
               type: string
             type: object
+        "401":
+          description: Neautorizovan pristup
+          schema:
+            additionalProperties:
+              type: string
+            type: object
         "404":
           description: Blog nije pronađen
           schema:
             additionalProperties:
               type: string
             type: object
+      security:
+      - ApiKeyAuth: []
       summary: Prikaz jednog bloga
     put:
       consumes:
