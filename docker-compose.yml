@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   postgres-db:
     image: postgres
@@ -21,3 +20,23 @@ services:
     image: mongo
     ports:
       - "27017:27017"
+
+  stakeholders-service:
+    build:
+      context: ./services/stakeholders-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      - neo4j-db
+    restart: on-failure # <-- DODATA LINIJA
+
+
+  # 'blog-service' mora biti na istom nivou uvlačenja kao 'stakeholders-service'
+  blog-service:
+    build:
+      context: ./services/blog-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - mongo-db
+    restart: on-failure # <-- DODATA LINIJA

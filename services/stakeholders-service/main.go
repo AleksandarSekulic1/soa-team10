@@ -1,8 +1,6 @@
 package main
 
 import (
-	"context"
-	"log"
 	"stakeholders-service/startup"
 )
 
@@ -15,18 +13,12 @@ import (
 // @in header
 // @name Authorization
 func main() {
-	uri := "neo4j://localhost:7687"
-	user := "neo4j"
-	pass := "sifra1234"
+	// 1. Inicijalizujemo konekciju sa bazom
+	driver := startup.NewDriver()
 
-	driver, err := startup.InitDB(uri, user, pass)
-	if err != nil {
-		log.Fatal(err)
-	}
-	// Moramo definisati context ovde da bi bio dostupan
-	ctx := context.Background()
-	defer driver.Close(ctx)
-
+	// 2. Kreiramo novi server i prosleđujemo mu drajver za bazu
 	server := startup.NewServer(driver)
+
+	// 3. Pokrećemo server
 	server.Start()
 }
