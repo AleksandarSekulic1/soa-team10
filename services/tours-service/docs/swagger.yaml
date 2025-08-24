@@ -1,0 +1,74 @@
+basePath: /api
+definitions:
+  domain.Tour:
+    properties:
+      authorId:
+        type: string
+      description:
+        type: string
+      difficulty:
+        type: integer
+      id:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      status:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+    required:
+    - description
+    - difficulty
+    - name
+    type: object
+host: localhost:8082
+info:
+  contact: {}
+  description: API za upravljanje turama.
+  title: Tours Service API
+  version: "1.0"
+paths:
+  /tours:
+    post:
+      consumes:
+      - application/json
+      description: Kreira novu turu sa statusom 'draft' i cenom 0. Zahteva autentikaciju.
+      parameters:
+      - description: Podaci o turi (bez statusa, cene i authorId)
+        in: body
+        name: tour
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Tour'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Uspešno kreirana tura
+          schema:
+            $ref: '#/definitions/domain.Tour'
+        "400":
+          description: 'Greška: Neispravan format zahteva'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: 'Greška: Korisnik nije autorizovan'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Kreiranje nove ture
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
