@@ -1,0 +1,113 @@
+<div class="container">
+  <div *ngIf="isLoading" class="loading-message">
+    <p>Loading tour details...</p>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <p>{{ error }}</p>
+    <a routerLink="/tours">Back to tour list</a>
+  </div>
+
+  <div *ngIf="!isLoading && tour" class="tour-content">
+    <header class="tour-header">
+      <h1>{{ tour.name }}</h1>
+      <span class="status-badge" [ngClass]="tour.status">{{ tour.status }}</span>
+    </header>
+
+    <section class="tour-info">
+      <p class="description">{{ tour.description }}</p>
+      <div class="details">
+        <span><strong>Author:</strong> {{ tour.authorId }}</span>
+        <span><strong>Difficulty:</strong> {{ tour.difficulty }} / 5</span>
+        <span><strong>Price:</strong> {{ tour.price > 0 ? (tour.price | currency:'USD') : 'Free' }}</span>
+      </div>
+
+      <div *ngIf="tour.tags && tour.tags.length > 0" class="tags-section">
+        <strong>Tags:</strong>
+        <div class="tags-container">
+          <span *ngFor="let tag of tour.tags" class="tag-pill">{{ tag }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="keypoints-section">
+      <h2>Tour Key Points</h2>
+      <div *ngIf="tour.keyPoints && tour.keyPoints.length > 0; else noKeyPoints" class="keypoints-grid">
+        <div *ngFor="let kp of tour.keyPoints" class="keypoint-card">
+          <img [src]="kp.imageUrl || 'assets/images/default-avatar.png'" alt="Key point image" class="keypoint-image">
+          <div class="keypoint-info">
+            <h4>{{ kp.name }}</h4>
+            <p>{{ kp.description }}</p>
+            <small>Coordinates: {{ kp.latitude | number:'1.4-4' }}, {{ kp.longitude | number:'1.4-4' }}</small>
+          </div>
+          <div class="keypoint-actions">
+            <button (click)="openEditModal(kp)" class="btn-edit">Edit</button>
+            <button (click)="deleteKeyPoint(kp.id)" class="btn-delete">Delete</button>
+          </div>
+        </div>
+      </div>
+      <ng-template #noKeyPoints>
+        <p class="no-items-message">No key points have been added for this tour yet.</p>
+      </ng-template>
+    </section>
+
+    <section class="route-map-section" *ngIf="tour && tour.keyPoints && tour.keyPoints.length > 1">
+      <h2>Tour Route on Map</h2>
+      <div id="tour-route-map"></div>
+    </section>
+
+    <section class="reviews-section">
+      <h2>User Reviews</h2>
+      <div *ngIf="tour.reviews && tour.reviews.length > 0; else noReviews" class="reviews-list">
+        <div *ngFor="let review of tour.reviews" class="review-card">
+          <div class="review-header">
+            <span class="reviewer-name">User: {{ review.touristId }}</span>
+            <div class="star-rating">
+              <span *ngFor="let _ of getStarArray(review.rating)" class="star">&#9733;</span>
+            </div>
+          </div>
+          <p class="review-comment">"{{ review.comment }}"</p>
+          <div *ngIf="review.imageUrls && review.imageUrls.length > 0" class="review-images">
+            <img *ngFor="let imgUrl of review.imageUrls" [src]="'assets/images/women1.png'" alt="Image from review">
+          </div>
+          <small class="review-date">Commented on: {{ review.commentDate | date:'dd.MM.yyyy' }}</small>
+        </div>
+      </div>
+      <ng-template #noReviews>
+        <p class="no-items-message">This tour has no reviews yet.</p>
+      </ng-template>
+    </section>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="isEditModalVisible">
+  <div class="modal-content">
+    <h3 class="modal-title">Edit Key Point</h3>
+    <form *ngIf="currentKeyPointToEdit" (ngSubmit)="onUpdateKeyPoint()">
+      <div class="form-group">
+        <label for="kp-name">Name</label>
+        <input id="kp-name" type="text" [(ngModel)]="currentKeyPointToEdit.name" name="name" required>
+      </div>
+      <div class="form-group">
+        <label for="kp-desc">Description</label>
+        <textarea id="kp-desc" [(ngModel)]="currentKeyPointToEdit.description" name="description"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Change Location on Map</label>
+        <div id="map-edit"></div>
+      </div>
+      <div class="form-group">
+        <label>Change Image</label>
+        <div class="image-selector">
+          <img *ngFor="let img of availableImages" [src]="img" alt="Image for selection"
+               [class.selected]="currentKeyPointToEdit.imageUrl === img"
+               (click)="selectImageForEdit(img)">
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="submit" class="btn-save">Save Changes</button>
+        <button type="button" (click)="closeEditModal()" class="btn-cancel">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>

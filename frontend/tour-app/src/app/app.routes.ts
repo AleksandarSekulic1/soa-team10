@@ -1,23 +1,23 @@
 import { Routes } from '@angular/router';
-// Uvozimo sve potrebne komponente
 import { RegistrationComponent } from './pages/registration/registration.component';
 import { LoginComponent } from './pages/login/login.component';
 import { UserListComponent } from './pages/user-list/user-list.component';
 import { HomeComponent } from './pages/home/home.component';
 import { LayoutComponent } from './layout/layout.component';
 import { ProfileComponent } from './pages/profile/profile.component';
-import { TourCreationComponent } from './pages/tour-creation/tour-creation.component'; // <-- Uvozimo novu komponentu
+import { TourCreationComponent } from './pages/tour-creation/tour-creation.component'; 
 import { TourListComponent } from './pages/tour-list/tour-list.component';
-// Importovaćemo komponente koje ćemo uskoro kreirati
 import { BlogListComponent } from './pages/blog-list/blog-list.component';
 import { BlogDetailComponent } from './pages/blog-detail/blog-detail.component';
 import { BlogFormComponent } from './pages/blog-form/blog-form.component';
-// Uvozimo sve guardove
 import { authGuard } from './guards/auth.guard';
 import { adminGuard } from './guards/admin.guard';
 import { guideGuard } from './guards/guide.guard';
 import { touristGuard } from './guards/tourist.guard';
 import { MyToursComponent } from './pages/my-tours/my-tours.component';
+import { TourDetailComponent } from './pages/tour-detail/tour-detail.component';
+import { KeypointFormComponent } from './pages/keypoint-form/keypoint-form.component'; 
+
 export const routes: Routes = [
   // --- Rute bez layout-a (bez navigacionog bara) ---
   { path: 'register', component: RegistrationComponent },
@@ -34,6 +34,8 @@ export const routes: Routes = [
       { path: 'blogs/create', component: BlogFormComponent }, // Ruta za kreiranje
       { path: 'blogs/edit/:id', component: BlogFormComponent }, // Ruta za izmenu
       { path: 'blogs/:id', component: BlogDetailComponent }, // Ova mora biti poslednja od /blogs ruta
+      { path: 'tours/:id', component: TourDetailComponent },
+      { path: 'tours/:tourId/add-keypoint',  component: KeypointFormComponent, canActivate: [guideGuard] },
 
       {
         path: 'users',
