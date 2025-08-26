@@ -13,4 +13,5 @@ type Tour struct {
 	Status      string             `bson:"status" json:"status"`
 	Price       float64            `bson:"price" json:"price"`
 	Reviews     []TourReview       `bson:"reviews" json:"reviews"` // <-- DODATO POLJE
+	KeyPoints   []TourKeyPoint     `bson:"keyPoints" json:"keyPoints"` // <-- NOVO POLJE
 }

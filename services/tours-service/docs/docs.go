@@ -121,6 +121,173 @@ const docTemplate = `{
                 }
             }
         },
+        "/tours/{id}": {
+            "get": {
+                "description": "Vraća detalje specifične ture na osnovu njenog ID-ja.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Prikaz jedne ture po ID-ju",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID Ture",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalji ture",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Tour"
+                        }
+                    },
+                    "404": {
+                        "description": "Greška: Tura nije pronađena",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tours/{id}/keypoints": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Dodaje novu ključnu tačku na turu sa datim ID-jem. Samo autor ture može dodati tačku.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Dodavanje ključne tačke na turu",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID Ture",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Podaci o ključnoj tački",
+                        "name": "keyPoint",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.TourKeyPoint"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Uspešno dodata ključna tačka",
+                        "schema": {
+                            "$ref": "#/definitions/domain.TourKeyPoint"
+                        }
+                    }
+                }
+            }
+        },
+        "/tours/{id}/keypoints/{keypointId}": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Ažurira postojeću ključnu tačku na turi.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Ažuriranje ključne tačke",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID Ture",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID Ključne tačke",
+                        "name": "keypointId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Novi podaci o ključnoj tački",
+                        "name": "keyPoint",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.TourKeyPoint"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Uspešno ažurirana ključna tačka",
+                        "schema": {
+                            "$ref": "#/definitions/domain.TourKeyPoint"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Briše ključnu tačku sa ture.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Brisanje ključne tačke",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID Ture",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID Ključne tačke",
+                        "name": "keypointId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Poruka o uspehu",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/tours/{id}/reviews": {
             "post": {
                 "security": [
@@ -189,6 +356,13 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "keyPoints": {
+                    "description": "\u003c-- NOVO POLJE",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.TourKeyPoint"
+                    }
+                },
                 "name": {
                     "type": "string"
                 },
@@ -210,6 +384,37 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "domain.TourKeyPoint": {
+            "type": "object",
+            "required": [
+                "latitude",
+                "longitude",
+                "name"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "imageUrl": {
+                    "type": "string"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "tourId": {
+                    "type": "string"
                 }
             }
         },

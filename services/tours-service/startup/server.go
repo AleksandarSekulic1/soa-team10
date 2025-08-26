@@ -43,6 +43,12 @@ func NewServer() *Server {
 			toursGroup.GET("/my-tours", api.AuthMiddleware(), tourHandler.GetByAuthor)
 			toursGroup.GET("", tourHandler.GetAll) // Javna ruta za prikaz svih tura
 			toursGroup.POST("/:id/reviews", api.AuthMiddleware(), tourHandler.AddReview)
+			toursGroup.GET("/:id", tourHandler.GetById)
+			// NOVE RUTE ZA KEY POINTS
+			toursGroup.POST("/:id/keypoints", api.AuthMiddleware(), tourHandler.AddKeyPoint)
+			toursGroup.PUT("/:id/keypoints/:keypointId", api.AuthMiddleware(), tourHandler.UpdateKeyPoint)
+			toursGroup.DELETE("/:id/keypoints/:keypointId", api.AuthMiddleware(), tourHandler.DeleteKeyPoint)
+
 		}
 	}
 

@@ -10,6 +10,11 @@ definitions:
         type: integer
       id:
         type: string
+      keyPoints:
+        description: <-- NOVO POLJE
+        items:
+          $ref: '#/definitions/domain.TourKeyPoint'
+        type: array
       name:
         type: string
       price:
@@ -28,6 +33,27 @@ definitions:
     required:
     - description
     - difficulty
+    - name
+    type: object
+  domain.TourKeyPoint:
+    properties:
+      description:
+        type: string
+      id:
+        type: string
+      imageUrl:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      name:
+        type: string
+      tourId:
+        type: string
+    required:
+    - latitude
+    - longitude
     - name
     type: object
   domain.TourReview:
@@ -107,6 +133,114 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Kreiranje nove ture
+  /tours/{id}:
+    get:
+      description: Vraća detalje specifične ture na osnovu njenog ID-ja.
+      parameters:
+      - description: ID Ture
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Detalji ture
+          schema:
+            $ref: '#/definitions/domain.Tour'
+        "404":
+          description: 'Greška: Tura nije pronađena'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Prikaz jedne ture po ID-ju
+  /tours/{id}/keypoints:
+    post:
+      consumes:
+      - application/json
+      description: Dodaje novu ključnu tačku na turu sa datim ID-jem. Samo autor ture
+        može dodati tačku.
+      parameters:
+      - description: ID Ture
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Podaci o ključnoj tački
+        in: body
+        name: keyPoint
+        required: true
+        schema:
+          $ref: '#/definitions/domain.TourKeyPoint'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Uspešno dodata ključna tačka
+          schema:
+            $ref: '#/definitions/domain.TourKeyPoint'
+      security:
+      - ApiKeyAuth: []
+      summary: Dodavanje ključne tačke na turu
+  /tours/{id}/keypoints/{keypointId}:
+    delete:
+      description: Briše ključnu tačku sa ture.
+      parameters:
+      - description: ID Ture
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: ID Ključne tačke
+        in: path
+        name: keypointId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Poruka o uspehu
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Brisanje ključne tačke
+    put:
+      consumes:
+      - application/json
+      description: Ažurira postojeću ključnu tačku na turi.
+      parameters:
+      - description: ID Ture
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: ID Ključne tačke
+        in: path
+        name: keypointId
+        required: true
+        type: string
+      - description: Novi podaci o ključnoj tački
+        in: body
+        name: keyPoint
+        required: true
+        schema:
+          $ref: '#/definitions/domain.TourKeyPoint'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Uspešno ažurirana ključna tačka
+          schema:
+            $ref: '#/definitions/domain.TourKeyPoint'
+      security:
+      - ApiKeyAuth: []
+      summary: Ažuriranje ključne tačke
   /tours/{id}/reviews:
     post:
       consumes:
