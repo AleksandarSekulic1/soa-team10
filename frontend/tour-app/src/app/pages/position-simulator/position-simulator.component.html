@@ -1,0 +1,12 @@
+<div class="simulator-container">
+  <div class="info-header" *ngIf="tour">
+    <h1>Position Simulator for: {{ tour.name }}</h1>
+    <p>Click on the map to set your current position. The dashed line shows the path to the tour's starting point.</p>
+
+    <div *ngIf="touristPosition" class="coords-display">
+      <span>Current Latitude: <strong>{{ touristPosition.Latitude | number:'1.4-4' }}</strong></span>
+      <span>Current Longitude: <strong>{{ touristPosition.Longitude | number:'1.4-4' }}</strong></span>
+    </div>
+  </div>
+  <div id="simulator-map"></div>
+</div>

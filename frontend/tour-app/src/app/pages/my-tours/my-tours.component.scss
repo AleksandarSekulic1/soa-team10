@@ -1,46 +1,127 @@
 .container {
-  width: 100%;
   max-width: 1200px;
-  margin: 20px auto;
+  margin: 40px auto;
   padding: 20px;
 }
 
 h1 {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 40px;
+  font-size: 2.5em;
+  color: #2c3e50;
 }
 
 .tours-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 30px;
 }
 
 .tour-card {
   background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  padding: 25px;
   display: flex;
   flex-direction: column;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+  }
 
   h3 {
+    margin-top: 0;
     margin-bottom: 10px;
+    color: #34495e;
+    font-size: 1.4em;
+  }
+
+  .description {
+    flex-grow: 1; /* Gura donje elemente na dno */
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+}
+
+.keypoints-preview {
+  margin-bottom: 20px;
+  font-size: 0.9em;
+  
+  strong {
     color: #333;
+    display: block;
+    margin-bottom: 8px;
   }
 
-  p {
-    flex-grow: 1;
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  li {
     color: #666;
-    margin-bottom: 15px;
+    margin-bottom: 4px;
+  }
+}
+
+.tour-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9em;
+  color: #555;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 15px;
+  margin-bottom: 15px;
+
+  .status-badge {
+    padding: 4px 10px;
+    border-radius: 15px;
+    color: white;
+    font-weight: bold;
+    text-transform: capitalize;
+    &.draft { background-color: #ffc107; }
+    &.published { background-color: #28a745; }
+    &.archived { background-color: #6c757d; }
+  }
+}
+
+.tour-actions {
+  display: flex;
+  gap: 10px; /* Razmak između dugmića */
+  
+  .btn {
+    flex: 1; /* Dugmad će zauzeti istu širinu */
+    padding: 12px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 6px;
+    transition: background-color 0.2s;
   }
 
-  .tour-details {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.9em;
-    color: #888;
-    border-top: 1px solid #eee;
-    padding-top: 10px;
+  .btn-view {
+    background-color: #007bff;
+    color: white;
+    &:hover { background-color: #0056b3; }
   }
+
+  .btn-add-checkpoint {
+    background-color: #e9ecef;
+    color: #333;
+    &:hover { background-color: #ced4da; }
+  }
+}
+
+.no-tours-message {
+  text-align: center;
+  font-size: 1.2em;
+  color: #888;
+  padding: 40px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
 }

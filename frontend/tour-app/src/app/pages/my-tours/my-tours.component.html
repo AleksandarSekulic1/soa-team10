@@ -1,5 +1,5 @@
 <div class="container">
-  <h1>Moje Kreirane Ture</h1>
+  <h1>My Created Tours</h1>
 
   <div *ngIf="myTours && myTours.length > 0; else noTours" class="tours-grid">
     <div *ngFor="let tour of myTours" class="tour-card">
@@ -7,26 +7,26 @@
       <p class="description">{{ tour.description }}</p>
 
       <div *ngIf="tour.keyPoints && tour.keyPoints.length > 0" class="keypoints-preview">
-        <strong>Ključne tačke:</strong>
+        <strong>Key Points:</strong>
         <ul>
-          <li *ngFor="let kp of tour.keyPoints.slice(0, 3)">📌{{ kp.name }}</li>
-          <li *ngIf="tour.keyPoints.length > 3">...</li>
+          <li *ngFor="let kp of tour.keyPoints.slice(0, 5)">📌 {{ kp.name }}</li>
+          <li *ngIf="tour.keyPoints.length > 5">...</li>
         </ul>
       </div>
 
       <div class="tour-details">
-        <span><strong>Status:</strong> {{ tour.status }}</span>
-        <span><strong>Težina:</strong> {{ tour.difficulty }} / 5</span>
+        <span><strong>Status:</strong> <span class="status-badge" [ngClass]="tour.status">{{ tour.status }}</span></span>
+        <span><strong>Difficulty:</strong> {{ tour.difficulty }} / 5</span>
       </div>
 
       <div class="tour-actions">
-        <a [routerLink]="['/tours', tour.id]" class="btn btn-view">Prikaži Detalje</a>
-        <a [routerLink]="['/tours', tour.id, 'add-keypoint']" class="btn btn-add-checkpoint">Dodaj Checkpoint</a>
+        <a [routerLink]="['/tours', tour.id]" class="btn btn-view">View Details</a>
+        <a [routerLink]="['/tours', tour.id, 'add-keypoint']" class="btn btn-add-checkpoint">Add Checkpoint</a>
       </div>
     </div>
   </div>
 
   <ng-template #noTours>
-    <p>Niste još kreirali nijednu turu.</p>
+    <p class="no-tours-message">You haven't created any tours yet.</p>
   </ng-template>
 </div>

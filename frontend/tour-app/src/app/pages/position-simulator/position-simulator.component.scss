@@ -1,0 +1,28 @@
+#simulator-map {
+  height: calc(100vh - 150px); /* Visina mape da zauzme veći deo ekrana */
+  width: 100%;
+}
+.simulator-container {
+  padding: 20px;
+}
+.info-header {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Stil za prikaz koordinata */
+.coords-display {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  border: 1px solid #e9ecef;
+  display: flex;
+  justify-content: space-around;
+  font-family: monospace;
+  font-size: 1.1em;
+
+  span {
+    color: #333;
+  }
+}

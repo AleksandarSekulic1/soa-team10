@@ -11,6 +11,7 @@
   <div *ngIf="!isLoading && tour" class="tour-content">
     <header class="tour-header">
       <h1>{{ tour.name }}</h1>
+        <a [routerLink]="['/tours', tour.id, 'simulate']" class="btn-simulate">Start Simulation</a>
       <span class="status-badge" [ngClass]="tour.status">{{ tour.status }}</span>
     </header>
 
