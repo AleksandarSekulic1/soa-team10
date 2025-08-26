@@ -4,10 +4,24 @@
   <div *ngIf="myTours && myTours.length > 0; else noTours" class="tours-grid">
     <div *ngFor="let tour of myTours" class="tour-card">
       <h3>{{ tour.name }}</h3>
-      <p>{{ tour.description }}</p>
+      <p class="description">{{ tour.description }}</p>
+
+      <div *ngIf="tour.keyPoints && tour.keyPoints.length > 0" class="keypoints-preview">
+        <strong>Ključne tačke:</strong>
+        <ul>
+          <li *ngFor="let kp of tour.keyPoints.slice(0, 3)">📌{{ kp.name }}</li>
+          <li *ngIf="tour.keyPoints.length > 3">...</li>
+        </ul>
+      </div>
+
       <div class="tour-details">
         <span><strong>Status:</strong> {{ tour.status }}</span>
         <span><strong>Težina:</strong> {{ tour.difficulty }} / 5</span>
+      </div>
+
+      <div class="tour-actions">
+        <a [routerLink]="['/tours', tour.id]" class="btn btn-view">Prikaži Detalje</a>
+        <a [routerLink]="['/tours', tour.id, 'add-keypoint']" class="btn btn-add-checkpoint">Dodaj Checkpoint</a>
       </div>
     </div>
   </div>
