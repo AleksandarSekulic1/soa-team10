@@ -1,11 +1,13 @@
 package api
 
 import (
+	"log"
 	"net/http"
 	"tours-service/domain"
 	"tours-service/service"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type TourHandler struct {
@@ -109,4 +111,159 @@ func (h *TourHandler) AddReview(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Recenzija je uspešno dodata."})
+}
+
+// @Summary Dodavanje ključne tačke na turu
+// @Description Dodaje novu ključnu tačku na turu sa datim ID-jem. Samo autor ture može dodati tačku.
+// @Accept  json
+// @Produce  json
+// @Param   id   path   string  true  "ID Ture"
+// @Param   keyPoint body domain.TourKeyPoint true "Podaci o ključnoj tački"
+// @Security ApiKeyAuth
+// @Success 200 {object} domain.TourKeyPoint "Uspešno dodata ključna tačka"
+// @Router /tours/{id}/keypoints [post]
+func (h *TourHandler) AddKeyPoint(c *gin.Context) {
+	tourId := c.Param("id")
+	var keyPoint domain.TourKeyPoint
+	if err := c.ShouldBindJSON(&keyPoint); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Neispravan format zahteva"})
+		return
+	}
+	
+	// --- POCETAK PROVERE AUTORIZACIJE ---
+	authorUsername, exists := c.Get("username")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Korisnik nije autorizovan"})
+		return
+	}
+
+	tour, err := h.service.GetById(tourId)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Tura nije pronađena"})
+		return
+	}
+
+	if tour.AuthorId != authorUsername.(string) {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Nemate dozvolu da menjate ovu turu"})
+		return
+	}
+	// --- KRAJ PROVERE AUTORIZACIJE ---
+
+	if err := h.service.AddKeyPoint(tourId, &keyPoint); err != nil {
+		log.Printf("!!! SERVER ERROR - AddKeyPoint: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Greška prilikom dodavanja ključne tačke"})
+		return
+	}
+	c.JSON(http.StatusOK, keyPoint)
+}
+
+// @Summary Ažuriranje ključne tačke
+// @Description Ažurira postojeću ključnu tačku na turi.
+// @Accept  json
+// @Produce  json
+// @Param   id   path   string  true  "ID Ture"
+// @Param   keypointId path string true "ID Ključne tačke"
+// @Param   keyPoint body domain.TourKeyPoint true "Novi podaci o ključnoj tački"
+// @Security ApiKeyAuth
+// @Success 200 {object} domain.TourKeyPoint "Uspešno ažurirana ključna tačka"
+// @Router /tours/{id}/keypoints/{keypointId} [put]
+func (h *TourHandler) UpdateKeyPoint(c *gin.Context) {
+	tourId := c.Param("id")
+	keyPointId := c.Param("keypointId")
+
+	var keyPoint domain.TourKeyPoint
+	if err := c.ShouldBindJSON(&keyPoint); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Neispravan format zahteva"})
+		return
+	}
+
+	// --- POCETAK PROVERE AUTORIZACIJE ---
+	authorUsername, exists := c.Get("username")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Korisnik nije autorizovan"})
+		return
+	}
+
+	tour, err := h.service.GetById(tourId)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Tura nije pronađena"})
+		return
+	}
+
+	if tour.AuthorId != authorUsername.(string) {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Nemate dozvolu da menjate ovu turu"})
+		return
+	}
+	// --- KRAJ PROVERE AUTORIZACIJE ---
+
+	keyPointObjID, err := primitive.ObjectIDFromHex(keyPointId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Neispravan ID format za ključnu tačku"})
+		return
+	}
+	keyPoint.ID = keyPointObjID
+	keyPoint.TourId = tourId
+
+	if err := h.service.UpdateKeyPoint(tourId, &keyPoint); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Greška prilikom ažuriranja ključne tačke"})
+		return
+	}
+	c.JSON(http.StatusOK, keyPoint)
+}
+
+// @Summary Brisanje ključne tačke
+// @Description Briše ključnu tačku sa ture.
+// @Produce  json
+// @Param   id   path   string  true  "ID Ture"
+// @Param   keypointId path string true "ID Ključne tačke"
+// @Security ApiKeyAuth
+// @Success 200 {object} map[string]string "Poruka o uspehu"
+// @Router /tours/{id}/keypoints/{keypointId} [delete]
+func (h *TourHandler) DeleteKeyPoint(c *gin.Context) {
+	tourId := c.Param("id")
+	keyPointId := c.Param("keypointId")
+
+	// --- POCETAK PROVERE AUTORIZACIJE ---
+	authorUsername, exists := c.Get("username")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Korisnik nije autorizovan"})
+		return
+	}
+
+	tour, err := h.service.GetById(tourId)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Tura nije pronađena"})
+		return
+	}
+
+	if tour.AuthorId != authorUsername.(string) {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Nemate dozvolu da menjate ovu turu"})
+		return
+	}
+	// --- KRAJ PROVERE AUTORIZACIJE ---
+
+	if err := h.service.DeleteKeyPoint(tourId, keyPointId); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Greška prilikom brisanja ključne tačke"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Ključna tačka je uspešno obrisana."})
+}
+
+// @Summary Prikaz jedne ture po ID-ju
+// @Description Vraća detalje specifične ture na osnovu njenog ID-ja.
+// @Produce  json
+// @Param   id   path   string  true  "ID Ture"
+// @Success 200 {object} domain.Tour "Detalji ture"
+// @Failure 404 {object} map[string]string "Greška: Tura nije pronađena"
+// @Router /tours/{id} [get]
+func (h *TourHandler) GetById(c *gin.Context) {
+	tourId := c.Param("id")
+
+	tour, err := h.service.GetById(tourId)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Tura nije pronađena"})
+		return
+	}
+
+	c.JSON(http.StatusOK, tour)
 }
