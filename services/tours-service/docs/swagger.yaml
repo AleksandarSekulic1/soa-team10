@@ -1,5 +1,15 @@
 basePath: /api
 definitions:
+  api.PositionUpdateDTO:
+    properties:
+      latitude:
+        type: number
+      longitude:
+        type: number
+    required:
+    - latitude
+    - longitude
+    type: object
   domain.Tour:
     properties:
       authorId:
@@ -80,6 +90,20 @@ definitions:
     - rating
     - visitDate
     type: object
+  domain.TouristPosition:
+    properties:
+      id:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      updatedAt:
+        type: string
+      userId:
+        description: 'IZMENA: UserId je sada string'
+        type: string
+    type: object
 host: localhost:8083
 info:
   contact: {}
@@ -87,6 +111,73 @@ info:
   title: Tours Service API
   version: "1.0"
 paths:
+  /tourist-position:
+    get:
+      consumes:
+      - application/json
+      description: Vraća poslednju sačuvanu geografsku poziciju za ulogovanog korisnika.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Uspešno dobavljena pozicija
+          schema:
+            $ref: '#/definitions/domain.TouristPosition'
+        "401":
+          description: 'Greška: Korisnik nije autorizovan'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: 'Greška: Pozicija nije pronađena'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Dobavljanje pozicije turiste
+    post:
+      consumes:
+      - application/json
+      description: Čuva ili ažurira geografsku poziciju za ulogovanog korisnika. Koristi
+        se za simulator pozicije.
+      parameters:
+      - description: Podaci o novoj poziciji (Latitude i Longitude)
+        in: body
+        name: position
+        required: true
+        schema:
+          $ref: '#/definitions/api.PositionUpdateDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Uspešno ažurirana pozicija
+          schema:
+            $ref: '#/definitions/domain.TouristPosition'
+        "400":
+          description: 'Greška: Neispravan format zahteva'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: 'Greška: Korisnik nije autorizovan'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'Greška: Problem na serveru'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Ažuriranje pozicije turiste
   /tours:
     get:
       description: Vraća listu svih tura dostupnih u sistemu.
