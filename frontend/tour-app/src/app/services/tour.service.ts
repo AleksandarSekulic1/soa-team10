@@ -2,12 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Tour, TourKeyPoint } from '../models/tour.model'; // <-- Uvozimo modele
+import { TouristPosition } from '../models/tourist-position.model'; // Kreiraćemo ovaj model
 
 @Injectable({
   providedIn: 'root'
 })
 export class TourService {
   private apiUrl = 'http://localhost:8083/api/tours';
+  private positionApiUrl = 'http://localhost:8083/api/tourist-position';
 
   constructor(private http: HttpClient) { }
 
@@ -44,5 +46,13 @@ export class TourService {
 
   deleteKeyPoint(tourId: string, keypointId: string): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/${tourId}/keypoints/${keypointId}`);
+  }
+
+  getTouristPosition(): Observable<TouristPosition> {
+    return this.http.get<TouristPosition>(this.positionApiUrl);
+  }
+
+  updateTouristPosition(data: { latitude: number, longitude: number }): Observable<TouristPosition> {
+    return this.http.post<TouristPosition>(this.positionApiUrl, data);
   }
 }
