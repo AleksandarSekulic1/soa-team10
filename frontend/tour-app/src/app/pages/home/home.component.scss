@@ -1,0 +1,125 @@
+.container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+  font-size: 2.8em;
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  text-align: center;
+  font-size: 1.2em;
+  color: #7f8c8d;
+  margin-bottom: 40px;
+}
+
+.tours-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 30px;
+}
+
+a.tour-card {
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  text-decoration: none;
+  color: inherit;
+  overflow: hidden;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+  }
+}
+
+.card-image-container {
+  width: 100%;
+  height: 200px;
+  background-color: #f0f0f0;
+  position: relative; // Potrebno za pozicioniranje overlay-a
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+/* NOVI STIL za prikaz početne tačke preko slike */
+.start-point-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%);
+  padding: 20px 15px 10px;
+  color: white;
+  font-size: 0.9em;
+  box-sizing: border-box;
+}
+
+.card-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+
+  h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #34495e;
+    font-size: 1.4em;
+  }
+
+  .description {
+    flex-grow: 1;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+}
+
+/* NOVI STILOVI za tagove */
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.tag-pill {
+  background-color: #e9ecef;
+  color: #495057;
+  padding: 4px 10px;
+  border-radius: 15px;
+  font-size: 0.8em;
+  font-weight: bold;
+}
+
+.tour-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9em;
+  color: #555;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 15px;
+}
+
+.loading-message, .no-tours-message {
+  text-align: center;
+  font-size: 1.2em;
+  color: #888;
+  padding: 40px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}

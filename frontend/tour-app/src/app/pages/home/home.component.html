@@ -1,1 +1,40 @@
-<p>Welcome to the tourist application</p>
+<div class="container">
+  <h1>Explore Our Tours</h1>
+  <p class="subtitle">Discover unforgettable adventures curated by our expert guides.</p>
+
+  <div *ngIf="isLoading" class="loading-message">
+    <p>Loading tours...</p>
+  </div>
+
+  <div *ngIf="!isLoading && publishedTours.length > 0" class="tours-grid">
+    <a *ngFor="let tour of publishedTours" [routerLink]="['/tours', tour.id]" class="tour-card">
+
+      <div class="card-image-container">
+        <img [src]="tour.keyPoints[0].imageUrl || 'assets/images/default-avatar.png'" alt="Image of {{ tour.name }}">
+        <div class="start-point-overlay">
+          <span>Starts at: <strong>{{ tour.keyPoints[0].name || 'Unknown' }}</strong></span>
+        </div>
+      </div>
+      
+      <div class="card-content">
+        <h3>{{ tour.name }}</h3>
+        
+        <div *ngIf="tour.tags && tour.tags.length > 0" class="tags-container">
+          <span *ngFor="let tag of tour.tags" class="tag-pill">{{ tag }}</span>
+        </div>
+
+        <p class="description">{{ tour.description | slice:0:100 }}{{ tour.description.length > 100 ? '...' : '' }}</p>
+        
+        <div class="tour-details">
+          <span><strong>Difficulty:</strong> {{ tour.difficulty }} / 5</span>
+          <span><strong>Distance:</strong> {{ tour.distance | number:'1.1-1' }} km</span>
+        </div>
+      </div>
+
+    </a>
+  </div>
+
+  <div *ngIf="!isLoading && publishedTours.length === 0" class="no-tours-message">
+    <p>There are currently no published tours available. Please check back later!</p>
+  </div>
+</div>

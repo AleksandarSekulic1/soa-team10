@@ -18,6 +18,7 @@ import { MyToursComponent } from './pages/my-tours/my-tours.component';
 import { TourDetailComponent } from './pages/tour-detail/tour-detail.component';
 import { KeypointFormComponent } from './pages/keypoint-form/keypoint-form.component'; 
 import { PositionSimulatorComponent } from './pages/position-simulator/position-simulator.component';
+import { TransportFormComponent } from './pages/transport-form/transport-form.component';
 
 export const routes: Routes = [
   // --- Rute bez layout-a (bez navigacionog bara) ---
@@ -37,7 +38,8 @@ export const routes: Routes = [
       { path: 'blogs/:id', component: BlogDetailComponent }, // Ova mora biti poslednja od /blogs ruta
       { path: 'tours/:id', component: TourDetailComponent },
       { path: 'tours/:tourId/add-keypoint',  component: KeypointFormComponent, canActivate: [guideGuard] },
-      { path: 'tours/:id/simulate', component: PositionSimulatorComponent,canActivate: [guideGuard] },
+      { path: 'tours/:id/simulate', component: PositionSimulatorComponent },
+      { path: 'tours/:id/transport-info', component: TransportFormComponent, canActivate: [guideGuard] },
       {
         path: 'users',
         component: UserListComponent,

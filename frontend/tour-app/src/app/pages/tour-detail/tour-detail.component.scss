@@ -391,3 +391,59 @@
     background-color: #138496;
   }
 }
+
+/* Stilovi za novu sekciju sa sumarnim informacijama */
+.tour-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.summary-item {
+  display: flex;
+  align-items: center;
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.summary-icon {
+  font-size: 2em;
+  margin-right: 15px;
+}
+
+.summary-text {
+  display: flex;
+  flex-direction: column;
+
+  strong {
+    color: #333;
+    font-size: 1em;
+    margin-bottom: 2px;
+  }
+
+  span {
+    color: #555;
+    font-size: 0.9em;
+  }
+}
+
+.transport-info-item {
+  grid-column: 1 / -1; // Neka zauzme celu širinu reda
+
+  .transport-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    margin-top: 5px;
+
+    li {
+      font-size: 0.9em;
+      color: #555;
+    }
+  }
+}
