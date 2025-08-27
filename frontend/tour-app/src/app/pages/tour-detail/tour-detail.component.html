@@ -11,12 +11,15 @@
   <div *ngIf="!isLoading && tour" class="tour-content">
     <header class="tour-header">
       <h1>{{ tour.name }}</h1>
-        <a [routerLink]="['/tours', tour.id, 'simulate']" class="btn-simulate">Start Simulation</a>
-      <span class="status-badge" [ngClass]="tour.status">{{ tour.status }}</span>
+      <div class="header-actions">
+        <a *ngIf="isTourist" [routerLink]="['/tours', tour.id, 'simulate']" class="btn-simulate">Start Simulation</a>
+        <span class="status-badge" [ngClass]="tour.status">{{ tour.status }}</span>
+      </div>
     </header>
 
     <section class="tour-info">
       <p class="description">{{ tour.description }}</p>
+      
       <div class="details">
         <span><strong>Author:</strong> {{ tour.authorId }}</span>
         <span><strong>Difficulty:</strong> {{ tour.difficulty }} / 5</span>
@@ -29,7 +32,46 @@
           <span *ngFor="let tag of tour.tags" class="tag-pill">{{ tag }}</span>
         </div>
       </div>
-    </section>
+      
+      <div class="tour-summary">
+        <div class="summary-item" *ngIf="tour.distance > 0">
+          <span class="summary-icon">📏</span>
+          <div class="summary-text">
+            <strong>Distance</strong>
+            <span>{{ tour.distance | number:'1.1-1' }} km</span>
+          </div>
+        </div>
+        
+        <div class="summary-item" *ngIf="tour.publishedAt">
+          <span class="summary-icon">✅</span>
+          <div class="summary-text">
+            <strong>Published On</strong>
+            <span>{{ tour.publishedAt | date:'dd.MM.yyyy' }}</span>
+          </div>
+        </div>
+
+        <div class="summary-item" *ngIf="tour.archivedAt">
+          <span class="summary-icon">📦</span>
+          <div class="summary-text">
+            <strong>Archived On</strong>
+            <span>{{ tour.archivedAt | date:'dd.MM.yyyy' }}</span>
+          </div>
+        </div>
+
+        <div class="summary-item transport-info-item" *ngIf="tour.transportInfo && tour.transportInfo.length > 0">
+          <span class="summary-icon">⏱️</span>
+          <div class="summary-text">
+            <strong>Travel Times</strong>
+            <ul class="transport-list">
+              <li *ngFor="let transport of tour.transportInfo">
+                {{ transport.type === 'car' ? '🚗' : (transport.type === 'bicycle' ? '🚲' : '🚶') }}
+                {{ transport.type | titlecase }}: {{ transport.timeInMinutes }} min
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      </section>
 
     <section class="keypoints-section">
       <h2>Tour Key Points</h2>

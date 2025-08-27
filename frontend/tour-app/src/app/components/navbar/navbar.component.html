@@ -6,7 +6,7 @@
     <li>
       <a routerLink="/home">Home</a>
     </li>
-    <li>
+    <li *ngIf="authService.isTourist()">
       <a routerLink="/tours">All tours</a>
     </li>
     <li>

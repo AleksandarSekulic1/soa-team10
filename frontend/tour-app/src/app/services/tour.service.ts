@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Tour, TourKeyPoint } from '../models/tour.model'; // <-- Uvozimo modele
+import { Tour, TourKeyPoint, TourTransport } from '../models/tour.model';
 import { TouristPosition } from '../models/tourist-position.model'; // Kreiraćemo ovaj model
 
 @Injectable({
@@ -54,5 +54,25 @@ export class TourService {
 
   updateTouristPosition(data: { latitude: number, longitude: number }): Observable<TouristPosition> {
     return this.http.post<TouristPosition>(this.positionApiUrl, data);
+  }
+
+  getPublishedTours(): Observable<Tour[]> {
+    return this.http.get<Tour[]>(`${this.apiUrl}/published`);
+  }
+
+  addTransportInfo(tourId: string, transportInfo: TourTransport[]): Observable<Tour> {
+    return this.http.post<Tour>(`${this.apiUrl}/${tourId}/transport-info`, transportInfo);
+  }
+
+  publishTour(tourId: string): Observable<Tour> {
+    return this.http.post<Tour>(`${this.apiUrl}/${tourId}/publish`, {}); // Šaljemo prazan body
+  }
+
+  archiveTour(tourId: string): Observable<Tour> {
+    return this.http.post<Tour>(`${this.apiUrl}/${tourId}/archive`, {});
+  }
+
+  reactivateTour(tourId: string): Observable<Tour> {
+    return this.http.post<Tour>(`${this.apiUrl}/${tourId}/reactivate`, {});
   }
 }

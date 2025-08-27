@@ -1,0 +1,22 @@
+<div class="form-container">
+  <h1>Add Transport Info</h1>
+  <p *ngIf="tourId">Editing transport info for tour ID: {{ tourId }}</p>
+
+  <form (ngSubmit)="onSubmit()">
+    <div class="transport-inputs">
+      <div class="form-group">
+        <label for="walking">🚶 Walking Time (minutes)</label>
+        <input type="number" id="walking" name="walking" [(ngModel)]="transportInfo[0].timeInMinutes" min="0">
+      </div>
+      <div class="form-group">
+        <label for="bicycle">🚲 Bicycle Time (minutes)</label>
+        <input type="number" id="bicycle" name="bicycle" [(ngModel)]="transportInfo[1].timeInMinutes" min="0">
+      </div>
+      <div class="form-group">
+        <label for="car">🚗 Car Time (minutes)</label>
+        <input type="number" id="car" name="car" [(ngModel)]="transportInfo[2].timeInMinutes" min="0">
+      </div>
+    </div>
+    <button type="submit" class="btn-submit">Save Transport Info</button>
+  </form>
+</div>

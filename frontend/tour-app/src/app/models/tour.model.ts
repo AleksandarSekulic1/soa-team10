@@ -22,6 +22,12 @@ export interface TourReview {
   imageUrls: string[];
 }
 
+// NOVO: Definišemo oblik informacije o transportu
+export interface TourTransport {
+  type: 'walking' | 'bicycle' | 'car';
+  timeInMinutes: number;
+}
+
 // Definišemo glavni oblik Ture
 export interface Tour {
   id: string;
@@ -30,8 +36,14 @@ export interface Tour {
   description: string;
   difficulty: number;
   tags: string[];
-  status: string;
+  status: 'draft' | 'published' | 'archived'; // Status je sada striktno definisan
   price: number;
   reviews: TourReview[];
   keyPoints: TourKeyPoint[];
+  
+  // --- NOVA POLJA ---
+  distance: number; // Distanca u kilometrima
+  transportInfo: TourTransport[]; // Lista vremena putovanja
+  publishedAt?: Date; // Opciono polje za vreme objave
+  archivedAt?: Date;  // Opciono polje za vreme arhiviranja
 }

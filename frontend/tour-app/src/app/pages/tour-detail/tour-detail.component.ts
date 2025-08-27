@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TourService } from '../../services/tour.service';
 import { Tour, TourKeyPoint } from '../../models/tour.model';
+import { AuthService } from '../../services/auth.service'; // <-- 1. Uvozimo AuthService
 
 @Component({
   selector: 'app-tour-detail',
@@ -21,6 +22,9 @@ export class TourDetailComponent implements OnInit {
   isEditModalVisible = false;
   currentKeyPointToEdit: TourKeyPoint | null = null;
 
+  isTourist: boolean = false;
+  isAuthor: boolean = false;
+
   private editMap: any;
   private editMarker: any;
   private routeMap: any;
@@ -35,17 +39,27 @@ export class TourDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private tourService: TourService,
+    private authService: AuthService, 
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit(): void {
+    // --- 4. Postavljamo vrednost za isTourist ---
+    this.isTourist = this.authService.isTourist();
+    const currentUsername = this.authService.getUsername();
+    
     const tourId = this.route.snapshot.paramMap.get('id');
     if (tourId) {
       this.tourService.getTourById(tourId).subscribe({
         next: (fetchedTour) => {
           this.tour = fetchedTour;
           this.isLoading = false;
-          // Koristimo setTimeout da budemo sigurni da je div za mapu kreiran
+
+          // Proveravamo da li je ulogovani korisnik autor ture
+          if (currentUsername && fetchedTour.authorId === currentUsername) {
+            this.isAuthor = true;
+          }
+          
           setTimeout(() => this.initRouteMap(), 0);
         },
         error: (err) => { this.error = 'Tour not found.'; this.isLoading = false; }
