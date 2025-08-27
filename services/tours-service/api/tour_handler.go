@@ -267,3 +267,161 @@ func (h *TourHandler) GetById(c *gin.Context) {
 
 	c.JSON(http.StatusOK, tour)
 }
+
+// @Summary Dodavanje informacija o transportu
+// @Description Dodaje ili ažurira informacije o vremenu putovanja za turu.
+// @Accept  json
+// @Produce  json
+// @Param   id   path   string  true  "ID Ture"
+// @Param   transportInfo  body  []domain.TourTransport  true  "Lista informacija o transportu"
+// @Security ApiKeyAuth
+// @Success 200 {object} domain.Tour "Uspešno ažurirana tura"
+// @Failure 400 {object} map[string]string "Greška: Neispravan format zahteva"
+// @Failure 401 {object} map[string]string "Greška: Korisnik nije autorizovan"
+// @Failure 403 {object} map[string]string "Greška: Nemate dozvolu"
+// @Router /tours/{id}/transport-info [post]
+func (h *TourHandler) AddTransportInfo(c *gin.Context) {
+	tourId := c.Param("id")
+	var transportInfo []domain.TourTransport
+	if err := c.ShouldBindJSON(&transportInfo); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format: " + err.Error()})
+		return
+	}
+
+	// Provera autorizacije: Samo autor može menjati turu
+	authorUsername, _ := c.Get("username")
+	tour, err := h.service.GetById(tourId)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Tour not found"})
+		return
+	}
+	if tour.AuthorId != authorUsername.(string) {
+		c.JSON(http.StatusForbidden, gin.H{"error": "You are not the author of this tour"})
+		return
+	}
+
+	updatedTour, err := h.service.AddTransportInfo(tourId, transportInfo)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, updatedTour)
+}
+
+// @Summary Objavljivanje ture
+// @Description Menja status ture u 'published' ako su ispunjeni svi uslovi.
+// @Produce  json
+// @Param   id   path   string  true  "ID Ture"
+// @Security ApiKeyAuth
+// @Success 200 {object} domain.Tour "Uspešno objavljena tura"
+// @Failure 400 {object} map[string]string "Greška: Uslovi za objavljivanje nisu ispunjeni"
+// @Failure 401 {object} map[string]string "Greška: Korisnik nije autorizovan"
+// @Failure 403 {object} map[string]string "Greška: Nemate dozvolu"
+// @Router /tours/{id}/publish [post]
+func (h *TourHandler) Publish(c *gin.Context) {
+	tourId := c.Param("id")
+
+	// Provera autorizacije
+	authorUsername, _ := c.Get("username")
+	tour, err := h.service.GetById(tourId)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Tour not found"})
+		return
+	}
+	if tour.AuthorId != authorUsername.(string) {
+		c.JSON(http.StatusForbidden, gin.H{"error": "You are not the author of this tour"})
+		return
+	}
+
+	publishedTour, err := h.service.Publish(tourId)
+	if err != nil {
+		// Vraćamo Bad Request jer uslovi nisu ispunjeni
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, publishedTour)
+}
+
+// @Summary Arhiviranje ture
+// @Description Menja status ture u 'archived'.
+// @Produce  json
+// @Param   id   path   string  true  "ID Ture"
+// @Security ApiKeyAuth
+// @Success 200 {object} domain.Tour "Uspešno arhivirana tura"
+// @Failure 400 {object} map[string]string "Greška: Tura nije objavljena"
+// @Failure 401 {object} map[string]string "Greška: Korisnik nije autorizovan"
+// @Failure 403 {object} map[string]string "Greška: Nemate dozvolu"
+// @Router /tours/{id}/archive [post]
+func (h *TourHandler) Archive(c *gin.Context) {
+	tourId := c.Param("id")
+
+	// Provera autorizacije
+	authorUsername, _ := c.Get("username")
+	tour, err := h.service.GetById(tourId)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Tour not found"})
+		return
+	}
+	if tour.AuthorId != authorUsername.(string) {
+		c.JSON(http.StatusForbidden, gin.H{"error": "You are not the author of this tour"})
+		return
+	}
+
+	archivedTour, err := h.service.Archive(tourId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, archivedTour)
+}
+
+// @Summary Prikaz svih objavljenih tura (za turiste)
+// @Description Vraća listu tura koje imaju status 'published'. Za svaku turu prikazuje samo prvu ključnu tačku.
+// @Produce  json
+// @Success 200 {array} domain.Tour "Lista objavljenih tura"
+// @Router /tours/published [get]
+func (h *TourHandler) GetPublished(c *gin.Context) {
+	tours, err := h.service.GetPublished()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Greška prilikom preuzimanja objavljenih tura"})
+		return
+	}
+	c.JSON(http.StatusOK, tours)
+}
+
+// @Summary Ponovno aktiviranje ture
+// @Description Menja status arhivirane ture nazad u 'published'.
+// @Produce  json
+// @Param   id   path   string  true  "ID Ture"
+// @Security ApiKeyAuth
+// @Success 200 {object} domain.Tour "Uspešno reaktivirana tura"
+// @Failure 400 {object} map[string]string "Greška: Tura nije arhivirana"
+// @Failure 401 {object} map[string]string "Greška: Korisnik nije autorizovan"
+// @Failure 403 {object} map[string]string "Greška: Nemate dozvolu"
+// @Router /tours/{id}/reactivate [post]
+func (h *TourHandler) Reactivate(c *gin.Context) {
+	tourId := c.Param("id")
+
+	// Provera autorizacije: Samo autor može menjati turu
+	authorUsername, _ := c.Get("username")
+	tour, err := h.service.GetById(tourId)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Tour not found"})
+		return
+	}
+	if tour.AuthorId != authorUsername.(string) {
+		c.JSON(http.StatusForbidden, gin.H{"error": "You are not the author of this tour"})
+		return
+	}
+
+	reactivatedTour, err := h.service.Reactivate(tourId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, reactivatedTour)
+}

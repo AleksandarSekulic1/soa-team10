@@ -19,6 +19,8 @@ type TourRepository interface {
 	AddKeyPoint(tourId string, keyPoint *domain.TourKeyPoint) error
 	UpdateKeyPoint(tourId string, keyPoint *domain.TourKeyPoint) error
 	DeleteKeyPoint(tourId, keyPointId string) error
+	Update(tour *domain.Tour) error // <-- DODATI NOVU METODU
+	GetPublished() ([]*domain.Tour, error) // <-- DODATA NOVA METODA
 }
 
 type tourRepository struct {
@@ -125,4 +127,27 @@ func (r *tourRepository) DeleteKeyPoint(tourId, keyPointId string) error {
 	update := bson.M{"$pull": bson.M{"keyPoints": bson.M{"_id": keyPointObjID}}}
 	_, err = r.tours.UpdateOne(context.TODO(), filter, update)
 	return err
+}
+
+func (r *tourRepository) Update(tour *domain.Tour) error {
+	filter := bson.M{"_id": tour.ID}
+	update := bson.M{"$set": tour}
+	_, err := r.tours.UpdateOne(context.TODO(), filter, update)
+	return err
+}
+
+func (r *tourRepository) GetPublished() ([]*domain.Tour, error) {
+	var tours []*domain.Tour
+	// Filter koji vraća samo dokumente gde je status "published"
+	filter := bson.M{"status": domain.TourStatusPublished}
+	cursor, err := r.tours.Find(context.TODO(), filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.TODO())
+
+	if err = cursor.All(context.TODO(), &tours); err != nil {
+		return nil, err
+	}
+	return tours, nil
 }
