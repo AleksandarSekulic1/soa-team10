@@ -225,6 +225,26 @@ const docTemplate = `{
                 }
             }
         },
+        "/tours/published": {
+            "get": {
+                "description": "Vraća listu tura koje imaju status 'published'. Za svaku turu prikazuje samo prvu ključnu tačku.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Prikaz svih objavljenih tura (za turiste)",
+                "responses": {
+                    "200": {
+                        "description": "Lista objavljenih tura",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Tour"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/tours/{id}": {
             "get": {
                 "description": "Vraća detalje specifične ture na osnovu njenog ID-ja.",
@@ -250,6 +270,64 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Greška: Tura nije pronađena",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tours/{id}/archive": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Menja status ture u 'archived'.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Arhiviranje ture",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID Ture",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Uspešno arhivirana tura",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Tour"
+                        }
+                    },
+                    "400": {
+                        "description": "Greška: Tura nije objavljena",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Greška: Korisnik nije autorizovan",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Greška: Nemate dozvolu",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -392,6 +470,122 @@ const docTemplate = `{
                 }
             }
         },
+        "/tours/{id}/publish": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Menja status ture u 'published' ako su ispunjeni svi uslovi.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Objavljivanje ture",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID Ture",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Uspešno objavljena tura",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Tour"
+                        }
+                    },
+                    "400": {
+                        "description": "Greška: Uslovi za objavljivanje nisu ispunjeni",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Greška: Korisnik nije autorizovan",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Greška: Nemate dozvolu",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tours/{id}/reactivate": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Menja status arhivirane ture nazad u 'published'.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Ponovno aktiviranje ture",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID Ture",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Uspešno reaktivirana tura",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Tour"
+                        }
+                    },
+                    "400": {
+                        "description": "Greška: Tura nije arhivirana",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Greška: Korisnik nije autorizovan",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Greška: Nemate dozvolu",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/tours/{id}/reviews": {
             "post": {
                 "security": [
@@ -437,6 +631,79 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/tours/{id}/transport-info": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Dodaje ili ažurira informacije o vremenu putovanja za turu.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Dodavanje informacija o transportu",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID Ture",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Lista informacija o transportu",
+                        "name": "transportInfo",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.TourTransport"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Uspešno ažurirana tura",
+                        "schema": {
+                            "$ref": "#/definitions/domain.Tour"
+                        }
+                    },
+                    "400": {
+                        "description": "Greška: Neispravan format zahteva",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Greška: Korisnik nije autorizovan",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Greška: Nemate dozvolu",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -463,6 +730,10 @@ const docTemplate = `{
                 "name"
             ],
             "properties": {
+                "archivedAt": {
+                    "description": "Vreme arhiviranja",
+                    "type": "string"
+                },
                 "authorId": {
                     "type": "string"
                 },
@@ -472,11 +743,14 @@ const docTemplate = `{
                 "difficulty": {
                     "type": "integer"
                 },
+                "distance": {
+                    "description": "--- NOVA POLJA ---",
+                    "type": "number"
+                },
                 "id": {
                     "type": "string"
                 },
                 "keyPoints": {
-                    "description": "\u003c-- NOVO POLJE",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/domain.TourKeyPoint"
@@ -488,20 +762,35 @@ const docTemplate = `{
                 "price": {
                     "type": "number"
                 },
+                "publishedAt": {
+                    "description": "Vreme objave",
+                    "type": "string"
+                },
                 "reviews": {
-                    "description": "\u003c-- DODATO POLJE",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/domain.TourReview"
                     }
                 },
                 "status": {
-                    "type": "string"
+                    "description": "IZMENA: Koristimo novi tip",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/domain.TourStatus"
+                        }
+                    ]
                 },
                 "tags": {
                     "type": "array",
                     "items": {
                         "type": "string"
+                    }
+                },
+                "transportInfo": {
+                    "description": "Lista vremena putovanja",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.TourTransport"
                     }
                 }
             }
@@ -572,6 +861,30 @@ const docTemplate = `{
                 }
             }
         },
+        "domain.TourStatus": {
+            "type": "string",
+            "enum": [
+                "draft",
+                "published",
+                "archived"
+            ],
+            "x-enum-varnames": [
+                "TourStatusDraft",
+                "TourStatusPublished",
+                "TourStatusArchived"
+            ]
+        },
+        "domain.TourTransport": {
+            "type": "object",
+            "properties": {
+                "timeInMinutes": {
+                    "type": "integer"
+                },
+                "type": {
+                    "$ref": "#/definitions/domain.TransportType"
+                }
+            }
+        },
         "domain.TouristPosition": {
             "type": "object",
             "properties": {
@@ -592,6 +905,19 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "domain.TransportType": {
+            "type": "string",
+            "enum": [
+                "walking",
+                "bicycle",
+                "car"
+            ],
+            "x-enum-varnames": [
+                "TransportTypeWalking",
+                "TransportTypeBicycle",
+                "TransportTypeCar"
+            ]
         }
     },
     "securityDefinitions": {

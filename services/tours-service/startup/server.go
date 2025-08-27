@@ -52,7 +52,12 @@ func NewServer() *Server {
 			toursGroup.POST("/:id/keypoints", api.AuthMiddleware(), tourHandler.AddKeyPoint)
 			toursGroup.PUT("/:id/keypoints/:keypointId", api.AuthMiddleware(), tourHandler.UpdateKeyPoint)
 			toursGroup.DELETE("/:id/keypoints/:keypointId", api.AuthMiddleware(), tourHandler.DeleteKeyPoint)
-
+			// --- NOVE RUTE ZA STANJA TURE ---
+			toursGroup.POST("/:id/transport-info", api.AuthMiddleware(), tourHandler.AddTransportInfo)
+			toursGroup.POST("/:id/publish", api.AuthMiddleware(), tourHandler.Publish)
+			toursGroup.POST("/:id/archive", api.AuthMiddleware(), tourHandler.Archive)
+			toursGroup.GET("/published", tourHandler.GetPublished)
+			toursGroup.POST("/:id/reactivate", api.AuthMiddleware(), tourHandler.Reactivate)
 		}
 
 		positionGroup := apiGroup.Group("/tourist-position")
