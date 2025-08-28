@@ -54,7 +54,7 @@ services:
       dockerfile: Dockerfile
     container_name: payments-service
     ports:
-      - "8084:8080"
+      - "8084:8080" # Vraćen port na originalnu vrednost
     environment:
       ASPNETCORE_URLS: "http://+:8080"
       ConnectionStrings__PaymentsDb: "Host=postgres-db;Port=5432;Database=soa_db;Username=postgres;Password=super"
@@ -84,6 +84,20 @@ services:
     container_name: tours-service
     ports:
       - "8083:8083"
+    environment:
+      MONGO_URI: "mongodb://mongo-db:27017"
+    depends_on:
+      - mongo-db
+    restart: on-failure
+
+  # --- NOVI SERVIS ---
+  encounters-service:
+    build:
+      context: ./services/encounters-service
+      dockerfile: Dockerfile
+    container_name: encounters-service
+    ports:
+      - "8085:8084" # Novi servis na portu 8085
     environment:
       MONGO_URI: "mongodb://mongo-db:27017"
     depends_on:

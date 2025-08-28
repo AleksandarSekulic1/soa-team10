@@ -1,0 +1,283 @@
+basePath: /api
+definitions:
+  api.CheckPositionDTO:
+    properties:
+      latitude:
+        type: number
+      longitude:
+        type: number
+    type: object
+  api.PositionUpdateDTO:
+    properties:
+      latitude:
+        type: number
+      longitude:
+        type: number
+    required:
+    - latitude
+    - longitude
+    type: object
+  domain.CompletedKeyPoint:
+    properties:
+      completionTime:
+        type: string
+      keyPointId:
+        type: string
+    type: object
+  domain.TourExecution:
+    properties:
+      completedKeyPoints:
+        items:
+          $ref: '#/definitions/domain.CompletedKeyPoint'
+        type: array
+      endTime:
+        description: Pointer da može biti null
+        type: string
+      id:
+        type: string
+      lastActivity:
+        type: string
+      startTime:
+        type: string
+      status:
+        $ref: '#/definitions/domain.TourExecutionStatus'
+      tourId:
+        description: '<-- ISPRAVKA: Promenjeno sa int64 na string'
+        type: string
+      userId:
+        description: ID turiste
+        type: string
+    type: object
+  domain.TourExecutionStatus:
+    enum:
+    - Active
+    - Completed
+    - Abandoned
+    type: string
+    x-enum-varnames:
+    - ExecutionStatusActive
+    - ExecutionStatusCompleted
+    - ExecutionStatusAbandoned
+  domain.TouristPosition:
+    properties:
+      id:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      updatedAt:
+        type: string
+      userId:
+        description: 'IZMENA: UserId je sada string'
+        type: string
+    type: object
+host: localhost:8085
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a server for managing encounters and tourist positions.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Encounters Service API
+  version: "1.0"
+paths:
+  /tour-executions/{executionId}/abandon:
+    post:
+      consumes:
+      - application/json
+      description: Označava aktivnu turu kao 'Abandoned'.
+      parameters:
+      - description: ID sesije koja se napušta
+        in: path
+        name: executionId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Napuštena sesija
+          schema:
+            $ref: '#/definitions/domain.TourExecution'
+        "401":
+          description: 'Greška: Korisnik nije autorizovan'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Napuštanje ture
+  /tour-executions/{executionId}/complete:
+    post:
+      consumes:
+      - application/json
+      description: Označava aktivnu turu kao 'Completed'.
+      parameters:
+      - description: ID sesije koja se završava
+        in: path
+        name: executionId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Završena sesija
+          schema:
+            $ref: '#/definitions/domain.TourExecution'
+        "401":
+          description: 'Greška: Korisnik nije autorizovan'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Završetak ture
+  /tour-executions/check-position:
+    post:
+      consumes:
+      - application/json
+      description: Proverava trenutnu poziciju turiste i ažurira napredak na aktivnoj
+        turi.
+      parameters:
+      - description: Trenutne koordinate turiste
+        in: body
+        name: position
+        required: true
+        schema:
+          $ref: '#/definitions/api.CheckPositionDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Ažurirana sesija sa napretkom
+          schema:
+            $ref: '#/definitions/domain.TourExecution'
+        "401":
+          description: 'Greška: Korisnik nije autorizovan'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: 'Greška: Korisnik nema aktivnu turu'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Provera pozicije
+  /tour-executions/start/{tourId}:
+    post:
+      consumes:
+      - application/json
+      description: Kreira novu sesiju izvođenja ture za ulogovanog korisnika.
+      parameters:
+      - description: ID Ture koja se pokreće
+        in: path
+        name: tourId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Uspešno kreirana sesija
+          schema:
+            $ref: '#/definitions/domain.TourExecution'
+        "400":
+          description: 'Greška: Korisnik već ima aktivnu turu ili neispravan ID'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: 'Greška: Korisnik nije autorizovan'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Pokretanje ture
+  /tourist-position:
+    get:
+      consumes:
+      - application/json
+      description: Vraća poslednju sačuvanu geografsku poziciju za ulogovanog korisnika.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Uspešno dobavljena pozicija
+          schema:
+            $ref: '#/definitions/domain.TouristPosition'
+        "401":
+          description: 'Greška: Korisnik nije autorizovan'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: 'Greška: Pozicija nije pronađena'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Dobavljanje pozicije turiste
+    post:
+      consumes:
+      - application/json
+      description: Čuva ili ažurira geografsku poziciju za ulogovanog korisnika. Koristi
+        se za simulator pozicije.
+      parameters:
+      - description: Podaci o novoj poziciji (Latitude i Longitude)
+        in: body
+        name: position
+        required: true
+        schema:
+          $ref: '#/definitions/api.PositionUpdateDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Uspešno ažurirana pozicija
+          schema:
+            $ref: '#/definitions/domain.TouristPosition'
+        "400":
+          description: 'Greška: Neispravan format zahteva'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: 'Greška: Korisnik nije autorizovan'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'Greška: Problem na serveru'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Ažuriranje pozicije turiste
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

@@ -25,9 +25,9 @@ func NewServer() *Server {
 	tourService := service.NewTourService(tourRepo)
 	tourHandler := api.NewTourHandler(tourService)
 
-    touristPositionRepo := repository.NewTouristPositionRepository(mongoClient)
-	touristPositionService := service.NewTouristPositionService(touristPositionRepo)
-	touristPositionHandler := api.NewTouristPositionHandler(touristPositionService)
+    //touristPositionRepo := repository.NewTouristPositionRepository(mongoClient)
+	//touristPositionService := service.NewTouristPositionService(touristPositionRepo)
+	//touristPositionHandler := api.NewTouristPositionHandler(touristPositionService)
 
 	// 3. Kreiramo ruter i podešavamo CORS
 	router := gin.Default()
@@ -60,12 +60,12 @@ func NewServer() *Server {
 			toursGroup.POST("/:id/reactivate", api.AuthMiddleware(), tourHandler.Reactivate)
 		}
 
-		positionGroup := apiGroup.Group("/tourist-position")
+		/*positionGroup := apiGroup.Group("/tourist-position")
 		{
 			// Obe rute zahtevaju da je korisnik ulogovan
 			positionGroup.GET("", api.AuthMiddleware(), touristPositionHandler.GetByUserId)
 			positionGroup.POST("", api.AuthMiddleware(), touristPositionHandler.Update)
-		}
+		}*/
 	}
 
 	return &Server{router: router}

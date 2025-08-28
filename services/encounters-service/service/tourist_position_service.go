@@ -3,8 +3,8 @@
 package service
 
 import (
-	"tours-service/domain"
-	"tours-service/repository"
+	"encounters-service/domain"
+	"encounters-service/repository"
 	"time"
 )
 

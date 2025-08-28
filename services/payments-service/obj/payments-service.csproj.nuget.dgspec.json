@@ -1,24 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Korisnik\\Documents\\GitHub\\Turisticka\\turisticka-aplikacija\\soa-team10\\services\\payments-service\\payments-service.csproj": {}
+    "C:\\Users\\Aleksandar\\Desktop\\soa_new_project\\soa-team10\\services\\payments-service\\payments-service.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Korisnik\\Documents\\GitHub\\Turisticka\\turisticka-aplikacija\\soa-team10\\services\\payments-service\\payments-service.csproj": {
+    "C:\\Users\\Aleksandar\\Desktop\\soa_new_project\\soa-team10\\services\\payments-service\\payments-service.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Korisnik\\Documents\\GitHub\\Turisticka\\turisticka-aplikacija\\soa-team10\\services\\payments-service\\payments-service.csproj",
+        "projectUniqueName": "C:\\Users\\Aleksandar\\Desktop\\soa_new_project\\soa-team10\\services\\payments-service\\payments-service.csproj",
         "projectName": "payments-service",
-        "projectPath": "C:\\Users\\Korisnik\\Documents\\GitHub\\Turisticka\\turisticka-aplikacija\\soa-team10\\services\\payments-service\\payments-service.csproj",
-        "packagesPath": "C:\\Users\\Korisnik\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Korisnik\\Documents\\GitHub\\Turisticka\\turisticka-aplikacija\\soa-team10\\services\\payments-service\\obj\\",
+        "projectPath": "C:\\Users\\Aleksandar\\Desktop\\soa_new_project\\soa-team10\\services\\payments-service\\payments-service.csproj",
+        "packagesPath": "C:\\Users\\Aleksandar\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Aleksandar\\Desktop\\soa_new_project\\soa-team10\\services\\payments-service\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\Korisnik\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\Aleksandar\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -38,37 +34,11 @@
           "warnAsError": [
             "NU1605"
           ]
-        },
-        "restoreAuditProperties": {
-          "enableAudit": "true",
-          "auditLevel": "low",
-          "auditMode": "direct"
-        },
-        "SdkAnalysisLevel": "9.0.300"
+        }
       },
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
-          "dependencies": {
-            "Microsoft.AspNetCore.OpenApi": {
-              "target": "Package",
-              "version": "[9.0.6, )"
-            },
-            "Microsoft.EntityFrameworkCore.Design": {
-              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
-              "suppressParent": "All",
-              "target": "Package",
-              "version": "[9.0.8, )"
-            },
-            "Npgsql.EntityFrameworkCore.PostgreSQL": {
-              "target": "Package",
-              "version": "[9.0.4, )"
-            },
-            "Swashbuckle.AspNetCore": {
-              "target": "Package",
-              "version": "[9.0.4, )"
-            }
-          },
           "imports": [
             "net461",
             "net462",
@@ -80,15 +50,7 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "frameworkReferences": {
-            "Microsoft.AspNetCore.App": {
-              "privateAssets": "none"
-            },
-            "Microsoft.NETCore.App": {
-              "privateAssets": "all"
-            }
-          },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.403\\RuntimeIdentifierGraph.json"
         }
       }
     }
