@@ -6,24 +6,29 @@
       <h3>{{ tour.name }}</h3>
       <p><strong>Autor:</strong> {{ tour.authorId }}</p>
       <p>{{ tour.description }}</p>
+
       <div class="reviews-section">
         <h4>Recenzije ({{ tour.reviews?.length || 0 }})</h4>
         <ul>
           <li *ngFor="let review of tour.reviews">
             <div class="review-header">
               <strong>Ocena: {{ review.rating }}/5</strong>
-              <!-- Prikazujemo datum komentara, formatiran -->
               <small>{{ review.commentDate | date:'dd.MM.yyyy. HH:mm' }}</small>
             </div>
             <p class="review-comment">"{{ review.comment }}" <small>(od {{ review.touristId }})</small></p>
-            <!-- Prikazujemo slike ako postoje -->
             <div *ngIf="review.imageUrls && review.imageUrls.length > 0" class="review-images">
               <img *ngFor="let imageUrl of review.imageUrls" [src]="imageUrl" alt="Slika recenzije">
             </div>
           </li>
         </ul>
       </div>
-      <button *ngIf="authService.isTourist()" (click)="selectTourForReview(tour)">Oceni Ovu Turu</button>
+
+      <!-- AKCIJE NA KARTICI -->
+      <div class="card-actions">
+        <!-- Prikazuje se samo ako je ulogovani korisnik TURISTA -->
+        <button *ngIf="authService.isTourist()" (click)="selectTourForReview(tour)" class="btn-review">Oceni Ovu Turu</button>
+        <button *ngIf="authService.isTourist()" (click)="addToCart(tour)" class="btn-add-to-cart">Dodaj u korpu</button>
+      </div>
     </div>
   </div>
 </div>
@@ -45,7 +50,6 @@
         <label for="visitDate">Datum posete:</label>
         <input type="date" name="visitDate" [(ngModel)]="review.visitDate" required>
       </div>
-      <!-- NOVO POLJE ZA SLIKE -->
       <div class="form-group">
         <label for="imageUrls">Linkovi do slika (odvojeni zarezom):</label>
         <input type="text" name="imageUrls" [(ngModel)]="review.imageUrlsInput">

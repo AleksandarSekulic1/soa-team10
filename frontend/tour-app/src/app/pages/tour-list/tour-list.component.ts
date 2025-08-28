@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TourService } from '../../services/tour.service';
 import { AuthService } from '../../services/auth.service';
+import { ShoppingCartService } from '../../services/shopping-cart.service'; // <-- DODAJEMO NOVI SERVIS
 
 @Component({
   selector: 'app-tour-list',
@@ -18,10 +19,14 @@ export class TourListComponent implements OnInit {
     rating: 5,
     comment: '',
     visitDate: new Date().toISOString().split('T')[0],
-    imageUrlsInput: '' // Polje za unos URL-ova kao string
+    imageUrlsInput: ''
   };
 
-  constructor(public authService: AuthService, private tourService: TourService) {}
+  constructor(
+    public authService: AuthService,
+    private tourService: TourService,
+    private shoppingCartService: ShoppingCartService // <-- INJEKTUJEMO SERVIS
+  ) {}
 
   ngOnInit(): void {
     this.loadTours();
@@ -33,7 +38,6 @@ export class TourListComponent implements OnInit {
 
   selectTourForReview(tour: any): void {
     this.selectedTour = tour;
-    // Resetujemo formu svaki put kad se otvori
     this.review = {
       rating: 5,
       comment: '',
@@ -49,7 +53,6 @@ export class TourListComponent implements OnInit {
       rating: this.review.rating,
       comment: this.review.comment,
       visitDate: new Date(this.review.visitDate).toISOString(),
-      // Pretvaramo string sa URL-ovima u niz stringova
       imageUrls: this.review.imageUrlsInput.split(',').map(url => url.trim()).filter(url => url)
     };
 
@@ -57,10 +60,23 @@ export class TourListComponent implements OnInit {
       next: () => {
         alert('Recenzija uspešno poslata!');
         this.selectedTour = null;
-        this.loadTours(); // Ponovo učitaj ture da se vidi nova recenzija
+        this.loadTours();
       },
       error: (err) => {
         alert('Greška pri slanju recenzije.');
+        console.error(err);
+      }
+    });
+  }
+
+  // NOVA METODA ZA DODAVANJE U KORPU
+  addToCart(tour: any): void {
+    this.shoppingCartService.addItemToCart(tour).subscribe({
+      next: () => {
+        alert(`Tura "${tour.name}" je dodata u korpu!`);
+      },
+      error: (err) => {
+        alert('Greška prilikom dodavanja u korpu.');
         console.error(err);
       }
     });
