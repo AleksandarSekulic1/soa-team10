@@ -9,8 +9,8 @@ import { TouristPosition } from '../models/tourist-position.model'; // Kreiraće
 })
 export class TourService {
   private apiUrl = 'http://localhost:8083/api/tours';
-  private positionApiUrl = 'http://localhost:8083/api/tourist-position';
-
+// --- IZMENA OVE LINIJE ---
+  private positionApiUrl = 'http://localhost:8085/api/tourist-position';
   constructor(private http: HttpClient) { }
 
   createTour(tourData: any): Observable<any> {

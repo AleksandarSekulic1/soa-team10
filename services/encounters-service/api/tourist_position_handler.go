@@ -5,8 +5,8 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"tours-service/domain"
-	"tours-service/service"
+	"encounters-service/domain"
+	"encounters-service/service"
 )
 
 type TouristPositionHandler struct {
