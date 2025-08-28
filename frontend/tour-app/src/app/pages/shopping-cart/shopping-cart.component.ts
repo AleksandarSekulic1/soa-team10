@@ -21,7 +21,23 @@ export class ShoppingCartComponent implements OnInit {
     this.shoppingCartService.getCart().subscribe();
   }
 
+  removeItem(itemId: string): void {
+    this.shoppingCartService.removeItemFromCart(itemId).subscribe({
+      next: () => console.log(`Stavka ${itemId} uklonjena.`),
+      error: (err) => console.error('Greška pri uklanjanju stavke:', err)
+    });
+  }
+
   checkout(): void {
-    alert('Checkout funkcionalnost će biti implementirana uskoro!');
+    this.shoppingCartService.checkout().subscribe({
+      next: (response) => {
+        alert('Kupovina je uspešno obavljena!');
+        console.log('Dobijeni tokeni:', response.tokens);
+      },
+      error: (err) => {
+        alert('Došlo je do greške prilikom kupovine.');
+        console.error(err);
+      }
+    });
   }
 }

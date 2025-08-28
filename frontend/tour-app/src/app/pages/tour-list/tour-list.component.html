@@ -23,11 +23,22 @@
         </ul>
       </div>
 
-      <!-- AKCIJE NA KARTICI -->
-      <div class="card-actions">
-        <!-- Prikazuje se samo ako je ulogovani korisnik TURISTA -->
-        <button *ngIf="authService.isTourist()" (click)="selectTourForReview(tour)" class="btn-review">Oceni Ovu Turu</button>
-        <button *ngIf="authService.isTourist()" (click)="addToCart(tour)" class="btn-add-to-cart">Dodaj u korpu</button>
+     <div class="card-actions">
+        <ng-container *ngIf="authService.isTourist()">
+          <button (click)="selectTourForReview(tour)" class="btn-review">Oceni Ovu Turu</button>
+
+          <ng-container *ngIf="isTourPurchased(tour.id); else canPurchase">
+            <span class="purchased-label">Kupljeno</span>
+          </ng-container>
+          <ng-template #canPurchase>
+            <button
+              (click)="addToCart(tour)"
+              [disabled]="isTourInCart(tour.id)"
+              class="btn-add-to-cart">
+              {{ isTourInCart(tour.id) ? 'U Korpi' : 'Dodaj u korpu' }}
+            </button>
+          </ng-template>
+        </ng-container>
       </div>
     </div>
   </div>
