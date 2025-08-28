@@ -1,10 +1,8 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TourService } from '../../services/tour.service';
 import { AuthService } from '../../services/auth.service';
-import { ShoppingCartService } from '../../services/shopping-cart.service';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-tour-list',
@@ -13,44 +11,20 @@ import { Subscription } from 'rxjs';
   templateUrl: './tour-list.component.html',
   styleUrls: ['./tour-list.component.scss']
 })
-export class TourListComponent implements OnInit, OnDestroy {
+export class TourListComponent implements OnInit {
   allTours: any[] = [];
-  cartItems: any[] = [];
-  purchasedTourIds: string[] = [];
-  private cartSubscription: Subscription | undefined;
-  private purchasedSubscription: Subscription | undefined;
-
   selectedTour: any = null;
   review = {
     rating: 5,
     comment: '',
     visitDate: new Date().toISOString().split('T')[0],
-    imageUrlsInput: ''
+    imageUrlsInput: '' // Polje za unos URL-ova kao string
   };
 
-  constructor(
-    public authService: AuthService,
-    private tourService: TourService,
-    private shoppingCartService: ShoppingCartService
-  ) {}
+  constructor(public authService: AuthService, private tourService: TourService) {}
 
   ngOnInit(): void {
     this.loadTours();
-
-    this.cartSubscription = this.shoppingCartService.cart$.subscribe(cart => {
-      this.cartItems = cart?.items || [];
-    });
-
-    this.purchasedSubscription = this.shoppingCartService.purchasedTours$.subscribe(ids => {
-      this.purchasedTourIds = ids;
-    });
-
-    this.shoppingCartService.getCart().subscribe();
-  }
-
-  ngOnDestroy(): void {
-    this.cartSubscription?.unsubscribe();
-    this.purchasedSubscription?.unsubscribe();
   }
 
   loadTours(): void {
@@ -59,46 +33,36 @@ export class TourListComponent implements OnInit, OnDestroy {
 
   selectTourForReview(tour: any): void {
     this.selectedTour = tour;
+    // Resetujemo formu svaki put kad se otvori
+    this.review = {
+      rating: 5,
+      comment: '',
+      visitDate: new Date().toISOString().split('T')[0],
+      imageUrlsInput: ''
+    };
   }
 
   submitReview(): void {
     if (!this.selectedTour) return;
+
     const reviewData = {
       rating: this.review.rating,
       comment: this.review.comment,
       visitDate: new Date(this.review.visitDate).toISOString(),
+      // Pretvaramo string sa URL-ovima u niz stringova
       imageUrls: this.review.imageUrlsInput.split(',').map(url => url.trim()).filter(url => url)
     };
+
     this.tourService.addReview(this.selectedTour.id, reviewData).subscribe({
       next: () => {
         alert('Recenzija uspešno poslata!');
         this.selectedTour = null;
-        this.loadTours();
+        this.loadTours(); // Ponovo učitaj ture da se vidi nova recenzija
       },
       error: (err) => {
         alert('Greška pri slanju recenzije.');
         console.error(err);
       }
     });
-  }
-
-  addToCart(tour: any): void {
-    this.shoppingCartService.addItemToCart(tour).subscribe({
-      next: () => {
-        alert(`Tura "${tour.name}" je dodata u korpu!`);
-      },
-      error: (err) => {
-        alert('Greška prilikom dodavanja u korpu: ' + (err.error?.message || 'Pokušajte ponovo.'));
-        console.error(err);
-      }
-    });
-  }
-
-  isTourInCart(tourId: string): boolean {
-    return this.cartItems.some(item => item.tourId === tourId);
-  }
-
-  isTourPurchased(tourId: string): boolean {
-    return this.purchasedTourIds.includes(tourId);
   }
 }

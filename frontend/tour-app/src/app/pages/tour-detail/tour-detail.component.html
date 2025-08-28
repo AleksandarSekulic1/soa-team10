@@ -12,18 +12,31 @@
     <header class="tour-header">
       <h1>{{ tour.name }}</h1>
       <div class="header-actions">
-        <a *ngIf="isTourist" [routerLink]="['/tours', tour.id, 'simulate']" class="btn-simulate">Start Simulation</a>
-        <span class="status-badge" [ngClass]="tour.status">{{ tour.status }}</span>
+
+        <!-- === LOGIKA ZA DUGMIĆE === -->
+        <ng-container *ngIf="isTourist">
+          <!-- Ako je tura kupljena, prikaži "Start Simulation" -->
+          <a *ngIf="isPurchased" [routerLink]="['/tours', tour.id, 'simulate']" class="btn-simulate">Start Simulation</a>
+
+          <!-- Ako tura NIJE kupljena... -->
+          <button *ngIf="!isPurchased" (click)="addToCart()" [disabled]="isInCart" class="btn-add-to-cart">
+            {{ isInCart ? 'U Korpi' : 'Dodaj u korpu' }}
+          </button>
+        </ng-container>
+
+        <!-- Ako korisnik NIJE turista (npr. autor), prikaži status -->
+        <span *ngIf="!isTourist" class="status-badge" [ngClass]="tour.status">{{ tour.status }}</span>
+
       </div>
     </header>
 
     <section class="tour-info">
       <p class="description">{{ tour.description }}</p>
-      
+
       <div class="details">
         <span><strong>Author:</strong> {{ tour.authorId }}</span>
         <span><strong>Difficulty:</strong> {{ tour.difficulty }} / 5</span>
-        <span><strong>Price:</strong> {{ tour.price > 0 ? (tour.price | currency:'USD') : 'Free' }}</span>
+        <span><strong>Price:</strong> {{ tour.price > 0 ? (tour.price | currency:'EUR') : '50 EUR' }}</span>
       </div>
 
       <div *ngIf="tour.tags && tour.tags.length > 0" class="tags-section">
@@ -32,7 +45,7 @@
           <span *ngFor="let tag of tour.tags" class="tag-pill">{{ tag }}</span>
         </div>
       </div>
-      
+
       <div class="tour-summary">
         <div class="summary-item" *ngIf="tour.distance > 0">
           <span class="summary-icon">📏</span>
@@ -41,7 +54,7 @@
             <span>{{ tour.distance | number:'1.1-1' }} km</span>
           </div>
         </div>
-        
+
         <div class="summary-item" *ngIf="tour.publishedAt">
           <span class="summary-icon">✅</span>
           <div class="summary-text">
@@ -75,15 +88,15 @@
 
     <section class="keypoints-section">
       <h2>Tour Key Points</h2>
-      <div *ngIf="tour.keyPoints && tour.keyPoints.length > 0; else noKeyPoints" class="keypoints-grid">
-        <div *ngFor="let kp of tour.keyPoints" class="keypoint-card">
+      <div *ngIf="displayedKeyPoints && displayedKeyPoints.length > 0; else noKeyPoints" class="keypoints-grid">
+        <div *ngFor="let kp of displayedKeyPoints" class="keypoint-card">
           <img [src]="kp.imageUrl || 'assets/images/default-avatar.png'" alt="Key point image" class="keypoint-image">
           <div class="keypoint-info">
             <h4>{{ kp.name }}</h4>
             <p>{{ kp.description }}</p>
             <small>Coordinates: {{ kp.latitude | number:'1.4-4' }}, {{ kp.longitude | number:'1.4-4' }}</small>
           </div>
-          <div class="keypoint-actions">
+          <div *ngIf="isAuthor" class="keypoint-actions">
             <button (click)="openEditModal(kp)" class="btn-edit">Edit</button>
             <button (click)="deleteKeyPoint(kp.id)" class="btn-delete">Delete</button>
           </div>

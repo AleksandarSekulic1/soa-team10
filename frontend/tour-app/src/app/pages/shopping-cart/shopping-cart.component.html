@@ -1,13 +1,13 @@
 <div class="cart-container" *ngIf="cart$ | async as cart; else loading">
-  <h1>Moja Korpa</h1>
+  <h1>My Cart</h1>
 
   <div *ngIf="cart.items && cart.items.length > 0; else emptyCart" class="cart-content">
     <table class="cart-table">
       <thead>
         <tr>
-          <th>Naziv Ture</th>
-          <th>Cena</th>
-          <th>Akcije</th>
+          <th>Tour Name</th>
+          <th>Price</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -15,23 +15,23 @@
           <td>{{ item.tourName }}</td>
           <td>{{ item.price | currency:'EUR' }}</td>
           <td>
-            <button (click)="removeItem(item.id)" class="btn-remove">Ukloni</button>
+            <button (click)="removeItem(item.id)" class="btn-remove">Remove</button>
           </td>
         </tr>
       </tbody>
     </table>
 
     <div class="cart-summary">
-      <h3>Ukupno: {{ cart.totalPrice | currency:'EUR' }}</h3>
+      <h3>Total: {{ cart.totalPrice | currency:'EUR' }}</h3>
       <button (click)="checkout()">Checkout</button>
     </div>
   </div>
 
   <ng-template #emptyCart>
-    <p>Vaša korpa je prazna.</p>
+    <p>Your cart is empty.</p>
   </ng-template>
 </div>
 
 <ng-template #loading>
-  <p>Učitavanje korpe...</p>
+  <p>Loading cart...</p>
 </ng-template>

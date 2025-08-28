@@ -1,73 +1,58 @@
 <div class="container">
-  <h1>Sve Ture</h1>
+  <h1>All Tours</h1>
 
   <div class="tours-grid">
     <div *ngFor="let tour of allTours" class="tour-card">
       <h3>{{ tour.name }}</h3>
-      <p><strong>Autor:</strong> {{ tour.authorId }}</p>
+      <p><strong>Author:</strong> {{ tour.authorId }}</p>
       <p>{{ tour.description }}</p>
-
       <div class="reviews-section">
-        <h4>Recenzije ({{ tour.reviews?.length || 0 }})</h4>
+        <h4>Reviews ({{ tour.reviews?.length || 0 }})</h4>
         <ul>
           <li *ngFor="let review of tour.reviews">
             <div class="review-header">
-              <strong>Ocena: {{ review.rating }}/5</strong>
+              <strong>Rating: {{ review.rating }}/5</strong>
+              <!-- Displaying the formatted comment date -->
               <small>{{ review.commentDate | date:'dd.MM.yyyy. HH:mm' }}</small>
             </div>
-            <p class="review-comment">"{{ review.comment }}" <small>(od {{ review.touristId }})</small></p>
+            <p class="review-comment">"{{ review.comment }}" <small>(by {{ review.touristId }})</small></p>
+            <!-- Displaying images if they exist -->
             <div *ngIf="review.imageUrls && review.imageUrls.length > 0" class="review-images">
-              <img *ngFor="let imageUrl of review.imageUrls" [src]="imageUrl" alt="Slika recenzije">
+              <img *ngFor="let imageUrl of review.imageUrls" [src]="imageUrl" alt="Review image">
             </div>
           </li>
         </ul>
       </div>
-
-     <div class="card-actions">
-        <ng-container *ngIf="authService.isTourist()">
-          <button (click)="selectTourForReview(tour)" class="btn-review">Oceni Ovu Turu</button>
-
-          <ng-container *ngIf="isTourPurchased(tour.id); else canPurchase">
-            <span class="purchased-label">Kupljeno</span>
-          </ng-container>
-          <ng-template #canPurchase>
-            <button
-              (click)="addToCart(tour)"
-              [disabled]="isTourInCart(tour.id)"
-              class="btn-add-to-cart">
-              {{ isTourInCart(tour.id) ? 'U Korpi' : 'Dodaj u korpu' }}
-            </button>
-          </ng-template>
-        </ng-container>
-      </div>
+      <button *ngIf="authService.isTourist()" (click)="selectTourForReview(tour)">Rate This Tour</button>
     </div>
   </div>
 </div>
 
-<!-- Modal za pisanje recenzije -->
+<!-- Modal for writing a review -->
 <div class="modal-overlay" *ngIf="selectedTour">
   <div class="modal-content">
-    <h3>Oceni Turu: {{ selectedTour.name }}</h3>
+    <h3>Rate Tour: {{ selectedTour.name }}</h3>
     <form (ngSubmit)="submitReview()">
       <div class="form-group">
-        <label for="rating">Ocena (1-5):</label>
+        <label for="rating">Rating (1-5):</label>
         <input type="number" name="rating" [(ngModel)]="review.rating" min="1" max="5" required>
       </div>
       <div class="form-group">
-        <label for="comment">Komentar:</label>
+        <label for="comment">Comment:</label>
         <textarea name="comment" [(ngModel)]="review.comment" rows="4"></textarea>
       </div>
       <div class="form-group">
-        <label for="visitDate">Datum posete:</label>
+        <label for="visitDate">Date of visit:</label>
         <input type="date" name="visitDate" [(ngModel)]="review.visitDate" required>
       </div>
+      <!-- NEW FIELD FOR IMAGES -->
       <div class="form-group">
-        <label for="imageUrls">Linkovi do slika (odvojeni zarezom):</label>
+        <label for="imageUrls">Image links (comma-separated):</label>
         <input type="text" name="imageUrls" [(ngModel)]="review.imageUrlsInput">
       </div>
       <div class="modal-actions">
-        <button type="submit">Pošalji Recenziju</button>
-        <button type="button" (click)="selectedTour = null">Odustani</button>
+        <button type="submit">Submit Review</button>
+        <button type="button" (click)="selectedTour = null">Cancel</button>
       </div>
     </form>
   </div>
