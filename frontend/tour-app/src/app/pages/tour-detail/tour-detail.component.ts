@@ -1,12 +1,12 @@
-// src/app/pages/tour-detail/tour-detail.component.ts
-
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, OnDestroy } from '@angular/core';
 import { isPlatformBrowser, CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TourService } from '../../services/tour.service';
 import { Tour, TourKeyPoint } from '../../models/tour.model';
-import { AuthService } from '../../services/auth.service'; // <-- 1. Uvozimo AuthService
+import { AuthService } from '../../services/auth.service';
+import { ShoppingCartService } from '../../services/shopping-cart.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-tour-detail',
@@ -15,20 +15,26 @@ import { AuthService } from '../../services/auth.service'; // <-- 1. Uvozimo Aut
   templateUrl: './tour-detail.component.html',
   styleUrls: ['./tour-detail.component.scss']
 })
-export class TourDetailComponent implements OnInit {
+export class TourDetailComponent implements OnInit, OnDestroy {
   tour: Tour | undefined;
   isLoading = true;
   error: string | null = null;
-  isEditModalVisible = false;
-  currentKeyPointToEdit: TourKeyPoint | null = null;
 
+  // Stanja za prikaz
   isTourist: boolean = false;
   isAuthor: boolean = false;
+  isPurchased: boolean = false;
+  isInCart: boolean = false;
+  displayedKeyPoints: TourKeyPoint[] = [];
 
+  private subscriptions = new Subscription();
+
+  // Propertiji za modal i mape
+  isEditModalVisible = false;
+  currentKeyPointToEdit: TourKeyPoint | null = null;
   private editMap: any;
   private editMarker: any;
   private routeMap: any;
-
   availableImages: string[] = [
     'assets/images/default-avatar.png', 'assets/images/men2.png', 'assets/images/men3.png',
     'assets/images/men4.png', 'assets/images/men5.png', 'assets/images/women1.png',
@@ -39,27 +45,37 @@ export class TourDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private tourService: TourService,
-    private authService: AuthService, 
+    private authService: AuthService,
+    private shoppingCartService: ShoppingCartService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit(): void {
-    // --- 4. Postavljamo vrednost za isTourist ---
     this.isTourist = this.authService.isTourist();
     const currentUsername = this.authService.getUsername();
-    
+
     const tourId = this.route.snapshot.paramMap.get('id');
     if (tourId) {
+      // Pratimo promene u korpi
+      this.subscriptions.add(
+        this.shoppingCartService.cart$.subscribe(cart => {
+          this.isInCart = cart?.items?.some((item: any) => item.tourId === tourId) || false;
+        })
+      );
+      // Pratimo promene u kupljenim turama
+      this.subscriptions.add(
+        this.shoppingCartService.purchasedTours$.subscribe(purchasedIds => {
+          this.isPurchased = purchasedIds.includes(tourId);
+          this.updateVisibleKeyPoints();
+        })
+      );
+
       this.tourService.getTourById(tourId).subscribe({
         next: (fetchedTour) => {
           this.tour = fetchedTour;
           this.isLoading = false;
-
-          // Proveravamo da li je ulogovani korisnik autor ture
-          if (currentUsername && fetchedTour.authorId === currentUsername) {
-            this.isAuthor = true;
-          }
-          
+          this.isAuthor = !!currentUsername && fetchedTour.authorId === currentUsername;
+          this.updateVisibleKeyPoints();
           setTimeout(() => this.initRouteMap(), 0);
         },
         error: (err) => { this.error = 'Tour not found.'; this.isLoading = false; }
@@ -67,38 +83,48 @@ export class TourDetailComponent implements OnInit {
     }
   }
 
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+  }
+
+  private updateVisibleKeyPoints(): void {
+    if (!this.tour) return;
+
+    if (this.isAuthor || this.isPurchased) {
+      this.displayedKeyPoints = this.tour.keyPoints;
+    } else {
+      this.displayedKeyPoints = this.tour.keyPoints.slice(0, 1);
+    }
+  }
+
+  addToCart(): void {
+    if (!this.tour) return;
+    this.shoppingCartService.addItemToCart(this.tour).subscribe({
+      next: () => alert(`Tura "${this.tour?.name}" je dodata u korpu!`),
+      error: (err) => alert('Greška: ' + (err.error?.message || 'Pokušajte ponovo.'))
+    });
+  }
+
   private async initRouteMap(): Promise<void> {
     if (isPlatformBrowser(this.platformId)) {
       if (!this.tour || !this.tour.keyPoints || this.tour.keyPoints.length < 2) {
         return;
       }
-      
-      // 1. Prvo UVEK učitavamo osnovni Leaflet
       const L = await import('leaflet');
-      // 2. KLJUČNA IZMENA: Postavljamo 'L' na globalni 'window' objekat
       (window as any).L = L;
-
-      // 3. Tek ONDA učitavamo njegove dodatke koji sada mogu da pronađu globalni 'L'
       await import('leaflet-defaulticon-compatibility');
       await import('leaflet-routing-machine');
-
-      // 4. Sada je sigurno pozvati kod koji ih koristi
       this.setupMapWithRouting(L);
     }
   }
 
   private setupMapWithRouting(L: any): void {
-    // Proveravamo da li je 'routeMap' već inicijalizovan da ne pravimo duplikat
     if (this.routeMap) {
       this.routeMap.remove();
     }
-
     this.routeMap = L.map('tour-route-map');
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(this.routeMap);
-
     const waypoints = this.tour!.keyPoints.map(kp => L.latLng(kp.latitude, kp.longitude));
-
-    // DRUGA IZMENA: Kastujemo 'L.Routing' u 'any' da TypeScript ne prijavljuje grešku
     (L.Routing as any).control({
       waypoints: waypoints,
       routeWhileDragging: false,
@@ -119,11 +145,10 @@ export class TourDetailComponent implements OnInit {
   async openEditModal(keyPoint: TourKeyPoint): Promise<void> {
     this.currentKeyPointToEdit = { ...keyPoint };
     this.isEditModalVisible = true;
-    
+
     if (isPlatformBrowser(this.platformId)) {
       setTimeout(async () => {
         const L = await import('leaflet');
-        // Nije potrebno postavljati na window ovde jer modal ne koristi routing
         await import('leaflet-defaulticon-compatibility');
         this.initEditMap(L);
       }, 0);
@@ -139,7 +164,7 @@ export class TourDetailComponent implements OnInit {
   private initEditMap(L: any): void {
     if (!this.currentKeyPointToEdit) return;
     const kp = this.currentKeyPointToEdit;
-    
+
     this.editMap = L.map('map-edit').setView([kp.latitude, kp.longitude], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(this.editMap);
     this.editMarker = L.marker([kp.latitude, kp.longitude]).addTo(this.editMap);
