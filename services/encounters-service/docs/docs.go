@@ -24,6 +24,46 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/tour-executions/active": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Vraća aktivnu sesiju izvođenja ture za ulogovanog korisnika, ako postoji.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Dobavljanje aktivne sesije za korisnika",
+                "responses": {
+                    "200": {
+                        "description": "Aktivna sesija",
+                        "schema": {
+                            "$ref": "#/definitions/domain.TourExecution"
+                        }
+                    },
+                    "401": {
+                        "description": "Greška: Korisnik nije autorizovan",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Greška: Nema aktivne ture",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/tour-executions/check-position": {
             "post": {
                 "security": [

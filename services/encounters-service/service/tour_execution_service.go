@@ -25,13 +25,14 @@ type KeyPoint struct {
 	Name      string // Dodajemo ime radi logovanja i budućih potreba
 }
 
-const KeyPointCompletionThreshold = 50.0
+const KeyPointCompletionThreshold = 500.0 // Povećano na 500 metara radi lakšeg testiranja
 
 type TourExecutionService interface {
 	StartTour(execution *domain.TourExecution) (*domain.TourExecution, error)
 	CheckPosition(userId string, currentLatitude, currentLongitude float64) (*domain.TourExecution, error)
 	CompleteTour(executionId string) (*domain.TourExecution, error)
 	AbandonTour(executionId string) (*domain.TourExecution, error)
+	GetActiveByUser(userId string) (*domain.TourExecution, error) // <-- DODAJTE OVU METODU
 }
 
 type tourExecutionService struct {
@@ -74,54 +75,52 @@ func (s *tourExecutionService) StartTour(execution *domain.TourExecution) (*doma
 }
 
 // --- PREPRAVLJENA CheckPosition METODA ---
+// encounters-service/service/tour_execution_service.go
+
 func (s *tourExecutionService) CheckPosition(userId string, currentLatitude, currentLongitude float64) (*domain.TourExecution, error) {
 	activeExecution, err := s.repo.GetActiveByUser(userId)
 	if err != nil {
 		return nil, errors.New("no active tour found for this user")
 	}
 
-	// 1. Pravi gRPC poziv ka tours-service
-	log.Println("Calling gRPC GetTourById for TourID:", activeExecution.TourId)
+	log.Printf("--- Checking position for user %s ---", userId)
+	log.Printf("Tourist current position: Lat=%f, Lon=%f", currentLatitude, currentLongitude)
+
 	tourResponse, err := s.toursClient.GetTourById(context.Background(), &tours.GetTourByIdRequest{TourId: activeExecution.TourId})
 	if err != nil {
 		log.Printf("gRPC call to tours-service failed: %v", err)
 		return nil, fmt.Errorf("could not get tour details via gRPC: %w", err)
 	}
 
-	// 2. Mapiramo odgovor u našu lokalnu strukturu
-	var keyPoints []KeyPoint
-	for _, protoKp := range tourResponse.KeyPoints {
-		objID, _ := primitive.ObjectIDFromHex(protoKp.Id)
-		keyPoints = append(keyPoints, KeyPoint{
-			ID:        objID,
-			Latitude:  protoKp.Latitude,
-			Longitude: protoKp.Longitude,
-			Name:      protoKp.Name,
-		})
+	log.Printf("Received %d key points from tours-service.", len(tourResponse.KeyPoints))
+	
+	// --- NOVA, PAMETNIJA LOGIKA ---
+	
+	// 1. Određujemo koja je sledeća ključna tačka na redu
+	completedCount := len(activeExecution.CompletedKeyPoints)
+	if completedCount >= len(tourResponse.KeyPoints) {
+		log.Println("All key points already completed.")
+		return activeExecution, nil // Sve je već završeno
+	}
+	
+	nextKeyPointProto := tourResponse.KeyPoints[completedCount]
+	nextKeyPointId, _ := primitive.ObjectIDFromHex(nextKeyPointProto.Id)
+
+	// 2. Računamo distancu SAMO do te sledeće tačke
+	distance := calculateDistance(currentLatitude, currentLongitude, nextKeyPointProto.Latitude, nextKeyPointProto.Longitude)
+	log.Printf("Checking distance to NEXT key point '%s'... Distance: %.2f meters", nextKeyPointProto.Name, distance)
+
+	// 3. Ako smo dovoljno blizu, kompletiramo je
+	if distance <= KeyPointCompletionThreshold {
+		completedPoint := domain.CompletedKeyPoint{
+			KeyPointId:     nextKeyPointId,
+			CompletionTime: time.Now(),
+		}
+		activeExecution.CompletedKeyPoints = append(activeExecution.CompletedKeyPoints, completedPoint)
+		log.Printf("!!! SUCCESS: User '%s' completed key point '%s'", userId, nextKeyPointProto.Name)
 	}
 
-	// 3. Ostatak logike ostaje isti, ali sada sa pravim podacima
-	for _, keyPoint := range keyPoints {
-		isAlreadyCompleted := false
-		for _, completedKp := range activeExecution.CompletedKeyPoints {
-			if completedKp.KeyPointId == keyPoint.ID {
-				isAlreadyCompleted = true; break
-			}
-		}
-
-		if !isAlreadyCompleted {
-			distance := calculateDistance(currentLatitude, currentLongitude, keyPoint.Latitude, keyPoint.Longitude)
-			if distance <= KeyPointCompletionThreshold {
-				completedPoint := domain.CompletedKeyPoint{
-					KeyPointId:     keyPoint.ID,
-					CompletionTime: time.Now(),
-				}
-				activeExecution.CompletedKeyPoints = append(activeExecution.CompletedKeyPoints, completedPoint)
-				log.Printf("User '%s' completed key point '%s'", userId, keyPoint.Name)
-			}
-		}
-	}
-
+	// Uvek ažuriramo vreme poslednje aktivnosti
 	activeExecution.LastActivity = time.Now()
 	err = s.repo.Update(activeExecution)
 	if err != nil {
@@ -181,3 +180,7 @@ func calculateDistance(lat1, lon1, lat2, lon2 float64) float64 {
 		{ID: kp2ID, Latitude: 44.7828, Longitude: 20.4810},
 	}
 }*/
+
+func (s *tourExecutionService) GetActiveByUser(userId string) (*domain.TourExecution, error) {
+	return s.repo.GetActiveByUser(userId)
+}

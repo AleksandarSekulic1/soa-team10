@@ -26,3 +26,16 @@
     color: #333;
   }
 }
+
+.actions-panel {
+  padding: 20px;
+  text-align: center;
+  background-color: #f8f9fa;
+  
+  .btn {
+    padding: 12px 25px;
+    font-size: 1.1em;
+    margin: 0 10px;
+    // ... ostali stilovi za dugmad
+  }
+}

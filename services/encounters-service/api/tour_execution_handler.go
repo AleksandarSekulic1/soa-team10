@@ -125,3 +125,22 @@ func (h *TourExecutionHandler) AbandonTour(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, updatedExecution)
 }
+
+// @Summary Dobavljanje aktivne sesije za korisnika
+// @Description Vraća aktivnu sesiju izvođenja ture za ulogovanog korisnika, ako postoji.
+// @Produce  json
+// @Security ApiKeyAuth
+// @Success 200 {object} domain.TourExecution "Aktivna sesija"
+// @Failure 401 {object} map[string]string "Greška: Korisnik nije autorizovan"
+// @Failure 404 {object} map[string]string "Greška: Nema aktivne ture"
+// @Router /tour-executions/active [get]
+func (h *TourExecutionHandler) GetActiveByUser(c *gin.Context) {
+	userId, _ := c.Get("userId")
+
+	activeExecution, err := h.service.GetActiveByUser(userId.(string))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No active tour execution found"})
+		return
+	}
+	c.JSON(http.StatusOK, activeExecution)
+}
