@@ -19,7 +19,7 @@
           <a *ngIf="isPurchased" [routerLink]="['/tours', tour.id, 'simulate']" class="btn-simulate">Start Simulation</a>
 
           <!-- Ako tura NIJE kupljena... -->
-          <button *ngIf="!isPurchased" (click)="addToCart()" [disabled]="isInCart" class="btn-add-to-cart">
+          <button *ngIf="!isPurchased && tour.status !== 'archived'" (click)="addToCart()" [disabled]="isInCart" class="btn-simulate">
             {{ isInCart ? 'U Korpi' : 'Dodaj u korpu' }}
           </button>
         </ng-container>
@@ -124,7 +124,7 @@
           </div>
           <p class="review-comment">"{{ review.comment }}"</p>
           <div *ngIf="review.imageUrls && review.imageUrls.length > 0" class="review-images">
-            <img *ngFor="let imgUrl of review.imageUrls" [src]="'assets/images/women1.png'" alt="Image from review">
+            <img *ngFor="let imgUrl of review.imageUrls" [src]="imgUrl" alt="Image from review">          
           </div>
           <small class="review-date">Commented on: {{ review.commentDate | date:'dd.MM.yyyy' }}</small>
         </div>

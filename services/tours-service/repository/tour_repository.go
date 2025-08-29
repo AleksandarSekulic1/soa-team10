@@ -21,6 +21,7 @@ type TourRepository interface {
 	DeleteKeyPoint(tourId, keyPointId string) error
 	Update(tour *domain.Tour) error // <-- DODATI NOVU METODU
 	GetPublished() ([]*domain.Tour, error) // <-- DODATA NOVA METODA
+	GetArchived() ([]*domain.Tour, error) // NOVO
 }
 
 type tourRepository struct {
@@ -140,6 +141,23 @@ func (r *tourRepository) GetPublished() ([]*domain.Tour, error) {
 	var tours []*domain.Tour
 	// Filter koji vraća samo dokumente gde je status "published"
 	filter := bson.M{"status": domain.TourStatusPublished}
+	cursor, err := r.tours.Find(context.TODO(), filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.TODO())
+
+	if err = cursor.All(context.TODO(), &tours); err != nil {
+		return nil, err
+	}
+	return tours, nil
+}
+
+// NOVO: Funkcija za dobavljanje arhiviranih tura
+func (r *tourRepository) GetArchived() ([]*domain.Tour, error) {
+	var tours []*domain.Tour
+	// Filter koji vraća samo dokumente gde je status "archived"
+	filter := bson.M{"status": domain.TourStatusArchived} // Pretpostavka da konstanta postoji
 	cursor, err := r.tours.Find(context.TODO(), filter)
 	if err != nil {
 		return nil, err

@@ -58,6 +58,7 @@ func NewServer() *Server {
 			toursGroup.POST("/:id/archive", api.AuthMiddleware(), tourHandler.Archive)
 			toursGroup.GET("/published", tourHandler.GetPublished)
 			toursGroup.POST("/:id/reactivate", api.AuthMiddleware(), tourHandler.Reactivate)
+			toursGroup.GET("/archived", tourHandler.GetArchived) // NOVO: Registracija rute
 		}
 
 		/*positionGroup := apiGroup.Group("/tourist-position")

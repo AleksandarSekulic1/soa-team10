@@ -12,30 +12,62 @@ import { TourService } from '../../services/tour.service';
   styleUrls: ['./tour-creation.component.scss']
 })
 export class TourCreationComponent {
-  tour: any = {
+  // IZMENA: Model 'tour' sada direktno sadrži 'tags' kao niz stringova
+  tour = {
     name: '',
     description: '',
     difficulty: 3,
+    tags: [] as string[]
   };
-  tagsInput: string = '';
+
+  // UKLONJENO: 'tagsInput' više nije potreban
+  // tagsInput: string = '';
+
   message: string = '';
+
+  // NOVO: Definisana lista dostupnih tagova koji će se prikazati kao checkbox-ovi
+  availableTags = [
+    { name: 'Planinarenje', value: 'hiking' },
+    { name: 'Priroda', value: 'nature' },
+    { name: 'Istorija', value: 'history' },
+    { name: 'Avantura', value: 'adventure' },
+    { name: 'Kultura', value: 'cultural' },
+    { name: 'Opuštanje', value: 'relaxing' }
+  ];
 
   constructor(private tourService: TourService, private router: Router) { }
 
+  // NOVO: Metoda koja se poziva svaki put kad se klikne na checkbox
+  onTagChange(event: any): void {
+    const tagName = event.target.value;
+    const isChecked = event.target.checked;
+
+    if (isChecked) {
+      // Ako je tag odabran, dodajemo ga u niz 'tour.tags'
+      this.tour.tags.push(tagName);
+    } else {
+      // Ako je odabir poništen, uklanjamo tag iz niza
+      const index = this.tour.tags.indexOf(tagName);
+      if (index > -1) {
+        this.tour.tags.splice(index, 1);
+      }
+    }
+  }
+
   onSubmit(): void {
+    // IZMENA: Nema više potrebe za kreiranjem 'tourData' objekta i parsiranjem stringa.
+    // Objekat 'this.tour' već ima ispravan format sa nizom tagova.
     const tourData = {
       ...this.tour,
-      tags: this.tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag)
+      difficulty: Number(this.tour.difficulty) // Osiguravamo da je težina broj
     };
-    tourData.difficulty = Number(tourData.difficulty);
 
     this.tourService.createTour(tourData).subscribe({
       next: (response) => {
         console.log('Tura je uspešno kreirana!', response);
-        // Možemo prikazati kratku poruku pre preusmeravanja, ali nije obavezno
-        alert('Tura je uspešno kreirana! Vraćate se na početnu stranicu.');
-
-        // Preusmeravamo korisnika na 'home' stranicu
+        alert('Tura je uspešno kreirana! Bićete preusmereni na početnu stranicu.');
+        
+        // Preusmeravamo korisnika
         this.router.navigate(['/home']);
       },
       error: (error) => {

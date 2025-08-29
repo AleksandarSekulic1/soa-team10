@@ -1,12 +1,21 @@
-// Možete iskopirati stilove iz registration.component.scss
-// ili importovati ako želite da delite stilove
+/* 1. Style for the page wrapper to center the form */
+.page-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: calc(100vh - 80px); /* Adjust 80px based on your navbar height */
+  padding: 2rem;
+  background-color: #f4f7f9; /* Light background for the page */
+}
+
 .form-container {
   background-color: #ffffff;
   padding: 40px;
   border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
   width: 100%;
-  max-width: 500px;
+  max-width: 550px;
   text-align: center;
 }
 
@@ -31,7 +40,7 @@ label {
 input, select, textarea {
   width: 100%;
   padding: 12px 15px;
-  border: 1px solid #ccc;
+  border: 1px solid #dcdcdc;
   border-radius: 8px;
   font-size: 16px;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
@@ -39,15 +48,15 @@ input, select, textarea {
   &:focus {
     outline: none;
     border-color: #007bff;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.15);
   }
 }
 
 textarea {
-    resize: vertical;
+  resize: vertical;
 }
 
-button {
+button[type="submit"] {
   width: 100%;
   padding: 15px;
   background-color: #007bff;
@@ -59,22 +68,59 @@ button {
   cursor: pointer;
   transition: background-color 0.3s ease;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background-color: #0056b3;
+  }
+  &:disabled {
+    background-color: #a0cffc;
+    cursor: not-allowed;
+  }
+}
+
+/* 2. New styles for the tag checkboxes */
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.tag-option {
+  // Hide the default checkbox
+  input[type="checkbox"] {
+    display: none;
+  }
+
+  // Style the label to look like a button/pill
+  label {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #f0f0f0;
+    border: 2px solid #e0e0e0;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    font-weight: 500;
+    margin-bottom: 0;
+
+    &:hover {
+      background-color: #e0e0e0;
+      border-color: #c0c0c0;
+    }
+  }
+
+  // Style for the label when the checkbox is checked
+  input[type="checkbox"]:checked + label {
+    background-color: #007bff;
+    border-color: #0056b3;
+    color: white;
   }
 }
 
 .message {
-    margin-top: 20px;
-    padding: 10px;
-    border-radius: 8px;
-    background-color: #eaf7e9;
-    color: #4caf50;
-    font-weight: 500;
-}
-
-small {
-    display: block;
-    margin-top: 5px;
-    color: #777;
+  margin-top: 20px;
+  padding: 10px;
+  border-radius: 8px;
+  background-color: #eaf7e9;
+  color: #4caf50;
+  font-weight: 500;
 }

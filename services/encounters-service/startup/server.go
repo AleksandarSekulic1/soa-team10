@@ -55,6 +55,7 @@ func NewServer() *Server {
 			executionGroup.POST("/check-position", api.AuthMiddleware(), tourExecutionHandler.CheckPosition)
 			executionGroup.POST("/:executionId/complete", api.AuthMiddleware(), tourExecutionHandler.CompleteTour)
 			executionGroup.POST("/:executionId/abandon", api.AuthMiddleware(), tourExecutionHandler.AbandonTour)
+			executionGroup.GET("/active", api.AuthMiddleware(), tourExecutionHandler.GetActiveByUser)
 		}
 	}
 

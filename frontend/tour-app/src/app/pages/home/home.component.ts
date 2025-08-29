@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule, TitleCasePipe, DecimalPipe } from '@angular/common';
+import { CommonModule, DecimalPipe } from '@angular/common';
 import { TourService } from '../../services/tour.service';
 import { Tour } from '../../models/tour.model';
 import { RouterLink } from '@angular/router';
+import { forkJoin } from 'rxjs'; // <-- 1. Uvezite forkJoin
 
 @Component({
   selector: 'app-home',
@@ -13,20 +14,28 @@ import { RouterLink } from '@angular/router';
 })
 export class HomeComponent implements OnInit {
   publishedTours: Tour[] = [];
+  archivedTours: Tour[] = []; // <-- 2. Dodajte niz za arhivirane ture
   isLoading = true;
 
   constructor(private tourService: TourService) {}
 
   ngOnInit(): void {
-    // Pozivamo metodu koja vraća samo objavljene ture
-    this.tourService.getPublishedTours().subscribe({
-      next: (tours) => {
-        this.publishedTours = tours;
+    this.isLoading = true;
+
+    // 3. Koristimo forkJoin da istovremeno dobavimo i objavljene i arhivirane ture
+    forkJoin({
+      published: this.tourService.getPublishedTours(),
+      archived: this.tourService.getArchivedTours()
+    }).subscribe({
+      next: ({ published, archived }) => {
+        this.publishedTours = published;
+        this.archivedTours = archived;
         this.isLoading = false;
-        console.log('Objavljene ture:', tours);
+        console.log('Objavljene ture:', this.publishedTours);
+        console.log('Arhivirane ture:', this.archivedTours);
       },
       error: (err) => {
-        console.error('Greška pri preuzimanju objavljenih tura:', err);
+        console.error('Greška pri preuzimanju tura:', err);
         this.isLoading = false;
       }
     });

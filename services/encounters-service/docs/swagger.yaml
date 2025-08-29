@@ -140,6 +140,32 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Završetak ture
+  /tour-executions/active:
+    get:
+      description: Vraća aktivnu sesiju izvođenja ture za ulogovanog korisnika, ako
+        postoji.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Aktivna sesija
+          schema:
+            $ref: '#/definitions/domain.TourExecution'
+        "401":
+          description: 'Greška: Korisnik nije autorizovan'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: 'Greška: Nema aktivne ture'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Dobavljanje aktivne sesije za korisnika
   /tour-executions/check-position:
     post:
       consumes:

@@ -49,6 +49,7 @@ type TourService interface {
 	Reactivate(tourId string) (*domain.Tour, error) // <-- DODATA NOVA METODA
 	AddTransportInfo(tourId string, transportInfo []domain.TourTransport) (*domain.Tour, error)
 	GetPublished() ([]*domain.Tour, error) // <-- DODATA NOVA METODA
+	GetArchived() ([]*domain.Tour, error) // NOVO
 }
 
 type tourService struct {
@@ -264,4 +265,22 @@ func (s *tourService) GetPublished() ([]*domain.Tour, error) {
 	}
 
 	return publishedTours, nil
+}
+
+// NOVO: Servisna metoda za dobavljanje arhiviranih tura
+func (s *tourService) GetArchived() ([]*domain.Tour, error) {
+	// 1. Dobavi samo arhivirane ture iz repozitorijuma
+	archivedTours, err := s.repo.GetArchived()
+	if err != nil {
+		return nil, err
+	}
+
+	// 2. Za svaku turu, ostavi samo prvu ključnu tačku (kao i za objavljene)
+	for _, tour := range archivedTours {
+		if len(tour.KeyPoints) > 0 {
+			tour.KeyPoints = tour.KeyPoints[:1] // Skraćujemo niz na samo prvi element
+		}
+	}
+
+	return archivedTours, nil
 }

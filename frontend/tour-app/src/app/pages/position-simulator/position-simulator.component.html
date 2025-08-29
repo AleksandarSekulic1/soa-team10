@@ -1,12 +1,48 @@
 <div class="simulator-container">
   <div class="info-header" *ngIf="tour">
     <h1>Position Simulator for: {{ tour.name }}</h1>
-    <p>Click on the map to set your current position. The dashed line shows the path to the tour's starting point.</p>
+    <p *ngIf="!tourExecution">Click on the map to set your initial position before starting the tour.</p>
+    <p *ngIf="tourExecution">Tour is active. Your progress is being tracked automatically.</p>
+  </div>
+  <div *ngIf="touristPosition" class="coords-display">
+    <span>Current Latitude: <strong>{{ touristPosition.Latitude | number:'1.4-4' }}</strong></span>
+    <span>Current Longitude: <strong>{{ touristPosition.Longitude | number:'1.4-4' }}</strong></span>
+  </div>
 
-    <div *ngIf="touristPosition" class="coords-display">
-      <span>Current Latitude: <strong>{{ touristPosition.Latitude | number:'1.4-4' }}</strong></span>
-      <span>Current Longitude: <strong>{{ touristPosition.Longitude | number:'1.4-4' }}</strong></span>
+  <div *ngIf="tourExecution" class="active-tour-panel">
+    <div class="info-item">
+      <strong>Status</strong>
+      <span class="status-active">{{ tourExecution.Status }}</span>
+    </div>
+    <div class="info-item">
+      <strong>Progress</strong>
+      <span>{{ tourExecution.CompletedKeyPoints.length || 0 }} / {{ tour?.keyPoints?.length }} key points</span>
+    </div>
+    <div class="info-item">
+      <strong>Time Elapsed</strong>
+      <span>{{ elapsedTime }}</span>
+    </div>
+    <div class="info-item">
+      <strong>Last Activity</strong>
+      <span>{{ tourExecution.LastActivity | date:'HH:mm:ss' }}</span>
+    </div>
+  </div>
+
+  <div *ngIf="tourExecution && tourExecution.CompletedKeyPoints.length > 0" class="key-points-log">
+    <h3>Transit time</h3>
+    <div *ngFor="let completedKp of tourExecution.CompletedKeyPoints" class="key-point-entry">
+      <span class="key-point-name">{{ getKeyPointName(completedKp.KeyPointId) || completedKp.KeyPointId }}</span>
+      <span class="completion-time">  {{ completedKp.CompletionTime | date:'HH:mm:ss' }}</span>
     </div>
   </div>
   <div id="simulator-map"></div>
+
+  <div class="actions-panel">
+    <button *ngIf="!tourExecution" (click)="startTour()" class="btn btn-start">Start Tour</button>
+    
+    <div *ngIf="tourExecution" class="active-tour-actions">
+      <button (click)="completeTour()" class="btn btn-complete">Complete Tour</button>
+      <button (click)="abandonTour()" class="btn btn-abandon">Abandon Tour</button>
+    </div>
+  </div>
 </div>
