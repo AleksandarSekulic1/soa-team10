@@ -15,110 +15,6 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/tourist-position": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Vraća poslednju sačuvanu geografsku poziciju za ulogovanog korisnika.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Dobavljanje pozicije turiste",
-                "responses": {
-                    "200": {
-                        "description": "Uspešno dobavljena pozicija",
-                        "schema": {
-                            "$ref": "#/definitions/domain.TouristPosition"
-                        }
-                    },
-                    "401": {
-                        "description": "Greška: Korisnik nije autorizovan",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Greška: Pozicija nije pronađena",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Čuva ili ažurira geografsku poziciju za ulogovanog korisnika. Koristi se za simulator pozicije.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Ažuriranje pozicije turiste",
-                "parameters": [
-                    {
-                        "description": "Podaci o novoj poziciji (Latitude i Longitude)",
-                        "name": "position",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/api.PositionUpdateDTO"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Uspešno ažurirana pozicija",
-                        "schema": {
-                            "$ref": "#/definitions/domain.TouristPosition"
-                        }
-                    },
-                    "400": {
-                        "description": "Greška: Neispravan format zahteva",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Greška: Korisnik nije autorizovan",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Greška: Problem na serveru",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/tours": {
             "get": {
                 "description": "Vraća listu svih tura dostupnih u sistemu.",
@@ -185,6 +81,26 @@ const docTemplate = `{
                             "type": "object",
                             "additionalProperties": {
                                 "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tours/archived": {
+            "get": {
+                "description": "Vraća listu tura koje imaju status 'archived'. Za svaku turu prikazuje samo prvu ključnu tačku.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Prikaz svih arhiviranih tura",
+                "responses": {
+                    "200": {
+                        "description": "Lista arhiviranih tura",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/domain.Tour"
                             }
                         }
                     }
@@ -707,21 +623,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "api.PositionUpdateDTO": {
-            "type": "object",
-            "required": [
-                "latitude",
-                "longitude"
-            ],
-            "properties": {
-                "latitude": {
-                    "type": "number"
-                },
-                "longitude": {
-                    "type": "number"
-                }
-            }
-        },
         "domain.Tour": {
             "type": "object",
             "required": [
@@ -885,27 +786,6 @@ const docTemplate = `{
                 }
             }
         },
-        "domain.TouristPosition": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "latitude": {
-                    "type": "number"
-                },
-                "longitude": {
-                    "type": "number"
-                },
-                "updatedAt": {
-                    "type": "string"
-                },
-                "userId": {
-                    "description": "IZMENA: UserId je sada string",
-                    "type": "string"
-                }
-            }
-        },
         "domain.TransportType": {
             "type": "string",
             "enum": [
@@ -936,7 +816,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/api",
 	Schemes:          []string{},
 	Title:            "Tours Service API",
-	Description:      "API za upravljanje turama.",
+	Description:      "API for managing tours.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

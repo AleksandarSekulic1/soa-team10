@@ -5,30 +5,44 @@
     <div *ngFor="let tour of allTours" class="tour-card">
       <h3>{{ tour.name }}</h3>
       <p><strong>Author:</strong> {{ tour.authorId }}</p>
-      <p>{{ tour.description }}</p>
+      <p class="description">{{ tour.description | slice:0:120 }}{{ tour.description.length > 120 ? '...' : '' }}</p>
+      
       <div class="reviews-section">
         <h4>Reviews ({{ tour.reviews?.length || 0 }})</h4>
-        <ul>
-          <li *ngFor="let review of tour.reviews">
-            <div class="review-header">
-              <strong>Rating: {{ review.rating }}/5</strong>
-              <!-- Displaying the formatted comment date -->
-              <small>{{ review.commentDate | date:'dd.MM.yyyy. HH:mm' }}</small>
+        
+        <div *ngIf="tour.reviews && tour.reviews.length > 0; else noReviews" class="review-slider">
+          <div class="slider-track" [style.transform]="'translateX(-' + tour.currentReviewIndex * 100 + '%)'">
+            <div *ngFor="let review of tour.reviews" class="review-slide">
+              <div class="review-header">
+                <div class="star-rating">
+                  <span *ngFor="let _ of getStarArray(review.rating)" class="star filled">&#9733;</span>
+                  <span *ngFor="let _ of getStarArray(5 - review.rating)" class="star">&#9734;</span>
+                </div>
+                <small>{{ review.commentDate | date:'dd.MM.yyyy.' }}</small>
+              </div>
+              <p class="review-comment">"{{ review.comment }}" <small>(by {{ review.touristId }})</small></p>
+              <div *ngIf="review.imageUrls && review.imageUrls.length > 0" class="review-images">
+                <img *ngFor="let imageUrl of review.imageUrls" [src]="imageUrl" alt="Review image">
+              </div>
             </div>
-            <p class="review-comment">"{{ review.comment }}" <small>(by {{ review.touristId }})</small></p>
-            <!-- Displaying images if they exist -->
-            <div *ngIf="review.imageUrls && review.imageUrls.length > 0" class="review-images">
-              <img *ngFor="let imageUrl of review.imageUrls" [src]="imageUrl" alt="Review image">
-            </div>
-          </li>
-        </ul>
+          </div>
+
+          <div class="slider-controls" *ngIf="tour.reviews.length > 1">
+            <button (click)="prevReview(tour)" class="slider-arrow prev">&#8249;</button>
+            <span class="slider-counter">{{ tour.currentReviewIndex + 1 }} / {{ tour.reviews.length }}</span>
+            <button (click)="nextReview(tour)" class="slider-arrow next">&#8250;</button>
+          </div>
+        </div>
+        
+        <ng-template #noReviews>
+          <p class="no-reviews-message">Be the first to leave a review!</p>
+        </ng-template>
       </div>
       <button *ngIf="authService.isTourist()" (click)="selectTourForReview(tour)">Rate This Tour</button>
     </div>
   </div>
 </div>
 
-<!-- Modal for writing a review -->
 <div class="modal-overlay" *ngIf="selectedTour">
   <div class="modal-content">
     <h3>Rate Tour: {{ selectedTour.name }}</h3>
@@ -39,20 +53,26 @@
       </div>
       <div class="form-group">
         <label for="comment">Comment:</label>
-        <textarea name="comment" [(ngModel)]="review.comment" rows="4"></textarea>
+        <textarea name="comment" [(ngModel)]="review.comment" rows="4" placeholder="Share your experience..."></textarea>
       </div>
       <div class="form-group">
         <label for="visitDate">Date of visit:</label>
         <input type="date" name="visitDate" [(ngModel)]="review.visitDate" required>
       </div>
-      <!-- NEW FIELD FOR IMAGES -->
+
       <div class="form-group">
-        <label for="imageUrls">Image links (comma-separated):</label>
-        <input type="text" name="imageUrls" [(ngModel)]="review.imageUrlsInput">
+        <label>Add Images (optional):</label>
+        <div class="image-selector">
+          <img *ngFor="let imgUrl of availableReviewImages" 
+               [src]="imgUrl" 
+               alt="Selectable image"
+               [class.selected]="review.imageUrls.includes(imgUrl)"
+               (click)="toggleImageSelection(imgUrl)">
+        </div>
       </div>
       <div class="modal-actions">
-        <button type="submit">Submit Review</button>
-        <button type="button" (click)="selectedTour = null">Cancel</button>
+        <button type="button" (click)="selectedTour = null" class="btn-cancel">Cancel</button>
+        <button type="submit" class="btn-submit">Submit Review</button>
       </div>
     </form>
   </div>

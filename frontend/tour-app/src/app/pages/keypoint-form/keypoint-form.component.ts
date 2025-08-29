@@ -30,10 +30,16 @@ export class KeypointFormComponent implements OnInit, AfterViewInit {
   };
 
   availableImages: string[] = [
-    'assets/images/default-avatar.png', 'assets/images/men2.png', 'assets/images/men3.png',
-    'assets/images/men4.png', 'assets/images/men5.png', 'assets/images/women1.png',
-    'assets/images/women2.png', 'assets/images/women3.png', 'assets/images/women4.png',
-    'assets/images/women5.png'
+    'assets/images/tura1.png',
+    'assets/images/tura2.png',
+    'assets/images/tura3.png',
+    'assets/images/tura4.png',
+    'assets/images/tura5.png',
+    'assets/images/tura6.png',
+    'assets/images/tura7.png',
+    'assets/images/tura8.png',
+    'assets/images/tura9.png',
+    'assets/images/tura10.png'
   ];
 
   private map: any;

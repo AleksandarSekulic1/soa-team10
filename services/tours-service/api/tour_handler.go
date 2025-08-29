@@ -425,3 +425,17 @@ func (h *TourHandler) Reactivate(c *gin.Context) {
 
 	c.JSON(http.StatusOK, reactivatedTour)
 }
+
+// @Summary Prikaz svih arhiviranih tura
+// @Description Vraća listu tura koje imaju status 'archived'. Za svaku turu prikazuje samo prvu ključnu tačku.
+// @Produce 	json
+// @Success 200 {array} domain.Tour "Lista arhiviranih tura"
+// @Router /tours/archived [get]
+func (h *TourHandler) GetArchived(c *gin.Context) {
+	tours, err := h.service.GetArchived()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Greška prilikom preuzimanja arhiviranih tura"})
+		return
+	}
+	c.JSON(http.StatusOK, tours)
+}

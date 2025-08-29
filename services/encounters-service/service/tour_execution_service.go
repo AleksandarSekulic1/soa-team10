@@ -25,7 +25,7 @@ type KeyPoint struct {
 	Name      string // Dodajemo ime radi logovanja i budućih potreba
 }
 
-const KeyPointCompletionThreshold = 500.0 // Povećano na 500 metara radi lakšeg testiranja
+const KeyPointCompletionThreshold = 100.0 // Povećano na 500 metara radi lakšeg testiranja
 
 type TourExecutionService interface {
 	StartTour(execution *domain.TourExecution) (*domain.TourExecution, error)

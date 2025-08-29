@@ -100,4 +100,8 @@ export class TourService {
       catchError(() => of(null)) // Ako backend vrati 404, mi vratimo null
     );
   }
+
+  getArchivedTours(): Observable<Tour[]> {
+    return this.http.get<Tour[]>(`${this.apiUrl}/archived`);
+  }
 }

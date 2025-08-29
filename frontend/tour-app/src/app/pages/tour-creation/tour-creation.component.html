@@ -1,24 +1,34 @@
-<div class="form-container">
-  <h2>Kreiraj Novu Turu</h2>
-  <form (ngSubmit)="onSubmit()" #tourForm="ngForm">
-    <div class="form-group">
-      <label for="name">Naziv Ture:</label>
-      <input type="text" id="name" name="name" [(ngModel)]="tour.name" required>
-    </div>
-    <div class="form-group">
-      <label for="description">Opis:</label>
-      <textarea id="description" name="description" [(ngModel)]="tour.description" rows="4" required></textarea>
-    </div>
-    <div class="form-group">
-      <label for="difficulty">Težina (1-5):</label>
-      <input type="number" id="difficulty" name="difficulty" [(ngModel)]="tour.difficulty" min="1" max="5" required>
-    </div>
-    <div class="form-group">
-      <label for="tags">Tagovi (odvojeni zarezom):</label>
-      <input type="text" id="tags" name="tags" [(ngModel)]="tagsInput">
-      <small>Npr: planinarenje, priroda, istorija</small>
-    </div>
-    <button type="submit" [disabled]="!tourForm.form.valid">Kreiraj Turu</button>
-  </form>
-  <div *ngIf="message" class="message">{{ message }}</div>
+<div class="page-wrapper">
+
+  <div class="form-container">
+    <h2>Create a New Tour</h2>
+    <form (ngSubmit)="onSubmit()" #tourForm="ngForm">
+      <div class="form-group">
+        <label for="name">Tour Name:</label>
+        <input type="text" id="name" name="name" [(ngModel)]="tour.name" required>
+      </div>
+      <div class="form-group">
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" [(ngModel)]="tour.description" rows="4" required></textarea>
+      </div>
+      <div class="form-group">
+        <label for="difficulty">Difficulty (1-5):</label>
+        <input type="number" id="difficulty" name="difficulty" [(ngModel)]="tour.difficulty" min="1" max="5" required>
+      </div>
+
+      <div class="form-group">
+        <label>Tags:</label>
+        <div class="tags-container">
+          <div class="tag-option" *ngFor="let tag of availableTags">
+            <input type="checkbox" [id]="'tag-' + tag.value" [value]="tag.value" (change)="onTagChange($event)">
+            <label [for]="'tag-' + tag.value">{{ tag.name }}</label>
+          </div>
+        </div>
+      </div>
+      
+      <button type="submit" [disabled]="!tourForm.form.valid">Create Tour</button>
+    </form>
+    <div *ngIf="message" class="message">{{ message }}</div>
+  </div>
+
 </div>

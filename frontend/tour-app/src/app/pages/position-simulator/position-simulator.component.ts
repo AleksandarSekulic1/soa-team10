@@ -26,11 +26,14 @@ export class PositionSimulatorComponent implements OnInit, OnDestroy {
   private keyPointMarkers: any[] = [];
   private leaflet: any;
 
-  // Svojstva za simulaciju kretanja
-  private routePoints: any[] = []; // Koordinate glavne rute
-  private toStartRoutePoints: any[] = []; // Koordinate puta do početka
+  private routePoints: any[] = [];
+  private toStartRoutePoints: any[] = [];
   private movementSimulationTimer: any;
-  private currentRouteIndex = 0;
+  
+  // Svojstva za tajmer proteklog vremena
+  public elapsedTime: string = '00:00:00';
+  private elapsedTimeTimer: any;
+
 
   constructor(
     private route: ActivatedRoute,
@@ -38,6 +41,20 @@ export class PositionSimulatorComponent implements OnInit, OnDestroy {
     private tourService: TourService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
+
+  public getKeyPointName(keyPointId: string): string {
+  // Proverite da li tura i ključne tačke postoje
+  if (!this.tour || !this.tour.keyPoints) {
+    return `ID: ${keyPointId}`; // Vraća ID ako podaci o turi još nisu učitani
+  }
+
+  // Pronađite ključnu tačku po ID-u
+  // VAŽNO: Proverite da li se polja u vašem modelu za KeyPoint zovu 'id' i 'name'
+  const keyPoint = this.tour.keyPoints.find(kp => kp.id === keyPointId);
+
+  // Vratite ime tačke ako je pronađena, u suprotnom vratite njen ID
+  return keyPoint ? keyPoint.name : `ID: ${keyPointId}`;
+} 
 
   ngOnInit(): void {
     const tourId = this.route.snapshot.paramMap.get('id');
@@ -57,6 +74,10 @@ export class PositionSimulatorComponent implements OnInit, OnDestroy {
         }
 
         this.tourExecution = execution || undefined;
+        if (this.tourExecution) {
+          this.startPositionPolling();
+          this.startElapsedTimeTimer();
+        }
         setTimeout(() => this.initMap(), 0);
       });
     }
@@ -65,6 +86,7 @@ export class PositionSimulatorComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.pollingSubscription) this.pollingSubscription.unsubscribe();
     if (this.movementSimulationTimer) clearInterval(this.movementSimulationTimer);
+    if (this.elapsedTimeTimer) clearInterval(this.elapsedTimeTimer);
     if (this.map) this.map.remove();
   }
 
@@ -73,23 +95,21 @@ export class PositionSimulatorComponent implements OnInit, OnDestroy {
     this.tourService.startTour(this.tour.id).subscribe({
       next: (execution) => {
         this.tourExecution = execution;
-        alert('Tour started successfully! Simulating travel to the first key point.');
-        
-        // Onemogućavamo kliktanje na mapu nakon starta
+        alert('Tour started successfully!');
         if (this.map) this.map.off('click');
-        
-        // Prvo simuliramo dolazak do početne tačke
         this.startMovementSimulation(true);
+        this.startPositionPolling();
+        this.startElapsedTimeTimer();
       },
       error: (err) => alert(`Error starting tour: ${err.error.error || 'Unknown error'}`)
     });
   }
 
-  // Glavni tajmer koji proverava kompletiranost tačaka na backendu
+  // Tajmer koji na svakih 10 sekundi šalje poziciju na backend
   private startPositionPolling(): void {
     if (!isPlatformBrowser(this.platformId)) return;
     
-    this.pollingSubscription = interval(5000).subscribe(() => { // Proveravamo češće
+    this.pollingSubscription = interval(10000).subscribe(() => {
       if (this.touristPosition && this.tourExecution && this.tourExecution.Status === 'Active') {
         this.tourService.checkPosition(this.tourExecution.ID, {
           latitude: this.touristPosition.Latitude,
@@ -99,8 +119,8 @@ export class PositionSimulatorComponent implements OnInit, OnDestroy {
           updatedExecution.CompletedKeyPoints = updatedExecution.CompletedKeyPoints || [];
           this.tourExecution = updatedExecution;
 
-          if (updatedExecution.CompletedKeyPoints.length > oldCompletedCount) {
-            console.log(`A key point was completed! Total completed: ${updatedExecution.CompletedKeyPoints.length}`);
+          if ((this.tourExecution.CompletedKeyPoints?.length || 0) > oldCompletedCount) {
+            console.log(`A key point was completed! Total: ${this.tourExecution.CompletedKeyPoints.length}`);
             this.updateKeyPointMarkers();
           }
         });
@@ -108,21 +128,16 @@ export class PositionSimulatorComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Tajmer koji SIMULIRA KRETANJE pina na mapi
+  // Tajmer koji samo pomera pin na mapi radi vizuelne simulacije
   private startMovementSimulation(isMovingToStart: boolean): void {
     if (!isPlatformBrowser(this.platformId)) return;
 
-    // Biramo koju rutu koristimo: do početka ili glavnu
     const currentRoute = isMovingToStart ? this.toStartRoutePoints : this.routePoints;
     if (currentRoute.length === 0) {
-      if (isMovingToStart) {
-        console.log("Arrived at start, starting main tour polling.");
-        this.startPositionPolling(); // Ako nema puta do početka, odmah kreni sa turom
-      }
+      if (isMovingToStart) this.startMovementSimulation(false);
       return;
     }
 
-    // Uklanjamo isprekidanu liniju kada krene simulacija
     if (isMovingToStart && this.routeToStartLine) {
       this.map.removeControl(this.routeToStartLine);
       this.routeToStartLine = null;
@@ -131,36 +146,48 @@ export class PositionSimulatorComponent implements OnInit, OnDestroy {
     if (this.movementSimulationTimer) clearInterval(this.movementSimulationTimer);
     
     let routeIndex = 0;
-    const intervalTime = 100; // Ubrzavamo simulaciju za bolji vizuelni efekat
+    const intervalTime = 1000;
 
     this.movementSimulationTimer = setInterval(() => {
       if (routeIndex >= currentRoute.length - 1) {
         clearInterval(this.movementSimulationTimer);
-        
         if (isMovingToStart) {
-          console.log("Arrived at the tour's starting point. Starting main route simulation.");
-          this.startPositionPolling(); // Pokrećemo proveru tek kad stignemo
-          this.startMovementSimulation(false); // Pokrećemo kretanje po glavnoj ruti
+          this.startMovementSimulation(false);
         } else {
-          console.log("Finished main tour route simulation.");
+          alert("Simulation finished! You can now complete the tour.");
         }
         return;
       }
 
-      routeIndex++;
+      routeIndex = Math.min(routeIndex + 1, currentRoute.length - 1);
       const newPosition = currentRoute[routeIndex];
       
-      // Ažuriramo samo lokalni objekat, ne šaljemo na backend
       this.touristPosition = {
         ...(this.touristPosition!),
         Latitude: newPosition.lat,
         Longitude: newPosition.lng
       };
       
-      // Pomeramo marker vizuelno
       this.updateTouristVisuals(true);
-
     }, intervalTime);
+  }
+
+  private startElapsedTimeTimer(): void {
+    if (!isPlatformBrowser(this.platformId) || !this.tourExecution) return;
+
+    const startTime = new Date(this.tourExecution.StartTime).getTime();
+
+    this.elapsedTimeTimer = setInterval(() => {
+      const now = new Date().getTime();
+      const difference = now - startTime;
+
+      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+      this.elapsedTime = 
+        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }, 1000);
   }
 
   private updateKeyPointMarkers(): void {
@@ -170,15 +197,13 @@ export class PositionSimulatorComponent implements OnInit, OnDestroy {
           const completedPoints = this.tourExecution?.CompletedKeyPoints || [];
           const isCompleted = completedPoints.some(kp => kp.KeyPointId === keyPointId);
           
-          if (isCompleted && !marker.isCompleted) { // Proveravamo da ne bojimo ponovo
+          if (isCompleted && !marker.isCompleted) {
               marker.setIcon(this.leaflet.icon({
-                  iconUrl: 'assets/marker-icon-green.png',
-                  iconRetinaUrl: 'assets/marker-icon-2x-green.png',
-                  shadowUrl: 'assets/marker-shadow.png',
+                  iconUrl: 'assets/images/default-avatar.png',
                   iconSize: [25, 41],
                   iconAnchor: [12, 41],
               }));
-              marker.isCompleted = true; // Dodajemo flag da znamo da je obojen
+              marker.isCompleted = true;
           }
       });
     }
@@ -187,10 +212,11 @@ export class PositionSimulatorComponent implements OnInit, OnDestroy {
   abandonTour(): void {
     if (!this.tourExecution) return;
     clearInterval(this.movementSimulationTimer);
+    clearInterval(this.elapsedTimeTimer);
+    this.pollingSubscription?.unsubscribe();
     this.tourService.abandonTour(this.tourExecution.ID).subscribe(() => {
       alert('Tour abandoned.');
-      this.pollingSubscription?.unsubscribe();
-      this.router.navigate(['/tours', this.tour?.id]);
+      //this.router.navigate(['/tours', this.tour?.id]);
     });
   }
 
@@ -206,10 +232,11 @@ export class PositionSimulatorComponent implements OnInit, OnDestroy {
     }
  
     clearInterval(this.movementSimulationTimer);
+    clearInterval(this.elapsedTimeTimer);
+    this.pollingSubscription?.unsubscribe();
     this.tourService.completeTour(this.tourExecution.ID).subscribe(() => {
       alert('Tour completed successfully!');
-      this.pollingSubscription?.unsubscribe();
-      this.router.navigate(['/tours', this.tour?.id]);
+      //this.router.navigate(['/tours', this.tour?.id]);
     });
   }
 
@@ -239,7 +266,10 @@ export class PositionSimulatorComponent implements OnInit, OnDestroy {
         routingControl.on('routesfound', (e: any) => {
           if (e.routes && e.routes.length > 0) {
             this.routePoints = e.routes[0].coordinates;
-            if (this.tourExecution) this.startMovementSimulation(false);
+            // Ako je tura već aktivna (nastavljamo je), odmah pokreni simulaciju
+            if (this.tourExecution) {
+              this.startMovementSimulation(false);
+            }
           }
         });
       }
@@ -297,7 +327,7 @@ export class PositionSimulatorComponent implements OnInit, OnDestroy {
       
       if (this.routeToStartLine) {
         this.routeToStartLine.setWaypoints([touristLatLng, startPointLatLng]);
-      } else if (!this.tourExecution) { // Crtaj liniju samo ako tura nije aktivna
+      } else if (!this.tourExecution) {
         this.routeToStartLine = (L as any).Routing.control({
           waypoints: [touristLatLng, startPointLatLng],
           addWaypoints: false, fitSelectedRoutes: false, show: false,

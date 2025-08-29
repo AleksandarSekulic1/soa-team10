@@ -4,104 +4,42 @@
 .tour-card {
   button {
     margin-top: 15px;
-    padding: 10px;
-    background-color: #28a745;
+    padding: 10px 15px;
+    background-color: #007bff;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s ease-in-out;
     &:hover {
-      background-color: #218838;
+      background-color: #0056b3;
     }
   }
 }
 
 .reviews-section {
-  margin-top: 15px;
+  margin-top: 20px;
   border-top: 1px solid #eee;
-  padding-top: 10px;
+  padding-top: 15px;
 
   h4 {
     margin-bottom: 10px;
+    color: #333;
   }
-
   ul {
     list-style: none;
     padding-left: 0;
     font-size: 0.9em;
     li {
-      margin-bottom: 5px;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 8px;
+      background-color: #f9f9f9;
       color: #555;
-      small {
-        color: #999;
-      }
+      small { color: #999; }
     }
   }
-}
-
-// Modal stilovi
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0,0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background: white;
-  padding: 30px;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 500px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-
-  h3 {
-    margin-top: 0;
-  }
-}
-
-.form-group {
-  margin-bottom: 15px;
-  label {
-    display: block;
-    margin-bottom: 5px;
-  }
-  input, textarea {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
-
-  button {
-    padding: 10px 20px;
-    border-radius: 5px;
-    border: none;
-    cursor: pointer;
-    &[type="submit"] {
-      background-color: #007bff;
-      color: white;
-    }
-    &[type="button"] {
-      background-color: #ccc;
-    }
-  }
-}
-.reviews-section {
-  // ...
   .review-header {
     display: flex;
     justify-content: space-between;
@@ -110,6 +48,7 @@
   }
   .review-comment {
     margin-bottom: 10px;
+    font-style: italic;
   }
   .review-images {
     display: flex;
@@ -124,3 +63,225 @@
     }
   }
 }
+
+// Poboljšani stilovi za modal
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.modal-content {
+  background: white;
+  padding: 25px 30px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 550px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+  border-top: 5px solid #007bff;
+
+  h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 1.5em;
+  }
+}
+
+.form-group {
+  margin-bottom: 20px;
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
+  }
+  input, textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    &:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+    }
+  }
+}
+
+/* === NOVI STILOVI ZA SELEKTOR SLIKA === */
+.image-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 3px solid transparent;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+
+    &.selected {
+      border-color: #007bff;
+      box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+    }
+  }
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 25px;
+
+  button {
+    padding: 12px 25px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1em;
+    transition: background-color 0.2s, transform 0.1s;
+    
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+  .btn-submit {
+    background-color: #007bff;
+    color: white;
+    &:hover { background-color: #0056b3; }
+  }
+  .btn-cancel {
+    background-color: #f1f1f1;
+    color: #333;
+    &:hover { background-color: #e0e0e0; }
+  }
+}
+
+// ... (svi postojeći stilovi ostaju isti do .reviews-section) ...
+
+.reviews-section {
+  margin-top: 20px;
+  border-top: 1px solid #eee;
+  padding-top: 15px;
+  h4 {
+    margin-bottom: 10px;
+    color: #333;
+  }
+  .no-reviews-message {
+    color: #888;
+    font-style: italic;
+    text-align: center;
+    padding: 20px 0;
+  }
+}
+
+/* === STILOVI ZA SLIDER RECENZIJA === */
+.review-slider {
+  position: relative;
+  width: 100%;
+  overflow: hidden; // Sakriva sve slajdove osim trenutnog
+}
+
+.slider-track {
+  display: flex;
+  transition: transform 0.4s ease-in-out; // Animacija klizanja
+}
+
+.review-slide {
+  flex: 0 0 100%; // Svaki slajd zauzima 100% širine kontejnera
+  box-sizing: border-box;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+/* Stilovi za zvezdice */
+.star-rating {
+  font-size: 1.2em;
+  .star.filled {
+    color: #ffc107; // Žuta boja za popunjenu zvezdicu
+  }
+  .star {
+    color: #e0e0e0; // Siva boja za praznu zvezdicu
+  }
+}
+
+.review-comment {
+  margin-bottom: 10px;
+  font-style: italic;
+  color: #555;
+  min-height: 60px; // Fiksna minimalna visina za doslednost
+}
+
+.review-images {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+  }
+}
+
+.slider-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  padding: 0 5px;
+}
+
+.slider-arrow {
+  background-color: #e9ecef;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #555;
+  transition: background-color 0.2s;
+  &:hover {
+    background-color: #ced4da;
+  }
+}
+
+.slider-counter {
+  font-size: 0.9em;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+// ... (ostali stilovi za modal ostaju isti) ...

@@ -7,7 +7,7 @@
       <a routerLink="/home">Home</a>
     </li>
     <li *ngIf="authService.isTourist()">
-      <a routerLink="/tours">All tours</a>
+      <a routerLink="/tours">All tours-reviews</a>
     </li>
     <li>
       <a routerLink="/profile">Profile</a>
@@ -17,7 +17,7 @@
       <a routerLink="/users">All Users</a>
     </li>
    <li *ngIf="authService.isTourist()">
-    <a routerLink="/cart">Korpa</a>
+    <a routerLink="/cart">Cart</a>
     </li>
     <!-- Prikazuje se samo ako je korisnik VODIČ -->
     <li *ngIf="authService.isGuide()">
