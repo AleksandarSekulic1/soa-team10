@@ -145,3 +145,39 @@ func setupEncountersRoutes(router *mux.Router) {
 		encountersProxy.ServeHTTP(w, r)
 	})
 }
+
+// setupFollowerRoutes sets up routes for follower service
+func setupFollowerRoutes(router *mux.Router) {
+	followerURL, _ := url.Parse("http://follower-service:8086")
+	followerProxy := httputil.NewSingleHostReverseProxy(followerURL)
+
+	// Custom response modifier to ensure CORS headers
+	followerProxy.ModifyResponse = func(resp *http.Response) error {
+		resp.Header.Set("Access-Control-Allow-Origin", "http://localhost:4200")
+		resp.Header.Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		resp.Header.Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept, Origin, X-Requested-With")
+		resp.Header.Set("Access-Control-Allow-Credentials", "true")
+		resp.Header.Set("Access-Control-Max-Age", "86400")
+		return nil
+	}
+
+	// Handle OPTIONS preflight requests for follower
+	router.PathPrefix("/api/followers/").Methods("OPTIONS").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept, Origin, X-Requested-With")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+		w.Header().Set("Access-Control-Max-Age", "86400")
+		w.WriteHeader(http.StatusOK)
+	})
+
+	// Follower service routes - map /api/followers to root
+	router.PathPrefix("/api/followers/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Replace /api/followers with empty string for the backend service
+		r.URL.Path = r.URL.Path[len("/api/followers"):]
+		if r.URL.Path == "" {
+			r.URL.Path = "/"
+		}
+		followerProxy.ServeHTTP(w, r)
+	})
+}

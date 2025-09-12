@@ -21,6 +21,7 @@ type BlogRepository interface {
 	Create(blog *domain.Blog) error
 	GetById(id primitive.ObjectID) (*domain.Blog, error)
 	GetAll() ([]*domain.Blog, error)
+	GetBlogsByAuthors(authorIDs []string) ([]*domain.Blog, error) // <-- NOVA METODA
 	AddComment(blogID primitive.ObjectID, comment *domain.Comment) error // <-- NOVA METODA
 	AddLike(blogID primitive.ObjectID, like *domain.Like) error       // <-- NOVA METODA
 	RemoveLike(blogID primitive.ObjectID, userID string) error // <-- NOVA METODA
@@ -135,4 +136,28 @@ func (r *blogRepository) UpdateComment(blogID primitive.ObjectID, comment *domai
 
 	_, err := r.blogs.UpdateOne(context.TODO(), filter, update, arrayFilters)
 	return err
+}
+
+// IMPLEMENTACIJA NOVE METODE ZA BLOGOVE OD SPECIFIČNIH AUTORA
+func (r *blogRepository) GetBlogsByAuthors(authorIDs []string) ([]*domain.Blog, error) {
+	// Kreiramo filter koji traži blogove čiji authorId je u listi authorIDs
+	filter := bson.M{"authorId": bson.M{"$in": authorIDs}}
+	
+	// Sortiramo po datumu kreiranja (najnoviji prvi)
+	opts := options.Find().SetSort(bson.D{{"createdAt", -1}})
+	
+	cursor, err := r.blogs.Find(context.TODO(), filter, opts)
+	if err != nil {
+		log.Println("Error finding blogs by authors:", err)
+		return nil, err
+	}
+	defer cursor.Close(context.TODO())
+
+	var blogs []*domain.Blog
+	if err = cursor.All(context.TODO(), &blogs); err != nil {
+		log.Println("Error decoding blogs by authors:", err)
+		return nil, err
+	}
+
+	return blogs, nil
 }

@@ -3,13 +3,17 @@
 package api
 
 import (
+	"encoding/json"
 	"errors" // <-- DODAT IMPORT
+	"io"
 	"net/http"
+	"time"
 
 	"blog-service/domain"
 	"blog-service/service"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -283,4 +287,86 @@ func (h *BlogHandler) UpdateComment(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Comment updated successfully"})
+}
+
+// @Summary Prikaz blogova od praćenih korisnika
+// @Security ApiKeyAuth
+// @Description Vraća listu blog objava od korisnika koje trenutni korisnik prati. Zahteva autorizaciju.
+// @Produce  json
+// @Success 200 {array} domain.Blog "Lista blogova od praćenih korisnika"
+// @Failure 401 {object} map[string]string "Neautorizovan pristup"
+// @Failure 500 {object} map[string]string "Interna greška servera"
+// @Router /blogs/following [get]
+func (h *BlogHandler) GetBlogsFromFollowing(c *gin.Context) {
+	userID, exists := c.Get("username")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Username not found in token"})
+		return
+	}
+
+	// Pozovi follower service da dobijemo listu korisnika koje pratimo
+	followedUserIds, err := h.getFollowedUserIds(userID.(string))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get followed users"})
+		return
+	}
+
+	// Dobij sve blogove od praćenih korisnika
+	blogs, err := h.service.GetBlogsByAuthors(followedUserIds)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve blogs from following"})
+		return
+	}
+
+	c.JSON(http.StatusOK, blogs)
+}
+
+// Helper funkcija za pozivanje follower service-a
+func (h *BlogHandler) getFollowedUserIds(userID string) ([]string, error) {
+	// Pozovi follower service preko HTTP klijenta
+	client := &http.Client{}
+	
+	// Kreiraj JWT token za inter-service komunikaciju
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"id":       userID,
+		"username": userID,
+		"exp":      time.Now().Add(time.Hour * 1).Unix(),
+	})
+	
+	tokenString, err := token.SignedString([]byte("super_secret_key"))
+	if err != nil {
+		return nil, err
+	}
+	
+	req, err := http.NewRequest("GET", "http://follower-service:8086/api/followed-users", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	// Dodaj Authorization header
+	req.Header.Set("Authorization", "Bearer "+tokenString)
+	
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, errors.New("failed to get followed user ids")
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var response struct {
+		UserIds []string `json:"userIds"`
+	}
+	if err := json.Unmarshal(body, &response); err != nil {
+		return nil, err
+	}
+
+	return response.UserIds, nil
 }

@@ -25,6 +25,7 @@ type Claims struct {
 type BlogService interface {
 	Create(blog *domain.Blog) error
 	GetAll() ([]*domain.Blog, error)
+	GetBlogsByAuthors(authorIDs []string) ([]*domain.Blog, error) // <-- NOVA METODA
 	AddComment(blogID primitive.ObjectID, comment *domain.Comment) error // <-- NOVA METODA
 	ToggleLike(blogID primitive.ObjectID, userID string) error // <-- NOVA METODA
 	GetById(id primitive.ObjectID) (*domain.Blog, error)       // <-- NOVA METODA
@@ -51,6 +52,15 @@ func (s *blogService) Create(blog *domain.Blog) error {
 
 func (s *blogService) GetAll() ([]*domain.Blog, error) {
 	return s.repo.GetAll()
+}
+
+// IMPLEMENTACIJA NOVE METODE ZA BLOGOVE OD PRAĆENIH KORISNIKA
+func (s *blogService) GetBlogsByAuthors(authorIDs []string) ([]*domain.Blog, error) {
+	if len(authorIDs) == 0 {
+		// Ako nema praćenih korisnika, vrati praznu listu
+		return []*domain.Blog{}, nil
+	}
+	return s.repo.GetBlogsByAuthors(authorIDs)
 }
 
 // IMPLEMENTACIJA NOVE METODE

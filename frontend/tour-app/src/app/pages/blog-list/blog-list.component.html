@@ -1,18 +1,48 @@
 <div class="blog-list-container">
-  <h1>Blog Feed</h1>
-  <button (click)="createBlog()">Create New Post</button>
+  <div class="blog-header">
+    <h1>Blog Feed</h1>
+    <div class="blog-controls">
+      <button (click)="createBlog()" class="create-btn">Create New Post</button>
+      <div class="filter-toggle">
+        <label class="toggle-label">
+          <input 
+            type="checkbox" 
+            [checked]="showFollowedOnly" 
+            (change)="toggleFilter()"
+          />
+          <span class="toggle-text">
+            {{ showFollowedOnly ? 'Following Only' : 'All Posts' }}
+          </span>
+        </label>
+      </div>
+    </div>
+  </div>
   
   <div *ngIf="blogs$ | async as blogs; else loading">
+    <div *ngIf="blogs.length === 0 && showFollowedOnly" class="empty-state">
+      <h3>No posts from people you follow</h3>
+      <p>Start following people to see their posts here!</p>
+      <button (click)="toggleFilter()" class="show-all-btn">Show All Posts</button>
+    </div>
+    
+    <div *ngIf="blogs.length === 0 && !showFollowedOnly" class="empty-state">
+      <h3>No blog posts yet</h3>
+      <p>Be the first to create a post!</p>
+    </div>
+    
     <div *ngFor="let blog of blogs" class="blog-card">
       <h2>{{ blog.Title }}</h2>
       <p>by {{ blog.AuthorID }} on {{ blog.CreatedAt | date: 'medium' }}</p>
       <p class="content-preview">{{ blog.Content | slice:0:200 }}...</p>
-      <button (click)="viewBlog(blog.ID)">View Details</button>
+      <div class="blog-stats">
+        <span class="likes">❤️ {{ blog.Likes.length || 0 }}</span>
+        <span class="comments">💬 {{ blog.Comments.length || 0 }}</span>
+      </div>
+      <button (click)="viewBlog(blog.ID)" class="view-btn">View Details</button>
     </div>
-    
-    </div>
+  </div>
 
   <ng-template #loading>
-    <p>Loading posts...</p>
+    <p class="loading">Loading posts...</p>
   </ng-template>
 </div>

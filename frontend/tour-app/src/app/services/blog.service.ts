@@ -24,6 +24,14 @@ export class BlogService {
   }
 
   /**
+   * Dobavlja blogove od praćenih korisnika. (GET /api/blogs/following)
+   */
+  getBlogsFromFollowing(): Observable<Blog[]> {
+    // AuthInterceptor će automatski dodati token
+    return this.http.get<Blog[]>(`${this.apiUrl}/following`);
+  }
+
+  /**
    * Dobavlja jedan specifičan blog po ID-u. (GET /api/blogs/:id)
    * @param id ID bloga koji se traži
    */

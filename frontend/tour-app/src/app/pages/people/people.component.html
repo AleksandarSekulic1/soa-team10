@@ -1,0 +1,133 @@
+<div class="people-container">
+  <div class="people-header">
+    <h2>People</h2>
+    <div class="tabs">
+      <button 
+        [class.active]="currentTab === 'discover'"
+        (click)="setTab('discover')"
+      >
+        Discover ({{ allUsers.length }})
+      </button>
+      <button 
+        [class.active]="currentTab === 'following'"
+        (click)="setTab('following')"
+      >
+        Following ({{ following.length }})
+      </button>
+      <button 
+        [class.active]="currentTab === 'followers'"
+        (click)="setTab('followers')"
+      >
+        Followers ({{ followers.length }})
+      </button>
+    </div>
+  </div>
+
+  <div class="people-content">
+    <!-- Discover Tab -->
+    <div *ngIf="currentTab === 'discover'" class="tab-content">
+      <div *ngIf="recommendations.length > 0" class="recommendations-section">
+        <h3>Recommended for you</h3>
+        <div class="user-grid">
+          <div *ngFor="let rec of recommendations; trackBy: trackByRecommendationId" class="user-card recommended">
+            <div class="user-info">
+              <div class="user-avatar">
+                <img [src]="'assets/images/default-avatar.png'" [alt]="rec.user.username">
+              </div>
+              <div class="user-details">
+                <h4>{{ rec.user.username }}</h4>
+                <p class="user-name">{{ rec.user.firstName }} {{ rec.user.lastName }}</p>
+                <p class="recommendation-reason">{{ rec.reason }}</p>
+                <small *ngIf="rec.mutualFollowers > 0">
+                  {{ rec.mutualFollowers }} mutual followers
+                </small>
+              </div>
+            </div>
+            <app-follow-button 
+              [userId]="rec.user.id" 
+              [isCurrentUser]="rec.user.id === currentUserId"
+              (followStatusChanged)="onFollowStatusChanged(rec.user.id, $event)">
+            </app-follow-button>
+          </div>
+        </div>
+      </div>
+
+      <div class="all-users-section">
+        <h3>All Users</h3>
+        <div *ngIf="isLoading" class="loading">Loading users...</div>
+        <div *ngIf="!isLoading" class="user-grid">
+          <div *ngFor="let user of allUsers; trackBy: trackByUserId" class="user-card">
+            <div class="user-info">
+              <div class="user-avatar">
+                <img [src]="'assets/images/default-avatar.png'" [alt]="user.username">
+              </div>
+              <div class="user-details">
+                <h4>{{ user.username }}</h4>
+                <p class="user-name">{{ user.firstName }} {{ user.lastName }}</p>
+                <p class="user-email">{{ user.email }}</p>
+              </div>
+            </div>
+            <app-follow-button 
+              [userId]="user.id" 
+              [isCurrentUser]="user.id === currentUserId"
+              (followStatusChanged)="onFollowStatusChanged(user.id, $event)">
+            </app-follow-button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Following Tab -->
+    <div *ngIf="currentTab === 'following'" class="tab-content">
+      <div *ngIf="following.length === 0" class="empty-state">
+        <p>You're not following anyone yet. Discover people to follow!</p>
+        <button (click)="setTab('discover')" class="discover-btn">Discover People</button>
+      </div>
+      <div *ngIf="following.length > 0" class="user-grid">
+        <div *ngFor="let user of following; trackBy: trackByUserId" class="user-card">
+          <div class="user-info">
+            <div class="user-avatar">
+              <img [src]="'assets/images/default-avatar.png'" [alt]="user.username">
+            </div>
+            <div class="user-details">
+              <h4>{{ user.username }}</h4>
+              <p class="user-name">{{ user.firstName }} {{ user.lastName }}</p>
+              <p class="user-email">{{ user.email }}</p>
+            </div>
+          </div>
+          <app-follow-button 
+            [userId]="user.id" 
+            [isCurrentUser]="user.id === currentUserId"
+            (followStatusChanged)="onFollowStatusChanged(user.id, $event)">
+          </app-follow-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Followers Tab -->
+    <div *ngIf="currentTab === 'followers'" class="tab-content">
+      <div *ngIf="followers.length === 0" class="empty-state">
+        <p>No followers yet. Share your content to get followers!</p>
+      </div>
+      <div *ngIf="followers.length > 0" class="user-grid">
+        <div *ngFor="let user of followers; trackBy: trackByUserId" class="user-card">
+          <div class="user-info">
+            <div class="user-avatar">
+              <img [src]="'assets/images/default-avatar.png'" [alt]="user.username">
+            </div>
+            <div class="user-details">
+              <h4>{{ user.username }}</h4>
+              <p class="user-name">{{ user.firstName }} {{ user.lastName }}</p>
+              <p class="user-email">{{ user.email }}</p>
+            </div>
+          </div>
+          <app-follow-button 
+            [userId]="user.id" 
+            [isCurrentUser]="user.id === currentUserId"
+            (followStatusChanged)="onFollowStatusChanged(user.id, $event)">
+          </app-follow-button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

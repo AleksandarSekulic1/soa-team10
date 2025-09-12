@@ -25,6 +25,7 @@ func main() {
 	setupBlogRoutes(router)
 	setupToursRoutes(router)
 	setupEncountersRoutes(router)
+	setupFollowerRoutes(router)
 
 	log.Println("API Gateway starting on port 8080...")
 	log.Fatal(http.ListenAndServe(":8080", router))
