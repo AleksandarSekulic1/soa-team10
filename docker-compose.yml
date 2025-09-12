@@ -104,6 +104,37 @@ services:
       - mongo-db
     restart: on-failure
 
+  # --- API GATEWAY ---
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    ports:
+      - "8080:8080" # Gateway port
+    depends_on:
+      - stakeholders-service
+      - payments-service
+      - blog-service
+      - tours-service
+      - encounters-service
+    restart: on-failure
+
+  # --- FRONTEND ---
+  frontend:
+    build:
+      context: ./frontend/tour-app
+      dockerfile: Dockerfile.dev
+    container_name: frontend
+    ports:
+      - "4200:4200" # Development mode port
+    volumes:
+      - ./frontend/tour-app/src:/app/src
+      - ./frontend/tour-app/proxy.conf.json:/app/proxy.conf.json
+    depends_on:
+      - api-gateway
+    restart: on-failure
+
 volumes:
   postgres-data:
   neo4j-data:

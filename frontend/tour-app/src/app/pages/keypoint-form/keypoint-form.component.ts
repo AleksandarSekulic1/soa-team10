@@ -7,10 +7,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TourService } from '../../services/tour.service';
 import { TourKeyPoint } from '../../models/tour.model';
 
-// 1. Uvozimo SAMO slike, ne i celu 'leaflet' biblioteku
-import iconUrl from 'leaflet/dist/images/marker-icon.png';
-import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
-import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
+// Koristimo string putanje umesto import-a za slike
+const iconUrl = 'assets/images/marker-icon.png';
+const iconRetinaUrl = 'assets/images/marker-icon-2x.png';
+const shadowUrl = 'assets/images/marker-shadow.png';
 
 @Component({
   selector: 'app-keypoint-form',

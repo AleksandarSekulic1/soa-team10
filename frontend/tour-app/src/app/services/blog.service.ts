@@ -4,13 +4,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Blog } from '../models/blog.model'; // Uvozimo naš novi model
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BlogService {
-  // URL do tvog blog-service-a. Port je 8082 kao što smo definisali na backendu.
-  private apiUrl = 'http://localhost:8082/api/blogs';
+  // URL do API Gateway-a koji će proslediti zahteve blog-service-u
+  private apiUrl = `${environment.apiUrl}/blog`;
 
   constructor(private http: HttpClient) { }
 

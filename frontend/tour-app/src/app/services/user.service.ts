@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { User } from '../models/user.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-  // ISPRAVKA: Vraćamo kosu crtu (/) na kraj, da odgovara vašem backendu.
-  private apiUrl = '/api/stakeholders';
+  // Koristimo API Gateway
+  private apiUrl = `${environment.apiUrl}/stakeholders`;
 
   constructor(private http: HttpClient) { }
 

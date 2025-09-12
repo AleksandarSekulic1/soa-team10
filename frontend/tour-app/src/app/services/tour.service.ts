@@ -5,15 +5,15 @@ import { catchError } from 'rxjs/operators'; // <-- Dodat je novi import za catc
 import { Tour, TourKeyPoint, TourTransport } from '../models/tour.model';
 import { TouristPosition } from '../models/tourist-position.model';
 import { TourExecution } from '../models/tour-execution.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TourService {
-  private apiUrl = 'http://localhost:8083/api/tours';
-// --- IZMENA OVE LINIJE ---
-  private positionApiUrl = 'http://localhost:8085/api/tourist-position';
-  private executionApiUrl = 'http://localhost:8085/api/tour-executions';
+  private apiUrl = `${environment.apiUrl}/tours`;
+  private positionApiUrl = `${environment.apiUrl}/encounters/tourist-position`;
+  private executionApiUrl = `${environment.apiUrl}/encounters/tour-executions`;
   constructor(private http: HttpClient) { }
 
   createTour(tourData: any): Observable<any> {
