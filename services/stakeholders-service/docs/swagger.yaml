@@ -1,0 +1,307 @@
+basePath: /api
+definitions:
+  api.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  domain.User:
+    properties:
+      biography:
+        example: Ja sam Pera...
+        type: string
+      email:
+        example: turista@mail.com
+        type: string
+      firstName:
+        description: Podaci za profil - za funkcionalnosti 4 i 5
+        example: Pera
+        type: string
+      isBlocked:
+        description: Za funkcionalnost 3
+        example: false
+        type: boolean
+      lastName:
+        example: Peric
+        type: string
+      motto:
+        example: Carpe diem
+        type: string
+      password:
+        description: Dodato omitempty
+        example: sigurna-lozinka-456
+        type: string
+      profilePicture:
+        example: path/to/image.jpg
+        type: string
+      role:
+        example: turista
+        type: string
+      username:
+        description: Podaci za nalog
+        example: turista123
+        type: string
+    type: object
+host: localhost:8081
+info:
+  contact: {}
+  description: API za upravljanje korisnicima (Stakeholders) u turističkoj aplikaciji.
+  title: Stakeholders Service API
+  version: "1.0"
+paths:
+  /stakeholders:
+    get:
+      description: Vraća listu svih korisničkih naloga bez lozinki.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Lista svih korisnika
+          schema:
+            items:
+              $ref: '#/definitions/domain.User'
+            type: array
+        "401":
+          description: Neautorizovan pristup
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Pristup zabranjen (potrebna admin uloga)
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Interna greška servera
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Prikaz svih korisničkih naloga (samo za admine)
+  /stakeholders/{username}/block:
+    put:
+      description: Postavlja status korisnika na 'blokiran'.
+      parameters:
+      - description: Korisničko ime korisnika koji se blokira
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Poruka o uspehu
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Neautorizovan pristup
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Pristup zabranjen (potrebna admin uloga)
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Interna greška servera
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Blokiranje korisnika (samo za admine)
+  /stakeholders/{username}/unblock:
+    put:
+      description: Postavlja status korisnika na 'aktivan'.
+      parameters:
+      - description: Korisničko ime korisnika koji se odblokira
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Poruka o uspehu
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Neautorizovan pristup
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Pristup zabranjen (potrebna admin uloga)
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Interna greška servera
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Odblokiranje korisnika (samo za admine)
+  /stakeholders/login:
+    post:
+      consumes:
+      - application/json
+      description: Autentifikuje korisnika i vraća JWT token.
+      parameters:
+      - description: Korisničko ime i lozinka
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/api.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Uspešna prijava, vraća token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: 'Greška: Neispravni kredencijali'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Korisnik je blokiran
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Interna greška servera
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Prijava korisnika
+  /stakeholders/profile:
+    get:
+      description: Vraća sve podatke o profilu korisnika koji je trenutno ulogovan.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Podaci o profilu
+          schema:
+            $ref: '#/definitions/domain.User'
+        "401":
+          description: Neautorizovan pristup
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Korisnik nije pronađen
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Dobavljanje profila ulogovanog korisnika
+    put:
+      consumes:
+      - application/json
+      description: Ažurira podatke o profilu (ime, prezime, bio, moto...) za ulogovanog
+        korisnika.
+      parameters:
+      - description: Podaci za ažuriranje profila
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/domain.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Ažurirani podaci o profilu
+          schema:
+            $ref: '#/definitions/domain.User'
+        "400":
+          description: Neispravan format zahteva
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Neautorizovan pristup
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Interna greška servera
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Ažuriranje profila ulogovanog korisnika
+  /stakeholders/register:
+    post:
+      consumes:
+      - application/json
+      description: Kreira novog korisnika sa ulogom 'turista' ili 'vodič'.
+      parameters:
+      - description: Podaci za registraciju korisnika
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/domain.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Uspešno kreiran korisnik
+          schema:
+            $ref: '#/definitions/domain.User'
+        "400":
+          description: 'Greška: Neispravan format zahteva'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Interna greška servera
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Registracija novog korisnika
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

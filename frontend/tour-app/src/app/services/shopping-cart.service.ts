@@ -1,0 +1,86 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { AuthService } from './auth.service';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ShoppingCartService {
+  private apiUrl = 'http://localhost:8084/api/shopping-cart';
+
+  private cartSubject = new BehaviorSubject<any>(null);
+  cart$ = this.cartSubject.asObservable();
+
+  private purchasedToursSubject = new BehaviorSubject<string[]>([]);
+  purchasedTours$ = this.purchasedToursSubject.asObservable();
+
+  constructor(private http: HttpClient, private authService: AuthService) {
+    // AŽURIRANA LOGIKA: Reagujemo na promenu korisnika, ne samo na status prijave.
+    // Ovo je pouzdanije i rešava problem koji ste opisali.
+    this.authService.currentUser.subscribe(user => {
+      if (user) {
+        // Ako postoji ulogovan korisnik, učitaj njegove kupljene ture i korpu.
+        this.loadPurchasedTours().subscribe();
+        this.getCart().subscribe(); // Dobra je praksa i korpu učitati odmah.
+      } else {
+        // Ako nema korisnika (odjava), očisti sve podatke.
+        this.purchasedToursSubject.next([]);
+        this.cartSubject.next(null);
+      }
+    });
+  }
+
+  getCart(): Observable<any> {
+    const touristUsername = this.authService.getUsername();
+    if (!touristUsername) throw new Error('Korisnik nije ulogovan');
+    return this.http.get<any>(`${this.apiUrl}/${touristUsername}`).pipe(
+      tap(cart => this.cartSubject.next(cart))
+    );
+  }
+
+  addItemToCart(tour: any): Observable<any> {
+    const touristUsername = this.authService.getUsername();
+    if (!touristUsername) throw new Error('Korisnik nije ulogovan');
+    const orderItem = {
+      tourName: tour.name,
+      price: tour.price > 0 ? tour.price : 50.0,
+      tourId: tour.id
+    };
+    return this.http.post<any>(`${this.apiUrl}/${touristUsername}/items`, orderItem).pipe(
+      tap(cart => this.cartSubject.next(cart))
+    );
+  }
+
+  removeItemFromCart(itemId: string): Observable<any> {
+    const touristUsername = this.authService.getUsername();
+    if (!touristUsername) throw new Error('Korisnik nije ulogovan');
+    return this.http.delete<any>(`${this.apiUrl}/${touristUsername}/items/${itemId}`).pipe(
+      tap(cart => this.cartSubject.next(cart))
+    );
+  }
+
+  loadPurchasedTours(): Observable<any[]> {
+    const touristUsername = this.authService.getUsername();
+    if (!touristUsername) return new Observable(sub => sub.complete());
+
+    return this.http.get<any[]>(`${this.apiUrl}/${touristUsername}/tokens`).pipe(
+      tap(tokens => {
+        const tourIds = tokens.map(token => token.tourId);
+        this.purchasedToursSubject.next(tourIds);
+      })
+    );
+  }
+
+  checkout(): Observable<any> {
+    const touristUsername = this.authService.getUsername();
+    if (!touristUsername) throw new Error('Korisnik nije ulogovan');
+
+    return this.http.post<any>(`${this.apiUrl}/${touristUsername}/checkout`, {}).pipe(
+      tap(() => {
+        this.getCart().subscribe();
+        this.loadPurchasedTours().subscribe();
+      })
+    );
+  }
+}

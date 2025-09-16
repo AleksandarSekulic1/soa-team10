@@ -1,0 +1,48 @@
+/* Glavni kontejner za navigaciju */
+nav {
+  display: flex;
+  justify-content: space-between; /* Postavlja elemente na levu i desnu stranu */
+  align-items: center; /* Vertikalno centrira sve elemente */
+  width: 100%; /* <-- SIRINA PREKO CELE STRANICE */
+  height: 65px; /* <-- OVDE MENJATE VISINU NAVIGACIONOG BARA */
+  background-color: #2c3e50; /* Tamno plava pozadina, možete staviti koju god boju želite */
+  padding: 0 2rem; /* Unutrašnje rastojanje levo i desno */
+  box-sizing: border-box; /* Osigurava da padding ne poveća ukupnu širinu */
+}
+
+/* Stil za naziv aplikacije sa leve strane */
+.nav-brand a {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: white;
+  text-decoration: none;
+}
+
+/* Stilovi za listu sa linkovima */
+.nav-links {
+  list-style-type: none; /* Uklanja tačkice ispred liste */
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem; /* Razmak između elemenata u listi */
+}
+
+/* Zajednički stil za linkove i dugmiće u navigaciji */
+.nav-links a, .nav-links button {
+  color: white;
+  text-decoration: none;
+  font-size: 1rem;
+  background: none;
+  border: 1px solid transparent; /* Dodajemo providnu ivicu radi boljeg prikaza na hover */
+  cursor: pointer;
+  padding: 8px 15px;
+  border-radius: 5px;
+  transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+
+  /* Efekat pri prelasku mišem */
+  &:hover {
+    background-color: #34495e;
+    border-color: #4e6a85;
+  }
+}

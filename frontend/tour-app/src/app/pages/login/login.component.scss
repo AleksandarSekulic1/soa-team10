@@ -1,0 +1,100 @@
+// :host selektor se odnosi na samu <app-login> komponentu
+// Koristimo ga da napravimo pozadinu i centriramo sadržaj
+:host {
+  display: flex;
+  justify-content: center; // Horizontalno centriranje
+  align-items: center;     // Vertikalno centriranje
+  width: 100%;
+  min-height: 100vh;       // Osigurava da zauzima celu visinu ekrana
+  background-color: #f4f7f9; // Svetlo siva pozadina za celu stranicu
+}
+
+// Glavni kontejner za login formu
+.login-container {
+  width: 100%;
+  max-width: 450px; // <-- OVDE MENJATE MAKSIMALNU ŠIRINU FORME
+  padding: 2.5rem;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); // Senka za "kartica" efekat
+  text-align: center;
+}
+
+h2 {
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+  text-align: left;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #555;
+}
+
+input[type="text"],
+input[type="password"] {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+  box-sizing: border-box; // Da padding ne utiče na širinu
+  transition: border-color 0.2s;
+
+  &:focus {
+    border-color: #007bff;
+    outline: none;
+  }
+}
+
+button[type="submit"] {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 5px;
+  background-color: #007bff; // Plava boja
+  color: white;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover:not(:disabled) {
+    background-color: #0056b3; // Tamnija plava na hover
+  }
+
+  &:disabled {
+    background-color: #a0c7ff;
+    cursor: not-allowed;
+  }
+}
+
+// Vaši postojeći stilovi
+.error-message {
+  margin-top: 15px;
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.register-link {
+  margin-top: 25px;
+  font-size: 15px;
+  color: #555;
+
+  a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 600;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

@@ -1,0 +1,526 @@
+basePath: /api
+definitions:
+  domain.Tour:
+    properties:
+      archivedAt:
+        description: Vreme arhiviranja
+        type: string
+      authorId:
+        type: string
+      description:
+        type: string
+      difficulty:
+        type: integer
+      distance:
+        description: '--- NOVA POLJA ---'
+        type: number
+      id:
+        type: string
+      keyPoints:
+        items:
+          $ref: '#/definitions/domain.TourKeyPoint'
+        type: array
+      name:
+        type: string
+      price:
+        type: number
+      publishedAt:
+        description: Vreme objave
+        type: string
+      reviews:
+        items:
+          $ref: '#/definitions/domain.TourReview'
+        type: array
+      status:
+        allOf:
+        - $ref: '#/definitions/domain.TourStatus'
+        description: 'IZMENA: Koristimo novi tip'
+      tags:
+        items:
+          type: string
+        type: array
+      transportInfo:
+        description: Lista vremena putovanja
+        items:
+          $ref: '#/definitions/domain.TourTransport'
+        type: array
+    required:
+    - description
+    - difficulty
+    - name
+    type: object
+  domain.TourKeyPoint:
+    properties:
+      description:
+        type: string
+      id:
+        type: string
+      imageUrl:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      name:
+        type: string
+      tourId:
+        type: string
+    required:
+    - latitude
+    - longitude
+    - name
+    type: object
+  domain.TourReview:
+    properties:
+      comment:
+        type: string
+      commentDate:
+        type: string
+      id:
+        type: string
+      imageUrls:
+        items:
+          type: string
+        type: array
+      rating:
+        maximum: 5
+        minimum: 1
+        type: integer
+      touristId:
+        type: string
+      visitDate:
+        type: string
+    required:
+    - rating
+    - visitDate
+    type: object
+  domain.TourStatus:
+    enum:
+    - draft
+    - published
+    - archived
+    type: string
+    x-enum-varnames:
+    - TourStatusDraft
+    - TourStatusPublished
+    - TourStatusArchived
+  domain.TourTransport:
+    properties:
+      timeInMinutes:
+        type: integer
+      type:
+        $ref: '#/definitions/domain.TransportType'
+    type: object
+  domain.TransportType:
+    enum:
+    - walking
+    - bicycle
+    - car
+    type: string
+    x-enum-varnames:
+    - TransportTypeWalking
+    - TransportTypeBicycle
+    - TransportTypeCar
+host: localhost:8083
+info:
+  contact: {}
+  description: API for managing tours.
+  title: Tours Service API
+  version: "1.0"
+paths:
+  /tours:
+    get:
+      description: Vraća listu svih tura dostupnih u sistemu.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Lista svih tura
+          schema:
+            items:
+              $ref: '#/definitions/domain.Tour'
+            type: array
+      summary: Prikaz svih tura
+    post:
+      consumes:
+      - application/json
+      description: Kreira novu turu sa statusom 'draft' i cenom 0. Zahteva autentikaciju.
+      parameters:
+      - description: Podaci o turi (bez statusa, cene i authorId)
+        in: body
+        name: tour
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Tour'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Uspešno kreirana tura
+          schema:
+            $ref: '#/definitions/domain.Tour'
+        "400":
+          description: 'Greška: Neispravan format zahteva'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: 'Greška: Korisnik nije autorizovan'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Kreiranje nove ture
+  /tours/{id}:
+    get:
+      description: Vraća detalje specifične ture na osnovu njenog ID-ja.
+      parameters:
+      - description: ID Ture
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Detalji ture
+          schema:
+            $ref: '#/definitions/domain.Tour'
+        "404":
+          description: 'Greška: Tura nije pronađena'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Prikaz jedne ture po ID-ju
+  /tours/{id}/archive:
+    post:
+      description: Menja status ture u 'archived'.
+      parameters:
+      - description: ID Ture
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Uspešno arhivirana tura
+          schema:
+            $ref: '#/definitions/domain.Tour'
+        "400":
+          description: 'Greška: Tura nije objavljena'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: 'Greška: Korisnik nije autorizovan'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: 'Greška: Nemate dozvolu'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Arhiviranje ture
+  /tours/{id}/keypoints:
+    post:
+      consumes:
+      - application/json
+      description: Dodaje novu ključnu tačku na turu sa datim ID-jem. Samo autor ture
+        može dodati tačku.
+      parameters:
+      - description: ID Ture
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Podaci o ključnoj tački
+        in: body
+        name: keyPoint
+        required: true
+        schema:
+          $ref: '#/definitions/domain.TourKeyPoint'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Uspešno dodata ključna tačka
+          schema:
+            $ref: '#/definitions/domain.TourKeyPoint'
+      security:
+      - ApiKeyAuth: []
+      summary: Dodavanje ključne tačke na turu
+  /tours/{id}/keypoints/{keypointId}:
+    delete:
+      description: Briše ključnu tačku sa ture.
+      parameters:
+      - description: ID Ture
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: ID Ključne tačke
+        in: path
+        name: keypointId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Poruka o uspehu
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Brisanje ključne tačke
+    put:
+      consumes:
+      - application/json
+      description: Ažurira postojeću ključnu tačku na turi.
+      parameters:
+      - description: ID Ture
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: ID Ključne tačke
+        in: path
+        name: keypointId
+        required: true
+        type: string
+      - description: Novi podaci o ključnoj tački
+        in: body
+        name: keyPoint
+        required: true
+        schema:
+          $ref: '#/definitions/domain.TourKeyPoint'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Uspešno ažurirana ključna tačka
+          schema:
+            $ref: '#/definitions/domain.TourKeyPoint'
+      security:
+      - ApiKeyAuth: []
+      summary: Ažuriranje ključne tačke
+  /tours/{id}/publish:
+    post:
+      description: Menja status ture u 'published' ako su ispunjeni svi uslovi.
+      parameters:
+      - description: ID Ture
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Uspešno objavljena tura
+          schema:
+            $ref: '#/definitions/domain.Tour'
+        "400":
+          description: 'Greška: Uslovi za objavljivanje nisu ispunjeni'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: 'Greška: Korisnik nije autorizovan'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: 'Greška: Nemate dozvolu'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Objavljivanje ture
+  /tours/{id}/reactivate:
+    post:
+      description: Menja status arhivirane ture nazad u 'published'.
+      parameters:
+      - description: ID Ture
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Uspešno reaktivirana tura
+          schema:
+            $ref: '#/definitions/domain.Tour'
+        "400":
+          description: 'Greška: Tura nije arhivirana'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: 'Greška: Korisnik nije autorizovan'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: 'Greška: Nemate dozvolu'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Ponovno aktiviranje ture
+  /tours/{id}/reviews:
+    post:
+      consumes:
+      - application/json
+      description: Dodaje novu recenziju na turu sa datim ID-jem. Zahteva autentikaciju.
+      parameters:
+      - description: ID Ture
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Podaci o recenziji
+        in: body
+        name: review
+        required: true
+        schema:
+          $ref: '#/definitions/domain.TourReview'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Poruka o uspehu
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Dodavanje recenzije na turu
+  /tours/{id}/transport-info:
+    post:
+      consumes:
+      - application/json
+      description: Dodaje ili ažurira informacije o vremenu putovanja za turu.
+      parameters:
+      - description: ID Ture
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Lista informacija o transportu
+        in: body
+        name: transportInfo
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/domain.TourTransport'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Uspešno ažurirana tura
+          schema:
+            $ref: '#/definitions/domain.Tour'
+        "400":
+          description: 'Greška: Neispravan format zahteva'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: 'Greška: Korisnik nije autorizovan'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: 'Greška: Nemate dozvolu'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Dodavanje informacija o transportu
+  /tours/archived:
+    get:
+      description: Vraća listu tura koje imaju status 'archived'. Za svaku turu prikazuje
+        samo prvu ključnu tačku.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Lista arhiviranih tura
+          schema:
+            items:
+              $ref: '#/definitions/domain.Tour'
+            type: array
+      summary: Prikaz svih arhiviranih tura
+  /tours/my-tours:
+    get:
+      description: Vraća listu svih tura koje je kreirao autor čiji se token koristi.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Lista tura
+          schema:
+            items:
+              $ref: '#/definitions/domain.Tour'
+            type: array
+        "401":
+          description: 'Greška: Korisnik nije autorizovan'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Prikaz tura kreiranih od strane ulogovanog autora
+  /tours/published:
+    get:
+      description: Vraća listu tura koje imaju status 'published'. Za svaku turu prikazuje
+        samo prvu ključnu tačku.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Lista objavljenih tura
+          schema:
+            items:
+              $ref: '#/definitions/domain.Tour'
+            type: array
+      summary: Prikaz svih objavljenih tura (za turiste)
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

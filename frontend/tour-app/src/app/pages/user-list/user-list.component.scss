@@ -1,0 +1,135 @@
+.user-list-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 2rem auto;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  color: #333;
+  font-size: 2.2rem;
+}
+
+// Mreža za kartice - ključni deo za responsive layout
+.user-cards-grid {
+  display: grid;
+  // Kreira kolone koje su široke najmanje 300px, a najviše 1fr (jednak deo prostora)
+  // Automatski se prilagođava broju kolona u zavisnosti od širine ekrana
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem; // Razmak između kartica
+}
+
+// Stil za pojedinačnu karticu
+.user-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; // Osigurava da sve ostane unutar zaobljenih ivica
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+  }
+}
+
+// Gornji deo kartice sa slikom i imenom
+.card-header {
+  display: flex;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #f0f0f0;
+
+  img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 1rem;
+  }
+
+  h4 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #333;
+  }
+
+  p {
+    margin: 0;
+    color: #777;
+    font-size: 0.9rem;
+  }
+}
+
+// Srednji deo kartice sa informacijama
+.card-body {
+  padding: 1.5rem;
+  flex-grow: 1; // Osigurava da ovaj deo raste i popunjava prostor
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+  font-size: 0.95rem;
+
+  strong {
+    color: #555;
+  }
+}
+
+// Status (Active/Blocked)
+.status {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: white;
+  background-color: #27ae60; // Zelena za "Active"
+
+  &.blocked {
+    background-color: #e74c3c; // Crvena za "Blocked"
+  }
+}
+
+// Donji deo kartice sa dugmićima
+.card-actions {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+  background-color: #f9fafb;
+}
+
+.action-btn {
+  flex: 1; // Dugmad dele prostor jednako
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+// Stilovi za dugmad
+.action-btn {
+  background-color: #e74c3c; // Crvena za "Block"
+  &:hover { background-color: #c0392b; }
+}
+
+.unblock-btn {
+  background-color: #27ae60; // Zelena za "Unblock"
+  &:hover { background-color: #229954; }
+}
+
+.view-btn {
+  background-color: #3498db; // Plava za "View"
+  &:hover { background-color: #2980b9; }
+  &:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+  }
+}

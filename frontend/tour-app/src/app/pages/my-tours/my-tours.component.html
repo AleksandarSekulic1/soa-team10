@@ -1,0 +1,60 @@
+<div class="container">
+  <h1>My Created Tours</h1>
+
+  <div *ngIf="myTours && myTours.length > 0; else noTours" class="tours-grid">
+    <div *ngFor="let tour of myTours; let i = index" class="tour-card" [ngClass]="'status-' + tour.status">
+      
+      <div class="card-header">
+        <h3>{{ tour.name }}</h3>
+        <span class="status-badge" [ngClass]="tour.status">{{ tour.status }}</span>
+      </div>
+
+      <p class="description">{{ tour.description }}</p>
+
+      <div class="card-content">
+        <div *ngIf="tour.keyPoints && tour.keyPoints.length > 0" class="preview-section">
+          <strong>Key Points:</strong>
+          <ul>
+            <li *ngFor="let kp of tour.keyPoints.slice(0, 3)">📌 {{ kp.name }}</li>
+            <li *ngIf="tour.keyPoints.length > 3">...</li>
+          </ul>
+        </div>
+
+        <div *ngIf="tour.transportInfo && tour.transportInfo.length > 0" class="preview-section">
+          <strong>Transport Info:</strong>
+          <ul>
+            <li *ngFor="let transport of tour.transportInfo">
+              {{ transport.type === 'car' ? '🚗' : (transport.type === 'bicycle' ? '🚲' : '🚶') }}
+              {{ transport.type | titlecase }}: {{ transport.timeInMinutes }} min
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tour-details">
+        <span><strong>Difficulty:</strong> {{ tour.difficulty }} / 5</span>
+        <span><strong>Distance:</strong> {{ tour.distance > 0 ? (tour.distance | number:'1.1-1') + ' km' : 'N/A' }}</span>
+      </div>
+
+      <div class="tour-actions">
+        <button *ngIf="tour.status === 'draft'" (click)="publishTour(tour.id, i)" class="btn btn-main btn-publish">Publish Tour</button>
+        <button *ngIf="tour.status === 'published'" (click)="archiveTour(tour.id, i)" class="btn btn-main btn-archive">Archive Tour</button>
+        <button *ngIf="tour.status === 'archived'" (click)="reactivateTour(tour.id, i)" class="btn btn-main btn-reactivate">Reactivate Tour</button>
+
+        <div class="dropdown">
+          <button class="btn btn-more">More Actions</button>
+          <div class="dropdown-content">
+            <a [routerLink]="['/tours', tour.id]">View Details</a>
+            <a [routerLink]="['/tours', tour.id, 'add-keypoint']">Add Checkpoint</a>
+            <a [routerLink]="['/tours', tour.id, 'transport-info']">Edit Transport Info</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <ng-template #noTours>
+    <p class="no-tours-message">You haven't created any tours yet.</p>
+  </ng-template>
+</div>

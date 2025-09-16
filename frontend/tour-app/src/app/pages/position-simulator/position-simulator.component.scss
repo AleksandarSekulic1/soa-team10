@@ -1,0 +1,139 @@
+#simulator-map {
+  height: calc(100vh - 220px);
+  width: 100%;
+}
+
+.simulator-container {
+  padding: 20px;
+}
+
+.info-header {
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.coords-display {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  border: 1px solid #e9ecef;
+  display: flex;
+  justify-content: space-around;
+  font-family: monospace;
+  font-size: 1.1em;
+  
+  span {
+    color: #333;
+  }
+}
+
+.active-tour-panel {
+  display: flex;
+  justify-content: space-around;
+  padding: 15px;
+  background-color: #34495e;
+  color: white;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  font-size: 1.1em;
+  text-align: center;
+
+  .info-item {
+    strong {
+      display: block;
+      font-size: 0.8em;
+      opacity: 0.8;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+    .status-active {
+      color: #28a745;
+      font-weight: bold;
+    }
+  }
+}
+
+/* === NOVI STILOVI ZA LISTU VREMENA PROLASKA === */
+.key-points-log {
+  padding: 15px;
+  margin-bottom: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+
+  h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 10px;
+    color: #495057;
+    text-align: center;
+  }
+}
+
+.key-point-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 5px;
+  font-size: 1.05em;
+  border-bottom: 1px solid #e9ecef;
+
+  &:last-child {
+    border-bottom: none; // Uklanja liniju ispod poslednjeg elementa
+  }
+
+  .key-point-name {
+    font-weight: 500;
+    color: #343a40;
+  }
+
+  .completion-time {
+    font-family: monospace;
+    font-weight: bold;
+    color: #007bff; // Plava boja da se istakne
+    background-color: #e2e6ea;
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+}
+/* === KRAJ NOVIH STILOVA === */
+
+
+.actions-panel {
+  padding: 20px;
+  text-align: center;
+  background-color: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  
+  .btn {
+    border: none;
+    padding: 12px 25px;
+    font-size: 1.1em;
+    margin: 0 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+  }
+
+  .btn-start {
+    background-color: #007bff;
+    color: white;
+    &:hover { background-color: #0056b3; }
+    &:disabled { background-color: #ccc; cursor: not-allowed; }
+  }
+
+  .btn-complete {
+    background-color: #28a745;
+    color: white;
+    &:hover { background-color: #218838; }
+  }
+
+  .btn-abandon {
+    background-color: #dc3545;
+    color: white;
+    &:hover { background-color: #c82333; }
+  }
+}
