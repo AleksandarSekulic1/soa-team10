@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { BlogService } from '../../services/blog.service';
+import { FollowerService } from '../../services/follower.service';
+import { AuthService } from '../../services/auth.service';
 import { Blog } from '../../models/blog.model';
-import { Observable } from 'rxjs';
+import { Observable, combineLatest, map, of } from 'rxjs';
 import { Router } from '@angular/router';
 // ======== 1. UVEZI CommonModule ========
 import { CommonModule } from '@angular/common';
@@ -16,11 +18,32 @@ import { CommonModule } from '@angular/common';
 })
 export class BlogListComponent implements OnInit {
   blogs$!: Observable<Blog[]>;
+  showFollowedOnly: boolean = true;
 
-  constructor(private blogService: BlogService, private router: Router) {}
+  constructor(
+    private blogService: BlogService, 
+    private followerService: FollowerService,
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-    this.blogs$ = this.blogService.getAllBlogs();
+    this.loadBlogs();
+  }
+
+  loadBlogs(): void {
+    if (this.showFollowedOnly) {
+      // Koristi novi endpoint za blogove od praćenih korisnika
+      this.blogs$ = this.blogService.getBlogsFromFollowing();
+    } else {
+      // Učitaj sve blogove
+      this.blogs$ = this.blogService.getAllBlogs();
+    }
+  }
+
+  toggleFilter(): void {
+    this.showFollowedOnly = !this.showFollowedOnly;
+    this.loadBlogs();
   }
 
   viewBlog(id: string): void {

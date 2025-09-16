@@ -24,6 +24,7 @@ type UserService interface {
 }
 
 type Claims struct {
+	ID       string `json:"id"`
 	Username string `json:"username"`
 	Role     string `json:"role"`
 	jwt.RegisteredClaims
@@ -67,6 +68,7 @@ func (s *userService) Login(username, password string) (string, error) {
 
 	expirationTime := time.Now().Add(24 * time.Hour)
 	claims := &Claims{
+		ID:       user.Username, // Koristimo username kao ID jer nema numerički ID
 		Username: user.Username,
 		Role:     user.Role,
 		RegisteredClaims: jwt.RegisteredClaims{

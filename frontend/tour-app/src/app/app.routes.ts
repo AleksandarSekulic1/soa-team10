@@ -20,6 +20,7 @@ import { KeypointFormComponent } from './pages/keypoint-form/keypoint-form.compo
 import { PositionSimulatorComponent } from './pages/position-simulator/position-simulator.component';
 import { TransportFormComponent } from './pages/transport-form/transport-form.component';
 import { ShoppingCartComponent } from './pages/shopping-cart/shopping-cart.component';
+import { PeopleComponent } from './pages/people/people.component';
 
 export const routes: Routes = [
   // --- Rute bez layout-a (bez navigacionog bara) ---
@@ -66,6 +67,10 @@ export const routes: Routes = [
         path: 'tours',
         component: TourListComponent,
         canActivate: [touristGuard] // Može i vodič da vidi svoje ture
+      },
+      {
+        path: 'people',
+        component: PeopleComponent
       },
       // Ako korisnik dođe na praznu putanju unutar layout-a (npr. nakon logina),
       // preusmeri ga na 'home' stranicu.

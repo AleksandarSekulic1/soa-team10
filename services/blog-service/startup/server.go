@@ -44,6 +44,8 @@ apiRoutes := router.Group("/api/blogs")
         apiRoutes.POST("", api.AuthMiddleware(), blogHandler.CreateBlog)
         // GET ruta je sada takođe zaštićena
         apiRoutes.GET("", api.AuthMiddleware(), blogHandler.GetAllBlogs)
+        // Nova ruta za blogove od praćenih korisnika
+        apiRoutes.GET("/following", api.AuthMiddleware(), blogHandler.GetBlogsFromFollowing)
         apiRoutes.POST("/:id/comments", api.AuthMiddleware(), blogHandler.AddComment)
         apiRoutes.POST("/:id/likes", api.AuthMiddleware(), blogHandler.ToggleLike)
         // GET jednog bloga je sada takođe zaštićena ruta

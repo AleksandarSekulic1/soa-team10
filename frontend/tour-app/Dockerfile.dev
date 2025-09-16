@@ -1,0 +1,24 @@
+# Development Dockerfile for Angular
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci
+
+# Copy source code
+COPY . .
+
+# Copy Leaflet assets for development
+RUN mkdir -p src/assets/images && \
+    cp node_modules/leaflet/dist/images/marker-icon.png src/assets/images/ && \
+    cp node_modules/leaflet/dist/images/marker-shadow.png src/assets/images/ && \
+    cp node_modules/leaflet/dist/images/marker-icon-2x.png src/assets/images/
+
+EXPOSE 4200
+
+# Start development server with proxy
+CMD ["npm", "start", "--", "--host", "0.0.0.0"]

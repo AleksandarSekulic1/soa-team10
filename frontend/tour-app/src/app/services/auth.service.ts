@@ -100,4 +100,11 @@ export class AuthService {
     const role = this.getUserRole();
     return role === 'turista';
   }
+
+  getToken(): string | null {
+    if (this.isBrowser) {
+      return localStorage.getItem('jwt_token');
+    }
+    return null;
+  }
 }
