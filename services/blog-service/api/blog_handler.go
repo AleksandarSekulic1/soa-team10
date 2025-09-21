@@ -370,3 +370,36 @@ func (h *BlogHandler) getFollowedUserIds(userID string) ([]string, error) {
 
 	return response.UserIds, nil
 }
+
+// @Summary Uklanja lajkove korisnika sa blogova određenog autora
+// @Description Uklanja sve lajkove određenog korisnika sa svih blogova određenog autora. Koristi se u saga obrascu.
+// @Accept  json
+// @Produce  json
+// @Param   request body object{userId=string,authorId=string} true "Podaci za uklanjanje lajkova"
+// @Success 200 {object} map[string]interface{} "Uspešno uklonjeni lajkovi"
+// @Failure 400 {object} map[string]string "Greška: Neispravan format zahteva"
+// @Failure 500 {object} map[string]string "Interna greška servera"
+// @Router /blogs/remove-likes [delete]
+func (h *BlogHandler) RemoveLikesFromAuthorBlogs(c *gin.Context) {
+	var request struct {
+		UserID   string `json:"userId" binding:"required"`
+		AuthorID string `json:"authorId" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	// Pozivamo servis metodu za uklanjanje lajkova
+	err := h.service.RemoveLikesFromAuthorBlogs(request.UserID, request.AuthorID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Successfully removed likes from author's blogs",
+	})
+}

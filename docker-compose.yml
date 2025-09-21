@@ -117,8 +117,10 @@ services:
       NEO4J_USERNAME: "neo4j"
       NEO4J_PASSWORD: ""
       PORT: "8086"
+      BLOG_SERVICE_URL: "http://blog-service:8082" # URL za komunikaciju sa blog servisom
     depends_on:
       - neo4j-db
+      - blog-service  # Dodali dependency na blog service
     restart: on-failure
 
   # --- API GATEWAY ---

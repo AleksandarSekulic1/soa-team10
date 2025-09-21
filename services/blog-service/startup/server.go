@@ -52,6 +52,8 @@ apiRoutes := router.Group("/api/blogs")
         apiRoutes.GET("/:id", api.AuthMiddleware(), blogHandler.GetBlogById) 
         apiRoutes.PUT("/:id", api.AuthMiddleware(), blogHandler.UpdateBlog)
         apiRoutes.PUT("/:id/comments/:commentId", api.AuthMiddleware(), blogHandler.UpdateComment)
+        // Nova ruta za saga obrazac - uklanjanje lajkova (bez middleware-a jer je internal)
+        apiRoutes.DELETE("/remove-likes", blogHandler.RemoveLikesFromAuthorBlogs)
     }
 
 	return &Server{router: router}

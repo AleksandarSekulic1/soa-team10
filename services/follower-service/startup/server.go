@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"follower-service/api"
+	"follower-service/client"
 	"follower-service/repository"
 	"follower-service/service"
 
@@ -31,7 +32,15 @@ func StartServer() {
 
 	// Initialize layers
 	followerRepo := repository.NewFollowerRepository(driver)
-	followerService := service.NewFollowerService(followerRepo)
+	
+	// Initialize blog service client
+	blogServiceURL := os.Getenv("BLOG_SERVICE_URL")
+	if blogServiceURL == "" {
+		blogServiceURL = "http://localhost:8083" // Default URL za blog service
+	}
+	blogClient := client.NewBlogClient(blogServiceURL)
+	
+	followerService := service.NewFollowerService(followerRepo, blogClient)
 	followerHandler := api.NewFollowerHandler(followerService)
 
 	// Setup routes

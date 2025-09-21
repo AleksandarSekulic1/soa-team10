@@ -31,6 +31,7 @@ type BlogService interface {
 	GetById(id primitive.ObjectID) (*domain.Blog, error)       // <-- NOVA METODA
 	Update(id primitive.ObjectID, blog *domain.Blog, userID string) (*domain.Blog, error) // <-- NOVA METODA
 	UpdateComment(blogID, commentID primitive.ObjectID, updatedComment *domain.Comment, userID string) error // <-- NOVA METODA
+	RemoveLikesFromAuthorBlogs(userID, authorID string) error // <-- NOVA METODA ZA SAGA
 }
 
 type blogService struct {
@@ -154,4 +155,35 @@ func (s *blogService) UpdateComment(blogID, commentID primitive.ObjectID, update
 	targetComment.LastUpdatedAt = time.Now()
 
 	return s.repo.UpdateComment(blogID, targetComment)
+}
+
+// IMPLEMENTACIJA NOVE METODE ZA SAGA OBRAZAC
+func (s *blogService) RemoveLikesFromAuthorBlogs(userID, authorID string) error {
+	// 1. Dobavljamo sve blogove određenog autora
+	blogs, err := s.repo.GetBlogsByAuthors([]string{authorID})
+	if err != nil {
+		return err
+	}
+
+	// 2. Za svaki blog uklanjamo lajkove određenog korisnika
+	for _, blog := range blogs {
+		// Proveravamo da li korisnik ima lajk na ovom blogu
+		hasLike := false
+		for _, like := range blog.Likes {
+			if like.UserID == userID {
+				hasLike = true
+				break
+			}
+		}
+
+		// Ako ima lajk, uklanjamo ga
+		if hasLike {
+			err := s.repo.RemoveLike(blog.ID, userID)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }

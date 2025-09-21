@@ -4,17 +4,21 @@ import (
 	"context"
 	"errors"
 
+	"follower-service/client"
 	"follower-service/domain"
 	"follower-service/repository"
 )
 
 type FollowerService struct {
-	followerRepo *repository.FollowerRepository
+	followerRepo     *repository.FollowerRepository
+	sagaOrchestrator *SagaOrchestrator
 }
 
-func NewFollowerService(followerRepo *repository.FollowerRepository) *FollowerService {
+func NewFollowerService(followerRepo *repository.FollowerRepository, blogClient *client.BlogClient) *FollowerService {
+	sagaOrchestrator := NewSagaOrchestrator(followerRepo, blogClient)
 	return &FollowerService{
-		followerRepo: followerRepo,
+		followerRepo:     followerRepo,
+		sagaOrchestrator: sagaOrchestrator,
 	}
 }
 
@@ -53,23 +57,30 @@ func (s *FollowerService) FollowUser(ctx context.Context, followerID, followingI
 	return s.followerRepo.FollowUser(ctx, followerID, followingID)
 }
 
-// UnfollowUser allows one user to unfollow another
+// UnfollowUser allows one user to unfollow another using saga pattern
 func (s *FollowerService) UnfollowUser(ctx context.Context, followerID, followingID string) error {
 	if followerID == "" || followingID == "" {
 		return errors.New("both follower and following IDs are required")
 	}
 
+	//Odkomentarisi kad se popravi follow service
+	
 	// Check if actually following
-	isFollowing, err := s.followerRepo.IsFollowing(ctx, followerID, followingID)
-	if err != nil {
-		return err
-	}
+	// isFollowing, err := s.followerRepo.IsFollowing(ctx, followerID, followingID)
+	// if err != nil {
+	// 	return err
+	// }
 
-	if !isFollowing {
-		return errors.New("not following this user")
-	}
+	// if !isFollowing {
+	// 	return errors.New("not following this user")
+	// }
 
-	return s.followerRepo.UnfollowUser(ctx, followerID, followingID)
+	// Execute saga pattern for unfollow operation
+	// This will:
+	// 1. Remove follow relationship from Neo4j
+	// 2. Remove all likes from the unfollowed user's blogs in blog service
+	// If any step fails, compensations will be executed to rollback
+	return s.sagaOrchestrator.ExecuteUnfollowSaga(ctx, followerID, followingID)
 }
 
 // GetFollowers returns all followers of a user

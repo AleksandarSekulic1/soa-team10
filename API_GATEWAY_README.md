@@ -79,12 +79,12 @@ API Gateway loguje sve zahteve u formatu:
 
 ```bash
 # Health check
-curl http://localhost:8080/health
+curl http://localhost:8000/health
 
 # Test routing
-curl http://localhost:8080/api/stakeholders/
-curl http://localhost:8080/api/tours/
-curl http://localhost:8080/api/blog/
+curl http://localhost:8000/api/stakeholders/health
+curl http://localhost:8000/api/tours/
+curl http://localhost:8000/api/blog/
 ```
 
 ## Prednosti API Gateway Pristupa

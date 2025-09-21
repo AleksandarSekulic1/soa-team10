@@ -32,7 +32,7 @@ export interface FollowResponse {
   providedIn: 'root'
 })
 export class FollowerService {
-  private apiUrl = 'http://localhost:8080/api/followers';
+  private apiUrl = 'http://localhost:8000/api/followers';
 
   constructor(
     private http: HttpClient,
