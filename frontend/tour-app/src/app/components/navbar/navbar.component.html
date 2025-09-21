@@ -16,6 +16,9 @@
     <li *ngIf="authService.isAdmin()">
       <a routerLink="/users">All Users</a>
     </li>
+    <li *ngIf="authService.isAdmin()">
+      <a routerLink="/monitoring">Monitoring</a>
+    </li>
    <li *ngIf="authService.isTourist()">
     <a routerLink="/cart">Cart</a>
     </li>

@@ -1,0 +1,169 @@
+<div class="monitoring-dashboard">
+  <div class="header">
+    <h2>🔍 System Monitoring Dashboard</h2>
+    <button class="refresh-btn" (click)="onRefresh()" [disabled]="isLoading$ | async">
+      <span *ngIf="!(isLoading$ | async)">🔄 Refresh</span>
+      <span *ngIf="isLoading$ | async">⏳ Loading...</span>
+    </button>
+  </div>
+
+  <!-- Error Alert -->
+  <div *ngIf="error$ | async as error" class="error-alert">
+    <strong>⚠️ Error:</strong> {{ error }}
+  </div>
+
+  <!-- Loading Indicator -->
+  <div *ngIf="isLoading$ | async" class="loading-indicator">
+    <div class="spinner"></div>
+    <p>Loading monitoring data...</p>
+  </div>
+
+  <!-- Dashboard Content -->
+  <ng-container *ngIf="dashboard$ | async as dashboard">
+    <ng-container *ngIf="isDashboard(dashboard)">
+      <!-- Status indicator -->
+      <div class="status-indicator" [class]="getStatusClass(dashboard.status)">
+        Status: {{ dashboard.status.toUpperCase() || 'UNKNOWN' }}
+      </div>
+
+      <!-- Gateway Metrics -->
+      <div class="metrics-section">
+        <h3>📊 API Gateway Metrics</h3>
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <h4>Uptime</h4>
+            <p>{{ dashboard.gateway.uptime || 'N/A' }}</p>
+          </div>
+          <div class="metric-card">
+            <h4>Total Requests</h4>
+            <p>{{ dashboard.gateway.total_requests || 0 | number }}</p>
+          </div>
+          <div class="metric-card">
+            <h4>Active Requests</h4>
+            <p>{{ dashboard.gateway.active_requests || 0 }}</p>
+          </div>
+          <div class="metric-card">
+            <h4>Avg Response Time</h4>
+            <p>{{ dashboard.gateway.average_response_time_ms || 0 | number:'1.2-2' }}ms</p>
+          </div>
+          <div class="metric-card">
+            <h4>Memory Usage</h4>
+            <p>{{ dashboard.gateway.memory_usage_mb || 'N/A' }}</p>
+          </div>
+          <div class="metric-card">
+            <h4>Goroutines</h4>
+            <p>{{ dashboard.gateway.goroutines || 0 }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- System Metrics -->
+      <div class="metrics-section">
+        <h3>💻 System Metrics</h3>
+        
+        <!-- Container Metrics -->
+        <div class="subsection">
+          <h4>🐳 Docker Container</h4>
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <h5>CPU Usage</h5>
+              <div class="progress-bar">
+                <div class="progress" [style.width.%]="dashboard.system.container.cpu_usage_percent || 0"></div>
+              </div>
+              <p>{{ dashboard.system.container.cpu_usage_percent || 0 | number:'1.1-1' }}%</p>
+            </div>
+            <div class="metric-card">
+              <h5>Memory Usage</h5>
+              <div class="progress-bar">
+                <div class="progress" [style.width.%]="dashboard.system.container.memory_usage_percent || 0"></div>
+              </div>
+              <p>{{ dashboard.system.container.memory_usage_percent || 0 | number:'1.1-1' }}%</p>
+            </div>
+            <div class="metric-card">
+              <h5>Disk Usage</h5>
+              <div class="progress-bar">
+                <div class="progress" [style.width.%]="dashboard.system.container.disk_usage_percent || 0"></div>
+              </div>
+              <p>{{ dashboard.system.container.disk_usage_percent || 0 | number:'1.1-1' }}%</p>
+            </div>
+            <div class="metric-card">
+              <h5>Network RX</h5>
+              <p>{{ dashboard.system.container.network_rx_bytes || 0 | number }} bytes</p>
+            </div>
+            <div class="metric-card">
+              <h5>Network TX</h5>
+              <p>{{ dashboard.system.container.network_tx_bytes || 0 | number }} bytes</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Host PC Metrics -->
+        <div class="subsection">
+          <h4>🖥️ Host PC (Windows)</h4>
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <h5>CPU Usage</h5>
+              <div class="progress-bar">
+                <div class="progress" [style.width.%]="dashboard.system.host.cpu_usage_percent || 0"></div>
+              </div>
+              <p>{{ dashboard.system.host.cpu_usage_percent || 0 | number:'1.1-1' }}%</p>
+            </div>
+            <div class="metric-card">
+              <h5>Memory Usage</h5>
+              <div class="progress-bar">
+                <div class="progress" [style.width.%]="dashboard.system.host.memory_usage_percent || 0"></div>
+              </div>
+              <p>{{ dashboard.system.host.memory_usage_percent || 0 | number:'1.1-1' }}%</p>
+            </div>
+            <div class="metric-card">
+              <h5>Disk Usage (C:)</h5>
+              <div class="progress-bar">
+                <div class="progress" [style.width.%]="dashboard.system.host.disk_usage_percent || 0"></div>
+              </div>
+              <p>{{ dashboard.system.host.disk_usage_percent || 0 | number:'1.1-1' }}%</p>
+            </div>
+            <div class="metric-card">
+              <h5>Network RX</h5>
+              <p>{{ dashboard.system.host.network_rx_bytes || 0 | number }} bytes</p>
+            </div>
+            <div class="metric-card">
+              <h5>Network TX</h5>
+              <p>{{ dashboard.system.host.network_tx_bytes || 0 | number }} bytes</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Links to external tools -->
+      <div class="external-links">
+        <h3>🔗 External Monitoring Tools</h3>
+        <div class="links-grid">
+          <button 
+            class="tool-link prometheus" 
+            (click)="openExternalTool(externalTools.prometheus)">
+            📈 Prometheus (Port 9090)
+          </button>
+          <button 
+            class="tool-link grafana" 
+            (click)="openExternalTool(externalTools.grafana)">
+            📊 Grafana (Port 3000) - admin/admin
+          </button>
+          <button 
+            class="tool-link node-exporter" 
+            (click)="openExternalTool(externalTools.nodeExporter)">
+            🖥️ Node Exporter (Port 9100)
+          </button>
+          <button 
+            class="tool-link cadvisor" 
+            (click)="openExternalTool(externalTools.cadvisor)">
+            🐳 cAdvisor (Port 8087)
+          </button>
+        </div>
+      </div>
+
+      <div class="last-updated">
+        Last updated: {{ dashboard.gateway.timestamp | date:'medium' }}
+      </div>
+    </ng-container>
+  </ng-container>
+</div>

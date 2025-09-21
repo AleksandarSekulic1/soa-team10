@@ -21,6 +21,7 @@ import { PositionSimulatorComponent } from './pages/position-simulator/position-
 import { TransportFormComponent } from './pages/transport-form/transport-form.component';
 import { ShoppingCartComponent } from './pages/shopping-cart/shopping-cart.component';
 import { PeopleComponent } from './pages/people/people.component';
+import { MonitoringComponent } from './pages/monitoring/monitoring.component';
 
 export const routes: Routes = [
   // --- Rute bez layout-a (bez navigacionog bara) ---
@@ -71,6 +72,11 @@ export const routes: Routes = [
       {
         path: 'people',
         component: PeopleComponent
+      },
+      {
+        path: 'monitoring',
+        component: MonitoringComponent,
+        canActivate: [adminGuard] // Samo admini mogu da vide monitoring
       },
       // Ako korisnik dođe na praznu putanju unutar layout-a (npr. nakon logina),
       // preusmeri ga na 'home' stranicu.

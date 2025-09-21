@@ -2,8 +2,11 @@ package main
 
 import (
 	"log"
+	"math/rand"
 	"net/http"
 	"strings"
+	"sync/atomic"
+	"time"
 )
 
 // corsMiddleware handles CORS headers
@@ -35,12 +38,45 @@ func corsMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-// loggingMiddleware logs incoming requests
+// loggingMiddleware logs incoming requests with tracing
 func loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("🔀 [GATEWAY] %s %s from %s", r.Method, r.URL.Path, r.RemoteAddr)
-		log.Printf("📨 [GATEWAY] Headers: User-Agent=%s, Origin=%s", r.Header.Get("User-Agent"), r.Header.Get("Origin"))
+		start := time.Now()
+		
+		// Generate simple trace ID
+		traceID := generateTraceID()
+		
+		// Add trace ID to response header
+		w.Header().Set("X-Trace-ID", traceID)
+		
+		// Increment metrics
+		atomic.AddInt64(&activeRequests, 1)
+		atomic.AddInt64(&requestCounter, 1)
+		
+		log.Printf("🔀 [GATEWAY] [TRACE:%s] %s %s from %s", traceID, r.Method, r.URL.Path, r.RemoteAddr)
+		log.Printf("📨 [GATEWAY] [TRACE:%s] Headers: User-Agent=%s, Origin=%s", traceID, r.Header.Get("User-Agent"), r.Header.Get("Origin"))
+		
 		next.ServeHTTP(w, r)
-		log.Printf("✅ [GATEWAY] Response sent for %s %s", r.Method, r.URL.Path)
+		
+		duration := time.Since(start)
+		atomic.AddInt64(&activeRequests, -1)
+		
+		// Store duration for metrics
+		requestDurations = append(requestDurations, float64(duration.Nanoseconds())/1e6)
+		if len(requestDurations) > 100 { // Keep only last 100 measurements
+			requestDurations = requestDurations[1:]
+		}
+		
+		log.Printf("✅ [GATEWAY] [TRACE:%s] Response sent for %s %s (Duration: %v)", traceID, r.Method, r.URL.Path, duration)
 	})
+}
+
+// Generate simple trace ID
+func generateTraceID() string {
+	const charset = "abcdefghijklmnopqrstuvwxyz0123456789"
+	b := make([]byte, 16)
+	for i := range b {
+		b[i] = charset[rand.Intn(len(charset))]
+	}
+	return string(b)
 }

@@ -128,7 +128,7 @@ services:
       dockerfile: Dockerfile
     container_name: api-gateway
     ports:
-      - "8080:8080" # Gateway port
+      - "8000:8000" # Gateway port
     depends_on:
       - stakeholders-service
       - payments-service
@@ -152,6 +152,42 @@ services:
     depends_on:
       - api-gateway
     restart: on-failure
+
+  # --- MONITORING SERVICES ---
+  # Prometheus za collecting metrika
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.enable-lifecycle'
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    restart: unless-stopped
+
+  # Grafana za vizualizaciju
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    restart: unless-stopped
+
+  # cAdvisor za CONTAINER metrike
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/docker:/var/lib/docker:ro
+    ports:
+      - "8087:8080"
+    restart: unless-stopped
 
 volumes:
   postgres-data:
