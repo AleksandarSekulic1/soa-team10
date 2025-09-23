@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { BlogService } from '../../services/blog.service';
 import { FollowerService } from '../../services/follower.service';
 import { AuthService } from '../../services/auth.service';
 import { Blog } from '../../models/blog.model';
-import { Observable, combineLatest, map, of } from 'rxjs';
+import { Observable, combineLatest, map, of, Subscription } from 'rxjs';
+import { BlogReloadService } from '../../services/blog-reload.service';
 import { Router } from '@angular/router';
 // ======== 1. UVEZI CommonModule ========
 import { CommonModule } from '@angular/common';
@@ -16,19 +17,26 @@ import { CommonModule } from '@angular/common';
   templateUrl: './blog-list.component.html',
   styleUrls: ['./blog-list.component.scss']
 })
-export class BlogListComponent implements OnInit {
+export class BlogListComponent implements OnInit, OnDestroy {
   blogs$!: Observable<Blog[]>;
   showFollowedOnly: boolean = true;
+  private reloadSub?: Subscription;
 
   constructor(
     private blogService: BlogService, 
     private followerService: FollowerService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private blogReloadService: BlogReloadService
   ) {}
 
   ngOnInit(): void {
     this.loadBlogs();
+    this.reloadSub = this.blogReloadService.reload$.subscribe(() => this.loadBlogs());
+  }
+
+  ngOnDestroy(): void {
+    this.reloadSub?.unsubscribe();
   }
 
   loadBlogs(): void {

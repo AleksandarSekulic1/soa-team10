@@ -43,7 +43,7 @@ export class BlogService {
    * Kreira novi blog. (POST /api/blogs)
    * @param blogData Podaci za novi blog (samo title i content su obavezni)
    */
-  createBlog(blogData: { Title: string; Content: string; Images?: string[] }): Observable<Blog> {
+  createBlog(blogData: { title: string; content: string; images?: string[] }): Observable<Blog> {
     return this.http.post<Blog>(this.apiUrl, blogData);
   }
 
@@ -53,7 +53,13 @@ export class BlogService {
    * @param blogData Podaci koji se menjaju
    */
   updateBlog(id: string, blogData: Partial<Blog>): Observable<Blog> {
-    return this.http.put<Blog>(`${this.apiUrl}/${id}`, blogData);
+    // Obezbedi camelCase payload
+    const payload: any = {
+      title: blogData.title,
+      content: blogData.content,
+      images: blogData.images
+    };
+    return this.http.put<Blog>(`${this.apiUrl}/${id}`, payload);
   }
 
   /**

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { BlogReloadService } from '../../services/blog-reload.service';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { FollowerService, User, UserRecommendation } from '../../services/follower.service';
@@ -25,7 +26,8 @@ export class PeopleComponent implements OnInit {
   constructor(
     private followerService: FollowerService,
     private authService: AuthService,
-    private http: HttpClient
+    private http: HttpClient,
+    private blogReloadService: BlogReloadService
   ) {}
 
   ngOnInit() {
@@ -121,11 +123,8 @@ export class PeopleComponent implements OnInit {
       // For discover tab, just refresh recommendations
       this.loadRecommendations();
     }
-    
-    // Optional: refresh all data but with a delay to avoid conflicts
-    // setTimeout(() => {
-    //   this.loadData();
-    // }, 500);
+    // Trigger reload blogova u blog-list komponenti
+    this.blogReloadService.triggerReload();
   }
 
   createUserInFollowerService(user: User) {

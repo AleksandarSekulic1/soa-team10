@@ -45,7 +45,7 @@ export class BlogDetailComponent implements OnInit {
   loadBlog(): void {
     this.blog$ = this.blogService.getBlogById(this.blogId).pipe(
       tap(blog => {
-        this.isAuthor = this.currentUser === blog.AuthorID;
+        this.isAuthor = this.currentUser === blog.authorId;
       })
     );
   }
@@ -72,8 +72,8 @@ export class BlogDetailComponent implements OnInit {
   }
 
   startEditComment(comment: Comment): void {
-    this.editingCommentId = comment.ID!;
-    this.editingCommentText = comment.Text;
+  this.editingCommentId = (comment._id ?? comment.ID ?? '').toString();
+  this.editingCommentText = comment.text ?? comment.Text ?? '';
   }
 
   cancelEdit(): void {
@@ -85,8 +85,7 @@ export class BlogDetailComponent implements OnInit {
     if (!this.editingCommentText.trim()) return;
 
     const commentData = { Text: this.editingCommentText };
-    
-    this.blogService.updateComment(this.blogId, comment.ID!, commentData).subscribe(() => {
+    this.blogService.updateComment(this.blogId, comment._id!, commentData).subscribe(() => {
       this.cancelEdit();
       this.loadBlog();
     });

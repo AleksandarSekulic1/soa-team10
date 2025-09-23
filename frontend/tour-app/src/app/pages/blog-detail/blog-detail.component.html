@@ -2,48 +2,48 @@
 
   <div *ngIf="blog$ | async as blog; else loading">
     <div class="blog-header">
-      <h1>{{ blog.Title }}</h1>
-      <p>by <a [routerLink]="['/profile', blog.AuthorID]">{{ blog.AuthorID }}</a> on {{ blog.CreatedAt | date: 'fullDate' }}</p>
+  <h1>{{ blog.Title || blog.title }}</h1>
+  <p>by <a [routerLink]="['/profile', blog.AuthorID || blog.authorId]">{{ blog.AuthorID || blog.authorId }}</a> on {{ (blog.CreatedAt || blog.createdAt) | date: 'fullDate' }}</p>
       <button *ngIf="isAuthor" (click)="editBlog()">Edit Post</button>
     </div>
 
-    <div *ngIf="blog.Images && blog.Images.length > 0" class="blog-gallery">
-      <div *ngFor="let imagePath of blog.Images" class="gallery-image">
-        <img [src]="imagePath" [alt]="blog.Title + ' image'">
+    <div *ngIf="(blog.Images?.length ?? 0) > 0 || (blog.images?.length ?? 0) > 0" class="blog-gallery">
+      <div *ngFor="let imagePath of (blog.Images ?? blog.images ?? [])" class="gallery-image">
+        <img [src]="imagePath" [alt]="(blog.Title ?? blog.title ?? '') + ' image'">
       </div>
     </div>
     
     <div class="blog-content">
-      <p>{{ blog.Content }}</p>
+      <p>{{ blog.Content || blog.content }}</p>
     </div>
 
     <div class="blog-interactions">
       <button (click)="toggleLike()">Like</button>
-      <span>{{ blog.Likes.length }} Likes</span>
+      <span>{{ (blog.Likes?.length ?? blog.likes?.length) }} Likes</span>
     </div>
 
     <div class="comments-section">
-      <h3>Comments ({{ blog.Comments.length }})</h3>
+      <h3>Comments ({{ (blog.Comments?.length ?? blog.comments?.length) }})</h3>
       
       <div class="comment-form">
           <textarea #commentInput placeholder="Write a comment..."></textarea>
           <button (click)="addComment(commentInput)">Post Comment</button>
       </div>
 
-      <div *ngFor="let comment of blog.Comments" class="comment">
-        <p><strong>{{ comment.AuthorID }}</strong> said:</p>
+      <div *ngFor="let comment of (blog.Comments || blog.comments)" class="comment">
+        <p><strong>{{ comment.AuthorID || comment.authorId }}</strong> said:</p>
 
-        <div *ngIf="editingCommentId !== comment.ID">
-          <p>{{ comment.Text }}</p>
+        <div *ngIf="editingCommentId !== (comment.ID || comment._id)">
+          <p>{{ comment.Text || comment.text }}</p>
           <div class="comment-footer">
-          <small>{{ comment.CreatedAt | date: 'short' }},{{ comment.LastUpdatedAt | date: 'short' }}</small>
-          <button *ngIf="currentUser === comment.AuthorID" class="edit-btn" (click)="startEditComment(comment)">
+          <small>{{ (comment.CreatedAt || comment.createdAt) | date: 'short' }},{{ (comment.LastUpdatedAt || comment.lastUpdatedAt) | date: 'short' }}</small>
+          <button *ngIf="currentUser === (comment.AuthorID || comment.authorId)" class="edit-btn" (click)="startEditComment(comment)">
             Edit
           </button>
           </div>
         </div>
 
-        <div *ngIf="editingCommentId === comment.ID">
+        <div *ngIf="editingCommentId === (comment.ID || comment._id)">
           <textarea class="edit-textarea" [(ngModel)]="editingCommentText"></textarea>
           <div class="edit-actions">
             <button class="save-btn" (click)="saveComment(comment)">Save</button>

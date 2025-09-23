@@ -20,7 +20,7 @@ import { CommonModule } from '@angular/common';
 })
 export class BlogFormComponent implements OnInit {
   // Umesto FormGroup, sada imamo objekat koji direktno vezujemo za formu
-  blogData: Partial<Blog> = { Title: '', Content: '', Images: [] };
+  blogData: Partial<Blog> = { title: '', content: '', images: [] };
   isEditMode = false;
   blogId: string | null = null;
 
@@ -53,19 +53,19 @@ export class BlogFormComponent implements OnInit {
     const files: FileList = event.target.files;
     if (files && files.length > 0) {
       // Počinjemo sa praznim nizom da ne bi dodavali duplikate
-      this.blogData.Images = []; 
+      this.blogData.images = [];
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         // Pravimo putanju kao i za profilnu sliku
         const imagePath = 'assets/images/' + file.name;
-        this.blogData.Images.push(imagePath);
+        this.blogData.images.push(imagePath);
       }
     }
   }
 
   onSubmit(): void {
     // Proveravamo da li su osnovna polja popunjena
-    if (!this.blogData.Title || !this.blogData.Content) {
+    if (!this.blogData.title || !this.blogData.content) {
       return;
     }
 
@@ -74,9 +74,14 @@ export class BlogFormComponent implements OnInit {
         this.router.navigate(['/blogs', this.blogId]);
       });
     } else {
-      this.blogService.createBlog(this.blogData as Blog).subscribe(() => {
-      // Jednostavno se vrati na listu svih blogova
-      this.router.navigate(['/blogs']); 
+      // Pravimo payload sa title, content, images
+      const payload = {
+        title: this.blogData.title || '',
+        content: this.blogData.content || '',
+        images: this.blogData.images || []
+      };
+      this.blogService.createBlog(payload).subscribe(() => {
+        this.router.navigate(['/blogs']); 
       });
     }
   }

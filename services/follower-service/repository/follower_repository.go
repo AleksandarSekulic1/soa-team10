@@ -162,15 +162,27 @@ func (r *FollowerRepository) GetFollowing(ctx context.Context, userID string) ([
 	var following []domain.User
 	for result.Next(ctx) {
 		record := result.Record()
-		
-		id, _ := record.Get("id")
-		username, _ := record.Get("username")
-		email, _ := record.Get("email")
+
+		idVal, _ := record.Get("id")
+		usernameVal, _ := record.Get("username")
+		emailVal, _ := record.Get("email")
+
+		// Skip if any required field is nil
+		if idVal == nil || usernameVal == nil || emailVal == nil {
+			continue
+		}
+
+		idStr, ok1 := idVal.(string)
+		usernameStr, ok2 := usernameVal.(string)
+		emailStr, ok3 := emailVal.(string)
+		if !ok1 || !ok2 || !ok3 {
+			continue
+		}
 
 		user := domain.User{
-			ID:       id.(string),
-			Username: username.(string),
-			Email:    email.(string),
+			ID:       idStr,
+			Username: usernameStr,
+			Email:    emailStr,
 		}
 		following = append(following, user)
 	}
@@ -212,15 +224,22 @@ func (r *FollowerRepository) GetRecommendations(ctx context.Context, userID stri
 	session := r.driver.NewSession(ctx, neo4j.SessionConfig{})
 	defer session.Close(ctx)
 
+	// Prvo friends-of-friends, zatim fallback na random korisnike koje korisnik ne prati
 	query := `
+		// Friends-of-friends preporuke
 		MATCH (user:User {id: $userId})-[:FOLLOWS]->(following:User)-[:FOLLOWS]->(recommendation:User)
 		WHERE recommendation.id <> $userId
-		AND NOT (user)-[:FOLLOWS]->(recommendation)
-		WITH recommendation, count(following) as mutualFollowers
+		  AND NOT (user)-[:FOLLOWS]->(recommendation)
+		WITH user, recommendation, count(following) as mutualFollowers
 		ORDER BY mutualFollowers DESC
 		LIMIT $limit
-		RETURN recommendation.id as id, recommendation.username as username, 
-		       recommendation.email as email, mutualFollowers
+		RETURN recommendation.id as id, recommendation.username as username, recommendation.email as email, mutualFollowers
+		UNION
+		// Fallback: random korisnici koje korisnik ne prati i nisu on sam
+		MATCH (user:User {id: $userId}), (other:User)
+		WHERE other.id <> $userId AND NOT (user)-[:FOLLOWS]->(other)
+		WITH other LIMIT $limit
+		RETURN other.id as id, other.username as username, other.email as email, 0 as mutualFollowers
 	`
 
 	result, err := session.Run(ctx, query, map[string]interface{}{
@@ -233,30 +252,43 @@ func (r *FollowerRepository) GetRecommendations(ctx context.Context, userID stri
 		return nil, err
 	}
 
-	var recommendations []domain.UserRecommendation
-	for result.Next(ctx) {
-		record := result.Record()
-		
-		id, _ := record.Get("id")
-		username, _ := record.Get("username")
-		email, _ := record.Get("email")
-		mutualFollowers, _ := record.Get("mutualFollowers")
+       var recommendations []domain.UserRecommendation
+       for result.Next(ctx) {
+	       record := result.Record()
 
-		user := domain.User{
-			ID:       id.(string),
-			Username: username.(string),
-			Email:    email.(string),
-		}
+	       idVal, _ := record.Get("id")
+	       usernameVal, _ := record.Get("username")
+	       emailVal, _ := record.Get("email")
+	       mutualFollowersVal, _ := record.Get("mutualFollowers")
 
-		recommendation := domain.UserRecommendation{
-			User:            user,
-			MutualFollowers: int(mutualFollowers.(int64)),
-			Reason:          fmt.Sprintf("Followed by %d people you follow", mutualFollowers),
-		}
-		recommendations = append(recommendations, recommendation)
-	}
+	       // Skip if any required field is nil
+	       if idVal == nil || usernameVal == nil || emailVal == nil || mutualFollowersVal == nil {
+		       continue
+	       }
 
-	return recommendations, nil
+	       idStr, ok1 := idVal.(string)
+	       usernameStr, ok2 := usernameVal.(string)
+	       emailStr, ok3 := emailVal.(string)
+	       mutualFollowersInt, ok4 := mutualFollowersVal.(int64)
+	       if !ok1 || !ok2 || !ok3 || !ok4 {
+		       continue
+	       }
+
+	       user := domain.User{
+		       ID:       idStr,
+		       Username: usernameStr,
+		       Email:    emailStr,
+	       }
+
+	       recommendation := domain.UserRecommendation{
+		       User:            user,
+		       MutualFollowers: int(mutualFollowersInt),
+		       Reason:          fmt.Sprintf("Followed by %d people you follow", mutualFollowersInt),
+	       }
+	       recommendations = append(recommendations, recommendation)
+       }
+
+       return recommendations, nil
 }
 
 // GetFollowedUserIds returns IDs of users that the given user follows (for blog filtering)

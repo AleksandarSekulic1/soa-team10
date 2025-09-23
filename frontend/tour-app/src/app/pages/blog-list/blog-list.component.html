@@ -19,6 +19,7 @@
   </div>
   
   <div *ngIf="blogs$ | async as blogs; else loading">
+    <pre style="background:#eee; color:#222; padding:8px; font-size:12px; max-width:100vw; overflow:auto;">{{ blogs | json }}</pre>
     <div *ngIf="blogs.length === 0 && showFollowedOnly" class="empty-state">
       <h3>No posts from people you follow</h3>
       <p>Start following people to see their posts here!</p>
@@ -31,14 +32,14 @@
     </div>
     
     <div *ngFor="let blog of blogs" class="blog-card">
-      <h2>{{ blog.Title }}</h2>
-      <p>by {{ blog.AuthorID }} on {{ blog.CreatedAt | date: 'medium' }}</p>
-      <p class="content-preview">{{ blog.Content | slice:0:200 }}...</p>
+      <h2>{{ blog.Title || blog.title }}</h2>
+      <p>by {{ blog.AuthorID || blog.authorId }} on {{ (blog.CreatedAt || blog.createdAt) | date: 'medium' }}</p>
+      <p class="content-preview">{{ (blog.Content || blog.content) | slice:0:200 }}...</p>
       <div class="blog-stats">
-        <span class="likes">❤️ {{ blog.Likes.length || 0 }}</span>
-        <span class="comments">💬 {{ blog.Comments.length || 0 }}</span>
+        <span class="likes">❤️ {{ (blog.Likes?.length ?? blog.likes?.length) || 0 }}</span>
+        <span class="comments">💬 {{ (blog.Comments?.length ?? blog.comments?.length) || 0 }}</span>
       </div>
-      <button (click)="viewBlog(blog.ID)" class="view-btn">View Details</button>
+  <button (click)="viewBlog((blog.ID ?? blog._id ?? '').toString())" class="view-btn">View Details</button>
     </div>
   </div>
 

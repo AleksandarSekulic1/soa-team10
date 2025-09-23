@@ -3,6 +3,7 @@
 package api
 
 import (
+	"log"
 	"encoding/json"
 	"errors" // <-- DODAT IMPORT
 	"io"
@@ -304,20 +305,28 @@ func (h *BlogHandler) GetBlogsFromFollowing(c *gin.Context) {
 		return
 	}
 
-	// Pozovi follower service da dobijemo listu korisnika koje pratimo
+	log.Println("[DEBUG] --- POZIV /api/blogs/following ---")
 	followedUserIds, err := h.getFollowedUserIds(userID.(string))
 	if err != nil {
+		log.Println("[DEBUG] GRESKA follower-service:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get followed users"})
 		return
 	}
-
-	// Dobij sve blogove od praćenih korisnika
+	log.Println("[DEBUG] authorIds iz follower-service:", followedUserIds)
 	blogs, err := h.service.GetBlogsByAuthors(followedUserIds)
 	if err != nil {
+		log.Println("[DEBUG] GRESKA GetBlogsByAuthors:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve blogs from following"})
 		return
 	}
-
+	if len(blogs) == 0 {
+		log.Println("[DEBUG] Nema blogova za prosledjene authorId-ove!")
+	} else {
+		for _, b := range blogs {
+			log.Println("[DEBUG] Blog:", b.Title, "authorId:", b.AuthorID)
+		}
+	}
+	log.Println("[DEBUG] --- KRAJ /api/blogs/following ---")
 	c.JSON(http.StatusOK, blogs)
 }
 
